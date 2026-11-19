@@ -1,6 +1,6 @@
 # blender-skills (`blender-agent-kit`)
 
-Headless-first Blender 5.2+ skills and executable asset-pipeline primitives for AI agents and game production.
+Headless-first Blender 5.2+ skills and production asset-pipeline primitives for AI agents, automation, and game development.
 
 The architecture is deliberately layered:
 
@@ -14,11 +14,11 @@ optional reusable project profile / external profile JSON
 downstream asset-specific builders and game contracts
 ```
 
-The core is not a vehicle generator, a Unity game framework, or a TTE-specific package. It supplies reusable execution, inspection, QA, texture packing, export, compound-bundle export, round-trip evidence, and review rendering.
+The core is not an asset generator or game framework. It supplies reusable execution, inspection, QA, texture packing, export, compound-bundle export, round-trip evidence, and review rendering.
 
-## v0.2 candidate capabilities
+## v0.2 capabilities
 
-Compared with v0.1, PR #1 adds:
+Compared with v0.1, v0.2 adds:
 
 - strict Blender 5.2+ discovery and doctor behavior;
 - strict Draft 2020-12 JSON Schema checks in CI;
@@ -286,6 +286,9 @@ A profile can define `review_presets` with:
 - azimuth/elevation/lens;
 - LOD list;
 - damage prefix and damage LODs;
+- generic hierarchy `exclude_patterns` for ordinary review shots;
+- optional `reference_exclude_patterns` for comparison imports;
+- generic `variant_views` selected by hierarchy include/exclude patterns;
 - collision view;
 - optional reference FBX.
 
