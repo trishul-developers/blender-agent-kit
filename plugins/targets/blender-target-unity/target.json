@@ -1,19 +1,33 @@
 {
   "name": "unity",
   "skill_name": "blender-target-unity",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "default_profile": "urp",
-  "units": { "system": "METRIC", "scale": 1.0 },
+  "units": {
+    "system": "METRIC",
+    "scale": 1
+  },
   "export": {
     "format": "fbx",
     "alt_static_format": "glb",
     "use_selection": true,
-    "object_types": ["MESH", "EMPTY", "ARMATURE"],
+    "object_types": [
+      "MESH",
+      "EMPTY",
+      "ARMATURE"
+    ],
     "forward_axis": "-Z",
     "up_axis": "Y",
     "apply_scalings": "FBX_SCALE_ALL",
     "apply_unit_scale": true,
-    "apply_transform_static": true,
+    "use_space_transform": false,
+    "prebake_yup_hierarchy": true,
+    "prebake_directional_patterns": [
+      "Socket_*"
+    ],
+    "strip_lod_suffix_on_export": false,
+    "strip_lod_suffix_pattern": "_LOD[0-9]+$",
+    "apply_transform_static": false,
     "apply_transform_rigged": false,
     "apply_modifiers": true,
     "use_triangles": true,
@@ -24,7 +38,7 @@
     "bake_anim": true,
     "bake_anim_use_nla_strips": true,
     "bake_anim_use_all_actions": false,
-    "bake_anim_simplify_factor": 0.0,
+    "bake_anim_simplify_factor": 0,
     "embed_textures": false
   },
   "naming": {
@@ -36,11 +50,11 @@
   "textures": {
     "normal_convention": "opengl",
     "fallback_constants": {
-      "ao": 1.0,
-      "alpha": 1.0,
-      "metallic": 0.0,
+      "ao": 1,
+      "alpha": 1,
+      "metallic": 0,
       "roughness": 0.5,
-      "detail_mask": 0.0
+      "detail_mask": 0
     },
     "profiles": {
       "urp": {
@@ -48,14 +62,24 @@
         "maps": {
           "albedo": {
             "unity_slot": "_BaseMap",
-            "channels": ["base_color.r", "base_color.g", "base_color.b", "alpha"],
+            "channels": [
+              "base_color.r",
+              "base_color.g",
+              "base_color.b",
+              "alpha"
+            ],
             "srgb": true,
             "bit_depth": 8,
             "unity_type": "Default"
           },
           "metallic_smoothness": {
             "unity_slot": "_MetallicGlossMap",
-            "channels": ["metallic", "metallic", "metallic", "1-roughness"],
+            "channels": [
+              "metallic",
+              "metallic",
+              "metallic",
+              "1-roughness"
+            ],
             "srgb": false,
             "bit_depth": 8,
             "unity_type": "Default",
@@ -63,14 +87,20 @@
           },
           "normal": {
             "unity_slot": "_BumpMap",
-            "channels": ["normal.r", "normal.g", "normal.b"],
+            "channels": [
+              "normal.r",
+              "normal.g",
+              "normal.b"
+            ],
             "srgb": false,
             "bit_depth": 16,
             "unity_type": "NormalMap"
           },
           "ao": {
             "unity_slot": "_OcclusionMap",
-            "channels": ["ao"],
+            "channels": [
+              "ao"
+            ],
             "srgb": false,
             "bit_depth": 8,
             "unity_type": "Default"
@@ -82,14 +112,24 @@
         "maps": {
           "base_map": {
             "unity_slot": "_BaseColorMap",
-            "channels": ["base_color.r", "base_color.g", "base_color.b", "alpha"],
+            "channels": [
+              "base_color.r",
+              "base_color.g",
+              "base_color.b",
+              "alpha"
+            ],
             "srgb": true,
             "bit_depth": 8,
             "unity_type": "Default"
           },
           "mask_map": {
             "unity_slot": "_MaskMap",
-            "channels": ["metallic", "ao", "detail_mask", "1-roughness"],
+            "channels": [
+              "metallic",
+              "ao",
+              "detail_mask",
+              "1-roughness"
+            ],
             "srgb": false,
             "bit_depth": 8,
             "unity_type": "Default",
@@ -97,7 +137,11 @@
           },
           "normal": {
             "unity_slot": "_NormalMap",
-            "channels": ["normal.r", "normal.g", "normal.b"],
+            "channels": [
+              "normal.r",
+              "normal.g",
+              "normal.b"
+            ],
             "srgb": false,
             "bit_depth": 16,
             "unity_type": "NormalMap"
@@ -115,21 +159,30 @@
       "require_uv0": true,
       "require_monotonic_lod_tris": true,
       "roundtrip_armature_scale_tolerance": 0.001,
-      "texel_density_px_per_m": [256, 1024]
+      "texel_density_px_per_m": [
+        256,
+        1024
+      ]
     },
     "asset_classes": {
       "solid_prop": {
         "reject_boundary_edges": true,
         "require_non_overlapping_uv1": true,
         "pivot_rule": "bottom_center_z0",
-        "max_tris": { "lod0": 15000, "lod1": 7500, "lod2": 3000 },
+        "max_tris": {
+          "lod0": 15000,
+          "lod1": 7500,
+          "lod2": 3000
+        },
         "max_material_slots": 2
       },
       "open_sheet": {
         "reject_boundary_edges": false,
         "require_non_overlapping_uv1": false,
         "pivot_rule": "none",
-        "max_tris": { "lod0": 10000 },
+        "max_tris": {
+          "lod0": 10000
+        },
         "max_material_slots": 2
       },
       "skinned_character": {
@@ -137,7 +190,11 @@
         "require_non_overlapping_uv1": false,
         "max_bone_weights_per_vertex": 4,
         "pivot_rule": "bottom_center_z0",
-        "max_tris": { "lod0": 60000, "lod1": 30000, "lod2": 12000 },
+        "max_tris": {
+          "lod0": 60000,
+          "lod1": 30000,
+          "lod2": 12000
+        },
         "max_material_slots": 4
       }
     }

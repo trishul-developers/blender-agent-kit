@@ -1,6 +1,6 @@
-// Drop into Assets/Editor/BlenderAssetPostprocessor.cs in your Unity project.
-// 2-stage postprocessor reading sibling *.asset.manifest.json (schema_version 1.0)
-// to avoid texture/model import-order races and URP Lit smoothness-multiplier bugs.
+// Drop into Assets/Editor/BlenderAssetPostprocessor.cs in a scratch or target Unity project.
+// 2-stage postprocessor reading sibling *.asset.manifest.json (schema_version 1.0).
+// Manifest selection is deterministic: a manifest must explicitly reference the importing model/texture.
 
 #if UNITY_EDITOR
 using System;
@@ -29,31 +29,15 @@ namespace BlenderAgentKit.Editor
         public TextureEntry[] textures;
     }
 
-    [Serializable]
-    public class LodEntry
-    {
-        public string name;
-        public int tri_count;
-        public float screen_relative_transition_height;
-    }
-
-    [Serializable]
-    public class ColliderEntry
-    {
-        public string node_name;
-        public string shape;
-        public bool strip_renderer;
-    }
-
+    [Serializable] public class LodEntry { public string name; public int tri_count; public float screen_relative_transition_height; }
+    [Serializable] public class ColliderEntry { public string node_name; public string shape; public bool strip_renderer; }
     [Serializable]
     public class MaterialEntry
     {
         public string material_name;
         public string shader;
-        // Unity JsonUtility does not deserialize arbitrary Dictionary<string,string>;
-        // extend with explicit slot fields or Newtonsoft.Json if installed.
+        // JsonUtility intentionally does not deserialize arbitrary Dictionary<string,string>.
     }
-
     [Serializable]
     public class TextureEntry
     {
@@ -67,9 +51,41 @@ namespace BlenderAgentKit.Editor
 
     public class BlenderAssetPostprocessor : AssetPostprocessor
     {
-        private const uint PostprocessorVersion = 1;
-
+        private const uint PostprocessorVersion = 2;
         public override uint GetVersion() => PostprocessorVersion;
+
+        private static string NormalizePath(string value) =>
+            (value ?? "").Replace("\\", "/").TrimEnd('/');
+
+        private static bool ManifestReferencesAsset(
+            string assetPath,
+            string manifestFile,
+            AssetManifestV1 manifest,
+            string manifestDir)
+        {
+            string normalizedAsset = NormalizePath(assetPath);
+            if (string.Equals(normalizedAsset, NormalizePath(manifestFile), StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (!string.IsNullOrEmpty(manifest.export_file))
+            {
+                string model = NormalizePath(Path.Combine(manifestDir, manifest.export_file));
+                if (string.Equals(normalizedAsset, model, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+
+            if (manifest.textures != null)
+            {
+                foreach (var tex in manifest.textures)
+                {
+                    if (tex == null || string.IsNullOrEmpty(tex.path)) continue;
+                    string texture = NormalizePath(Path.Combine(manifestDir, tex.path));
+                    if (string.Equals(normalizedAsset, texture, StringComparison.OrdinalIgnoreCase))
+                        return true;
+                }
+            }
+            return false;
+        }
 
         private static bool TryLoadManifestForAsset(string assetPath, out AssetManifestV1 manifest, out string manifestDir)
         {
@@ -78,18 +94,20 @@ namespace BlenderAgentKit.Editor
             if (string.IsNullOrEmpty(manifestDir) || !Directory.Exists(manifestDir))
                 return false;
 
-            // Check sibling directory and parent directory (for textures/ subfolder)
             string[] searchDirs = { manifestDir, Path.GetDirectoryName(manifestDir) ?? "" };
             foreach (var dir in searchDirs)
             {
                 if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir)) continue;
-                foreach (var file in Directory.GetFiles(dir, "*.asset.manifest.json"))
+                var files = Directory.GetFiles(dir, "*.asset.manifest.json");
+                Array.Sort(files, StringComparer.OrdinalIgnoreCase);
+                foreach (var file in files)
                 {
                     try
                     {
-                        var json = File.ReadAllText(file);
-                        var parsed = JsonUtility.FromJson<AssetManifestV1>(json);
-                        if (parsed != null && parsed.schema_version == "1.0")
+                        var parsed = JsonUtility.FromJson<AssetManifestV1>(File.ReadAllText(file));
+                        if (parsed != null &&
+                            parsed.schema_version == "1.0" &&
+                            ManifestReferencesAsset(assetPath, file, parsed, dir))
                         {
                             manifest = parsed;
                             manifestDir = dir;
@@ -105,36 +123,29 @@ namespace BlenderAgentKit.Editor
             return false;
         }
 
-        // Stage 1a: Configure TextureImporter before textures are imported (file-system read only)
         private void OnPreprocessTexture()
         {
             if (!TryLoadManifestForAsset(assetPath, out var manifest, out var manifestDir))
                 return;
             if (manifest.textures == null) return;
 
-            string normAsset = assetPath.Replace("\\", "/");
+            string normAsset = NormalizePath(assetPath);
             foreach (var tex in manifest.textures)
             {
-                string expected = Path.Combine(manifestDir, tex.path).Replace("\\", "/");
+                string expected = NormalizePath(Path.Combine(manifestDir, tex.path));
                 if (!string.Equals(normAsset, expected, StringComparison.OrdinalIgnoreCase))
                     continue;
-
                 var importer = (TextureImporter)assetImporter;
                 importer.sRGBTexture = tex.srgb;
-                importer.textureType = tex.normal_map
-                    ? TextureImporterType.NormalMap
-                    : TextureImporterType.Default;
+                importer.textureType = tex.normal_map ? TextureImporterType.NormalMap : TextureImporterType.Default;
                 importer.maxTextureSize = Mathf.Max(32, tex.max_size);
                 break;
             }
         }
 
-        // Stage 1b: Configure ModelImporter before model import
         private void OnPreprocessModel()
         {
             if (!TryLoadManifestForAsset(assetPath, out var manifest, out _))
-                return;
-            if (!assetPath.EndsWith(manifest.export_file, StringComparison.OrdinalIgnoreCase))
                 return;
 
             var importer = (ModelImporter)assetImporter;
@@ -159,12 +170,10 @@ namespace BlenderAgentKit.Editor
             }
 
 #if UNITY_6000_2_OR_NEWER
-            // Prevent Unity 6.2+ auto Mesh LOD from conflicting with FBX _LOD0/_LOD1 LODGroups
             importer.generateMeshLods = !manifest.disable_unity_auto_mesh_lod;
 #endif
         }
 
-        // Stage 2: Runs after all textures and models in the batch finish importing
         private static void OnPostprocessAllAssets(
             string[] importedAssets,
             string[] deletedAssets,
@@ -181,10 +190,9 @@ namespace BlenderAgentKit.Editor
 
                 if (!TryLoadManifestForAsset(path, out var manifest, out var manifestDir))
                     continue;
-                string key = Path.Combine(manifestDir, manifest.asset_id);
+                string key = Path.Combine(manifestDir, manifest.asset_id ?? "");
                 if (!processedManifests.Add(key))
                     continue;
-
                 ConfigureMaterialsForManifest(manifest, manifestDir);
             }
         }
@@ -209,7 +217,7 @@ namespace BlenderAgentKit.Editor
             Shader shader = Shader.Find(isHdrp ? "HDRP/Lit" : "Universal Render Pipeline/Lit");
             if (shader == null) return;
 
-            string matDir = Path.Combine(manifestDir, "Materials").Replace("\\", "/");
+            string matDir = NormalizePath(Path.Combine(manifestDir, "Materials"));
             if (!Directory.Exists(matDir)) Directory.CreateDirectory(matDir);
 
             foreach (var kvp in byMaterial)
@@ -222,25 +230,21 @@ namespace BlenderAgentKit.Editor
                     AssetDatabase.CreateAsset(mat, matPath);
                 }
 
-                // URP Lit smoothness-multiplier fix: explicitly set _Metallic=1 and _Smoothness=1
-                // so Unity does not halve packed alpha smoothness (default 0.5).
                 if (!isHdrp)
                 {
                     mat.SetFloat("_Metallic", 1.0f);
                     mat.SetFloat("_Smoothness", 1.0f);
-                    mat.SetFloat("_SmoothnessTextureChannel", 0.0f); // Metallic Alpha
+                    mat.SetFloat("_SmoothnessTextureChannel", 0.0f);
                 }
 
                 foreach (var texEntry in kvp.Value)
                 {
-                    string texPath = Path.Combine(manifestDir, texEntry.path).Replace("\\", "/");
+                    string texPath = NormalizePath(Path.Combine(manifestDir, texEntry.path));
                     var tex2d = AssetDatabase.LoadAssetAtPath<Texture2D>(texPath);
                     if (tex2d == null) continue;
 
                     if (texEntry.path.Contains("__albedo") || texEntry.path.Contains("__base_map"))
-                    {
                         mat.SetTexture(isHdrp ? "_BaseColorMap" : "_BaseMap", tex2d);
-                    }
                     else if (texEntry.path.Contains("__metallic_smoothness"))
                     {
                         mat.SetTexture("_MetallicGlossMap", tex2d);

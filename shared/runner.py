@@ -13,15 +13,16 @@ from shared.paths import resolve_kit_root
 
 SUBCOMMAND_TO_MODULE = {
     "doctor": "tools.doctor_blender",
+    "inspect": "shared.scene_inspector",
     "qa": "shared.qa_checks",
     "pack": "shared.channel_pack",
     "export": "shared.exporter",
+    "bundle": "shared.bundle_exporter",
     "review": "shared.review_shots",
 }
 
 
 def find_blender(explicit: str | None = None) -> str:
-    """Locate a Blender executable from explicit arg, BLENDER_EXECUTABLE, PATH, or standard install dirs."""
     candidates: list[Path] = []
     if explicit:
         p = Path(explicit)
@@ -60,7 +61,6 @@ def find_blender(explicit: str | None = None) -> str:
     for c in candidates:
         if c.is_file():
             return str(c)
-
     raise FileNotFoundError(
         "Blender executable not found. Set BLENDER_EXECUTABLE or add blender to PATH."
     )
@@ -75,15 +75,10 @@ def build_blender_command(
     blend_file: str | None = None,
     addons: list[str] | None = None,
 ) -> list[str]:
-    """Build a strictly ordered headless Blender CLI invocation.
-
-    Order guarantee: -b -> [blend_file] -> --factory-startup -> [--addons ...] ->
-    --python-exit-code 1 -> -P bootstrap.py -> -- -> bootstrap & module args.
-    """
-    cmd: list[str] = [blender_exe, "-b"]
+    """Build a strictly ordered headless Blender CLI invocation."""
+    cmd: list[str] = [blender_exe, "--factory-startup", "-b"]
     if blend_file:
         cmd.append(str(Path(blend_file).resolve()))
-    cmd.append("--factory-startup")
     if addons:
         cmd.extend(["--addons", ",".join(addons)])
     cmd.extend([
@@ -108,13 +103,11 @@ def run_blender_module(
     log_dir: Path | None = None,
     timeout_sec: int = 600,
 ) -> dict:
-    """Execute a kit module inside headless Blender and return the structured JSON result."""
     root = kit_root or resolve_kit_root()
     exe = find_blender(blender_exe)
 
     with tempfile.TemporaryDirectory(prefix="bak_run_") as tmpdir:
-        tmp_path = Path(tmpdir)
-        result_file = tmp_path / "result.json"
+        result_file = Path(tmpdir) / "result.json"
         cmd = build_blender_command(
             blender_exe=exe,
             kit_root=root,
@@ -158,5 +151,4 @@ def run_blender_module(
                 encoding="utf-8",
             )
             payload["log_file"] = str(log_file)
-
         return payload

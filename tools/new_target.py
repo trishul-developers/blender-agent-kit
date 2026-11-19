@@ -14,6 +14,8 @@ NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 def scaffold_target(name: str, fmt: str = "glb", normal_conv: str = "opengl", kit_root: Path = KIT_ROOT) -> Path:
     if not NAME_RE.match(name):
         raise ValueError(f"Invalid target name '{name}'. Use lowercase alphanumeric + hyphens.")
+    if fmt not in ("fbx", "glb", "gltf"):
+        raise ValueError(f"Unsupported scaffold export format '{fmt}'. Supported: fbx, glb, gltf")
     skill_name = f"blender-target-{name}"
     dest = kit_root / "plugins" / "targets" / skill_name
     if dest.exists():
@@ -102,7 +104,7 @@ python <blender-core>/scripts/run.py export --blend in.blend --target {name} --o
 
 ## Target Rules
 - Configuration lives in `target.json` (`format: {fmt}`, `normal_convention: {normal_conv}`).
-- Do not edit shared core scripts for {name}-specific tweaks; update `target.json` or add an optional `hooks.py`.
+- Do not edit shared core scripts for {name}-specific tweaks; update `target.json` or add a project profile.
 """
     (dest / "SKILL.md").write_text(skill_md, encoding="utf-8")
     return dest
@@ -111,7 +113,7 @@ python <blender-core>/scripts/run.py export --blend in.blend --target {name} --o
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description="Scaffold a new 2-file target plugin.")
     p.add_argument("name", help="Short engine name (e.g. godot, unreal)")
-    p.add_argument("--format", choices=["fbx", "glb", "gltf", "usd"], default="glb")
+    p.add_argument("--format", choices=["fbx", "glb", "gltf"], default="glb")
     p.add_argument("--normal", choices=["opengl", "directx"], default="opengl")
     ns = p.parse_args(argv)
     dest = scaffold_target(ns.name, fmt=ns.format, normal_conv=ns.normal)

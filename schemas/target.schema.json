@@ -1,24 +1,14 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/tosumitdhaka/blender-skills/schemas/target.schema.json",
+  "$id": "https://github.com/trishul-developers/blender-skills/schemas/target.schema.json",
   "title": "Blender Agent Kit Target Plugin Schema",
   "type": "object",
   "required": ["name", "skill_name", "version", "default_profile", "units", "export", "naming", "textures", "qa"],
   "additionalProperties": false,
   "properties": {
-    "name": {
-      "type": "string",
-      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
-    },
-    "skill_name": {
-      "type": "string",
-      "pattern": "^blender-target-[a-z0-9]+(-[a-z0-9]+)*$",
-      "maxLength": 64
-    },
-    "version": {
-      "type": "string",
-      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
-    },
+    "name": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "skill_name": { "type": "string", "pattern": "^blender-target-[a-z0-9]+(-[a-z0-9]+)*$", "maxLength": 64 },
+    "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
     "default_profile": { "type": "string", "minLength": 1 },
     "units": {
       "type": "object",
@@ -32,8 +22,8 @@
       "type": "object",
       "required": ["format", "use_selection", "object_types"],
       "properties": {
-        "format": { "type": "string", "enum": ["fbx", "glb", "gltf", "usd"] },
-        "alt_static_format": { "type": "string", "enum": ["fbx", "glb", "gltf", "usd"] },
+        "format": { "type": "string", "enum": ["fbx", "glb", "gltf"] },
+        "alt_static_format": { "type": "string", "enum": ["fbx", "glb", "gltf"] },
         "use_selection": { "type": "boolean" },
         "object_types": {
           "type": "array",
@@ -42,11 +32,16 @@
         },
         "forward_axis": { "type": "string", "enum": ["X", "Y", "Z", "-X", "-Y", "-Z"] },
         "up_axis": { "type": "string", "enum": ["X", "Y", "Z", "-X", "-Y", "-Z"] },
-        "apply_scalings": {
-          "type": "string",
-          "enum": ["FBX_SCALE_NONE", "FBX_SCALE_UNITS", "FBX_SCALE_CUSTOM", "FBX_SCALE_ALL"]
-        },
+        "apply_scalings": { "type": "string", "enum": ["FBX_SCALE_NONE", "FBX_SCALE_UNITS", "FBX_SCALE_CUSTOM", "FBX_SCALE_ALL"] },
         "apply_unit_scale": { "type": "boolean" },
+        "use_space_transform": { "type": "boolean" },
+        "prebake_yup_hierarchy": { "type": "boolean" },
+        "prebake_directional_patterns": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "strip_lod_suffix_on_export": { "type": "boolean" },
+        "strip_lod_suffix_pattern": { "type": "string", "minLength": 1 },
         "apply_transform_static": { "type": "boolean" },
         "apply_transform_rigged": { "type": "boolean" },
         "apply_modifiers": { "type": "boolean" },
@@ -98,12 +93,7 @@
                   "properties": {
                     "unity_slot": { "type": "string" },
                     "slot": { "type": "string" },
-                    "channels": {
-                      "type": "array",
-                      "items": { "type": "string" },
-                      "minItems": 1,
-                      "maxItems": 4
-                    },
+                    "channels": { "type": "array", "items": { "type": "string" }, "minItems": 1, "maxItems": 4 },
                     "srgb": { "type": "boolean" },
                     "bit_depth": { "type": "integer", "enum": [8, 16] },
                     "unity_type": { "type": "string", "enum": ["Default", "NormalMap"] },

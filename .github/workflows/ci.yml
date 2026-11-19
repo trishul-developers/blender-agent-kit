@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, "feat/**"]
   pull_request:
 
 jobs:
@@ -12,13 +12,15 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
+    env:
+      BLENDER_AGENT_KIT_STRICT_SCHEMA: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Install numpy for PNG unit tests
-        run: python -m pip install numpy
+      - name: Install host test dependencies
+        run: python -m pip install numpy jsonschema
       - name: Run Tier 1 Validator & Host Tests
         run: python tools/run_tests.py --suite host
 

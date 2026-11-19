@@ -1,20 +1,65 @@
 ---
 name: blender-target-unity
-description: Use this skill when preparing, packing URP/HDRP PBR maps for, validating, or exporting Blender 5.2+ assets into Unity (FBX or static GLB), or setting up Unity's 2-stage BlenderAssetPostprocessor.cs.
+description: Use this skill when preparing, packing standard URP/HDRP PBR maps for, validating, or exporting Blender 5.2+ assets into Unity through FBX/GLB, including hierarchy-safe static Y-up export and optional manifest-driven import settings.
 ---
 
-# Blender Target: Unity (`urp` default, `hdrp` supported)
+# Blender Target: Unity
 
-Execute through `blender-core`'s single entrypoint:
+The Unity target owns engine-level behavior only. Project budgets, exact pivots/sockets, vehicle dimensions, custom packed masks, prefab logic, and simulation semantics belong in project profiles or downstream repositories.
 
-```bash
-python <blender-core>/scripts/run.py qa --blend in.blend --target unity --asset-class solid_prop
-python <blender-core>/scripts/run.py export --blend in.blend --target unity --profile urp --out build/
+## Static FBX contract
+
+The target uses:
+
+- `Forward -Z`, `Up Y`;
+- `FBX_SCALE_ALL`;
+- `use_space_transform = false`;
+- `bake_space_transform = false` for the static prebake path;
+- triangulation and tangent export;
+- no embedded textures.
+
+For static MESH/EMPTY hierarchies, `prebake_yup_hierarchy` converts the hierarchy into Unity's Y-up/+Z-forward basis before export. Ordinary nodes use a basis change; directional empties matching `Socket_*` preserve their authored +Z/+Y directions. Local transforms are rebuilt from converted world matrices so nested pivot chains remain stable.
+
+This temporary conversion is restored after export.
+
+Rigged/armature exports do **not** use the static hierarchy prebake.
+
+For downstream projects that author multiple LOD hierarchies in one `.blend`, the target also exposes an opt-in export naming rule:
+
+```json
+{
+  "strip_lod_suffix_on_export": true,
+  "strip_lod_suffix_pattern": "_LOD[0-9]+$"
+}
 ```
 
-## Unity-Specific Rules & Gotchas
-1. **FBX Scaling & Axes:** `target.json` enforces `FBX_SCALE_ALL`, `Forward -Z`, `Up Y`, `use_triangles: true`, and `use_tspace: true`. Static meshes use `apply_transform_static: true`; rigged meshes leave it `false` and rely on Unity's `Bake Axis Conversion`.
-2. **Animation Clips:** NLA strips are authoritative (`bake_anim_use_nla_strips: true`, `bake_anim_use_all_actions: false`) to prevent duplicate clips in Unity.
-3. **URP & HDRP Channel Packing:** OpenGL `+Y` normals (16-bit PNG, no flip). URP packs Smoothness (`1 - Roughness`) into `_MetallicGlossMap` Alpha; HDRP packs `R=Metallic, G=AO, B=Detail, A=Smoothness` into `_MaskMap`.
-4. **Unity 6.2+ Auto Mesh LODs:** When shipping `_LOD0`/`_LOD1` `LODGroup` hierarchies, `disable_unity_auto_mesh_lod: true` in `*.asset.manifest.json` tells `BlenderAssetPostprocessor.cs` to disable Unity 6.2+'s automatic Mesh LOD generator so the two systems do not conflict.
-5. **Unity Editor Bridge:** Copy `editor/BlenderAssetPostprocessor.cs` into your Unity project's `Assets/Editor/` folder. It uses a 2-stage import (`OnPreprocessTexture`/`OnPreprocessModel` + `OnPostprocessAllAssets`) and explicitly sets URP Lit `_Metallic = 1.0f` and `_Smoothness = 1.0f` so packed alpha smoothness is never halved.
+It is disabled in the base Unity target. When enabled by a project profile, names are normalized only inside the export context and restored afterward.
+
+## Standard profiles
+
+`target.json` retains normal Unity profiles:
+
+- `urp`
+- `hdrp`
+
+Custom project texture layouts should be added by a project profile rather than changing these defaults.
+
+## Verification
+
+Generic FBX round-trip checks include:
+
+- object names;
+- parent hierarchy;
+- mesh/armature scale;
+- child local transforms for pre-baked static hierarchies;
+- triangle count;
+- expected Blender root-axis wrapper for re-imported Y-up FBX;
+- zero PNG/JPEG magic headers in FBX.
+
+Unity identity-root proof itself belongs in an engine-side/downstream verifier using Unity's ModelImporter.
+
+## Optional postprocessor
+
+`editor/BlenderAssetPostprocessor.cs` can configure standard model/texture/material imports.
+
+It does not construct project prefabs, project LODGroups/colliders, content registrations, ViewBinding, or custom project shaders.

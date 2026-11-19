@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/trishul-developers/blender-skills/schemas/project-profile.schema.json",
+  "title": "Blender Agent Kit Project Profile",
+  "type": "object",
+  "required": ["name", "version", "target_overrides"],
+  "additionalProperties": false,
+  "properties": {
+    "name": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "description": { "type": "string" },
+    "target_overrides": {
+      "type": "object",
+      "additionalProperties": { "type": "object" }
+    },
+    "bundle_defaults": { "type": "object" },
+    "review_presets": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "resolution": {
+            "type": "array",
+            "items": { "type": "integer", "minimum": 16 },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "orthographic_views": { "type": "array", "items": { "type": "string" } },
+          "range_shots_m": { "type": "array", "items": { "type": "number", "exclusiveMinimum": 0 } },
+          "closeup_distance_m": { "type": "number", "exclusiveMinimum": 0 },
+          "lods": { "type": "array", "items": { "type": "integer", "minimum": 0 } },
+          "primary_lod": { "type": "integer", "minimum": 0 },
+          "azimuth_deg": { "type": "number" },
+          "elevation_deg": { "type": "number" },
+          "lens_mm": { "type": "number", "exclusiveMinimum": 0 },
+          "damage_prefix": { "type": "string" },
+          "damage_views": { "type": "boolean" },
+          "damage_lods": { "type": "array", "items": { "type": "integer", "minimum": 0 } },
+          "exclude_patterns": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+          "reference_exclude_patterns": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+          "variant_views": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "include_patterns"],
+              "properties": {
+                "id": { "type": "string", "minLength": 1 },
+                "include_patterns": {
+                  "type": "array",
+                  "items": { "type": "string", "minLength": 1 },
+                  "minItems": 1
+                },
+                "exclude_patterns": {
+                  "type": "array",
+                  "items": { "type": "string", "minLength": 1 }
+                },
+                "lod": { "type": "integer", "minimum": 0 },
+                "view": { "type": "string", "enum": ["hero", "front", "rear", "side", "top"] }
+              }
+            }
+          },
+          "collision_view": { "type": "boolean" },
+          "reference_fbx": { "type": "string" }
+        }
+      }
+    }
+  }
+}
