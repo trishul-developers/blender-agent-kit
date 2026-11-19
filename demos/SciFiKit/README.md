@@ -35,6 +35,6 @@ The agent estimated 60–70% savings on pipeline/QA/packing/export effort and 35
 
 ## Reproduction and provenance
 
-The supplied archive includes the original `source/build_scifi_kit.py` and `.blend` scenes. A public, self-contained reproduction command must not be published until the source, its inputs and assumptions have been brought into the repository and validated end-to-end.
+The supplied archive includes the original `source/build_scifi_kit.py` and `.blend` scenes. **Portability finding:** the supplied builder hardcodes `PROJECT_DIR = Path('/working_dir/c_fa16c8b573ce2f34/demo_project')`. This must be replaced with a script-relative or CLI-provided directory before a reproducible public demo is claimed. A public, self-contained reproduction command must not be published until the source, its inputs and assumptions have been brought into the repository and validated end-to-end.
 
 See [reviewed summary](evidence/summary.json). Generic Blender Agent Kit behavior belongs in `shared/`, `tools/`, and target plugins; this environment kit does not define product-level game semantics.
