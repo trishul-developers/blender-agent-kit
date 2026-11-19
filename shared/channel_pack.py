@@ -297,6 +297,8 @@ def cli_main(argv: list[str]) -> dict:
         "target": target_cfg["name"],
         "profile": profile_name,
         "project_profile": project_data["name"] if project_data else None,
+        "asset_id": ns.asset_id,
+        "material": ns.material,
         "raw_maps": sorted(raw_maps),
         "target_size": list(shape_hw),
         "resized_maps": resized_maps,

@@ -36,6 +36,10 @@
         "apply_unit_scale": { "type": "boolean" },
         "use_space_transform": { "type": "boolean" },
         "prebake_yup_hierarchy": { "type": "boolean" },
+        "prebake_directional_patterns": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
         "apply_transform_static": { "type": "boolean" },
         "apply_transform_rigged": { "type": "boolean" },
         "apply_modifiers": { "type": "boolean" },

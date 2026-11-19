@@ -103,40 +103,69 @@ def _temporary_export_state(
     export_cfg: dict,
     zero_root_object=None,
 ):
-    """Temporarily normalize a static hierarchy for FBX without mutating the authoring scene.
+    """Temporarily convert a static Blender hierarchy into a Unity-friendly Y-up basis.
 
-    prebake_yup_hierarchy applies a coordinate-basis conversion:
-      local' = C * local * C^-1
-      mesh'  = C * mesh
-    where C = Rx(-90deg). Identity roots therefore remain identity, while nested
-    pivot/socket local axes are preserved in the converted Y-up/+Z-forward basis.
+    The conversion mirrors the production path proven by military-assets:
+      - positions: C * world_position
+      - ordinary transform frames: C * world_rotation * C^-1
+      - directional empties (configurable patterns, normally Socket_*):
+        C * world_rotation
+      - mesh-local vertices: C * vertex
+
+    Rebuilding locals from converted world matrices is critical for depth>=2
+    pivot/socket chains; directly conjugating each local matrix is insufficient.
     """
     import bpy
+    import fnmatch
     from mathutils import Matrix
 
     ordered = sorted(objects, key=_depth)
     saved_matrices = {obj: obj.matrix_local.copy() for obj in ordered}
+    saved_parent_inverse = {obj: obj.matrix_parent_inverse.copy() for obj in ordered}
     saved_data: dict = {}
     temporary_meshes: list = []
 
     try:
         if zero_root_object is not None:
             zero_root_object.location = (0.0, 0.0, 0.0)
+            bpy.context.view_layer.update()
 
-        expected_inventory = inspect_objects(ordered)
-
-        if export_cfg.get("prebake_yup_hierarchy", False):
+        prebake = bool(export_cfg.get("prebake_yup_hierarchy", False))
+        if prebake:
             armatures = [obj.name for obj in ordered if obj.type == "ARMATURE"]
             if armatures:
                 raise ValueError(
                     "prebake_yup_hierarchy currently supports static MESH/EMPTY hierarchies; "
                     f"armatures present: {armatures}"
                 )
+
             conversion = Matrix.Rotation(math.radians(-90.0), 4, "X")
-            inverse = conversion.inverted()
-            current_matrices = {obj: obj.matrix_local.copy() for obj in ordered}
+            conversion3 = conversion.to_3x3()
+            conversion3_inv = conversion3.inverted()
+            directional_patterns = list(
+                export_cfg.get("prebake_directional_patterns", ["Socket_*"])
+            )
+
+            bpy.context.view_layer.update()
+            world_matrices = {obj: obj.matrix_world.copy() for obj in ordered}
+            converted_world = {}
 
             for obj in ordered:
+                world = world_matrices[obj]
+                position = conversion @ world.translation
+                rotation3 = world.to_3x3()
+                directional = any(
+                    fnmatch.fnmatchcase(obj.name, pattern)
+                    for pattern in directional_patterns
+                )
+                if directional and obj.type == "EMPTY":
+                    converted_rotation3 = conversion3 @ rotation3
+                else:
+                    converted_rotation3 = conversion3 @ rotation3 @ conversion3_inv
+                converted_world[obj] = (
+                    Matrix.Translation(position) @ converted_rotation3.to_4x4()
+                )
+
                 if obj.type == "MESH":
                     saved_data[obj] = obj.data
                     temp = obj.data.copy()
@@ -146,18 +175,27 @@ def _temporary_export_state(
                     temporary_meshes.append(temp)
 
             for obj in ordered:
-                obj.matrix_local = conversion @ current_matrices[obj] @ inverse
+                obj.matrix_parent_inverse = Matrix.Identity(4)
+                parent = obj.parent
+                if parent is not None and parent in converted_world:
+                    obj.matrix_local = converted_world[parent].inverted() @ converted_world[obj]
+                else:
+                    obj.matrix_local = converted_world[obj]
+            bpy.context.view_layer.update()
 
+        expected_inventory = inspect_objects(ordered)
+        expected_inventory["coordinate_basis"] = "unity_y_up" if prebake else "blender_native"
         yield expected_inventory
     finally:
         for obj, data in saved_data.items():
             obj.data = data
         for obj in ordered:
+            obj.matrix_parent_inverse = saved_parent_inverse[obj]
             obj.matrix_local = saved_matrices[obj]
+        bpy.context.view_layer.update()
         for mesh in temporary_meshes:
             if mesh.users == 0:
                 bpy.data.meshes.remove(mesh)
-
 
 def export_selected(
     export_cfg: dict,
@@ -200,6 +238,14 @@ def _max_vec_error(a: list[float], b: list[float]) -> float:
     return max(abs(float(x) - float(y)) for x, y in zip(a, b))
 
 
+def _matrix_error(a: list[list[float]], b: list[list[float]]) -> float:
+    return max(
+        abs(float(a[row][col]) - float(b[row][col]))
+        for row in range(4)
+        for col in range(4)
+    )
+
+
 def roundtrip_file(
     export_file: Path,
     source_inventory: dict,
@@ -240,36 +286,53 @@ def roundtrip_file(
         and any(abs(s - 1.0) > tolerance for s in o["scale"])
     ]
 
+    # For pre-baked Y-up FBX, Blender's importer adds a +90deg X wrapper to
+    # present Y-up FBX back in Blender's Z-up view. Child local matrices remain
+    # the exported Unity-basis transforms and are the useful hierarchy proof.
+    roots = set(source_inventory.get("roots", []))
     transform_errors: list[dict] = []
     for name in sorted(expected_objects & imported_objects):
+        if name in roots:
+            continue
         expected = source_by_name[name]
         actual = imported_by_name[name]
-        if expected["type"] != "EMPTY" and name not in source_inventory.get("roots", []):
-            continue
-        checks = {
-            "world_location": _max_vec_error(expected["world_location"], actual["world_location"]),
-            "plus_y_world": _max_vec_error(expected["plus_y_world"], actual["plus_y_world"]),
-            "plus_z_world": _max_vec_error(expected["plus_z_world"], actual["plus_z_world"]),
-        }
-        bad = {k: v for k, v in checks.items() if v > max(tolerance, 1e-4)}
-        if bad:
-            transform_errors.append({"object": name, "errors": bad})
+        err = _matrix_error(expected["matrix_local"], actual["matrix_local"])
+        if err > max(tolerance, 1e-4):
+            transform_errors.append({"object": name, "matrix_local_error": err})
 
+    coordinate_basis = source_inventory.get("coordinate_basis", "blender_native")
     zero_root_errors: list[dict] = []
+    blender_root_axis_conversion: list[dict] = []
     for name in require_zero_roots or []:
         obj = imported_by_name.get(name)
         if obj is None:
             zero_root_errors.append({"object": name, "error": "missing"})
             continue
         loc_error = max(abs(v) for v in obj["location"])
-        rot_error = max(abs(v) for v in obj["rotation_euler"])
         scale_error = max(abs(v - 1.0) for v in obj["scale"])
-        if loc_error > tolerance or rot_error > tolerance or scale_error > tolerance:
+        if coordinate_basis == "unity_y_up" and fmt == "fbx":
+            expected_x = math.pi / 2.0
+            rotation_error = max(
+                abs(obj["rotation_euler"][0] - expected_x),
+                abs(obj["rotation_euler"][1]),
+                abs(obj["rotation_euler"][2]),
+            )
+            blender_root_axis_conversion.append({
+                "object": name,
+                "expected_blender_import_x_rotation_deg": 90.0,
+                "actual_rotation_euler": obj["rotation_euler"],
+                "passed": rotation_error <= max(tolerance, 1e-3),
+            })
+        else:
+            rotation_error = max(abs(v) for v in obj["rotation_euler"])
+
+        if loc_error > tolerance or rotation_error > max(tolerance, 1e-3) or scale_error > tolerance:
             zero_root_errors.append({
                 "object": name,
                 "location": obj["location"],
                 "rotation_euler": obj["rotation_euler"],
                 "scale": obj["scale"],
+                "coordinate_basis": coordinate_basis,
             })
 
     source_tris = sum(v["tri_count"] for v in source_inventory["lods"].values())
@@ -289,11 +352,13 @@ def roundtrip_file(
     return {
         "checked": True,
         "passed": passed,
+        "coordinate_basis": coordinate_basis,
         "missing_objects": missing,
         "parent_mismatches": parent_mismatches,
         "scale_errors": scale_errors,
         "transform_errors": transform_errors,
         "zero_root_errors": zero_root_errors,
+        "blender_root_axis_conversion": blender_root_axis_conversion,
         "source_tri_count": source_tris,
         "imported_tri_count": imported_tris,
         "tri_count_match": tri_match,

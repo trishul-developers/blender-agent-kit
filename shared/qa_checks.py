@@ -164,6 +164,16 @@ def _check_symmetry(errors: list[dict], inventory: dict, rule: dict) -> None:
 
         lv = left["abs_signed_volume"]
         rv = right["abs_signed_volume"]
+        reports.append({
+            "left": left_name,
+            "right": right_name,
+            "left_tri_count": left["tri_count"],
+            "right_tri_count": right["tri_count"],
+            "left_bounds": left["bounds"],
+            "right_bounds": right["bounds"],
+            "left_abs_signed_volume": lv,
+            "right_abs_signed_volume": rv,
+        })
         if lv > 0 and rv > 0:
             rel = abs(lv - rv) / max(lv, rv)
             if rel > volume_rel_tolerance:
@@ -172,6 +182,7 @@ def _check_symmetry(errors: list[dict], inventory: dict, rule: dict) -> None:
                     "symmetry_volume",
                     f"{left_name}/{right_name} signed-volume magnitude differs by {rel:.4f} > {volume_rel_tolerance:.4f}",
                 )
+    return reports
 
 
 def _check_dimension_boxes(errors: list[dict], inventory: dict, rules: list[dict]) -> None:
@@ -190,6 +201,15 @@ def _check_dimension_boxes(errors: list[dict], inventory: dict, rules: list[dict
             _error(errors, "dimension_box_missing", f"{rid}: no meshes matched selectors {include}")
             continue
 
+        reports.append({
+            "id": rid,
+            "matched_objects": [o["name"] for o in entries],
+            "bounds": bounds,
+            "expected_size": rule.get("expected_size", {}),
+            "expected_min": rule.get("expected_min", {}),
+            "expected_max": rule.get("expected_max", {}),
+            "tolerance": rule.get("tolerance", 0.0),
+        })
         tolerance = rule.get("tolerance", 0.0)
         for field, source_key in (("expected_size", "size"), ("expected_min", "min"), ("expected_max", "max")):
             expected = rule.get(field, {})
@@ -206,6 +226,7 @@ def _check_dimension_boxes(errors: list[dict], inventory: dict, rules: list[dict
                         "dimension_box",
                         f"{rid} {source_key}.{axis_name}={actual:.4f}, expected {float(target):.4f} ± {tol:.4f}",
                     )
+    return reports
 
 
 def _uv_layer_bounds(obj: dict, rule: dict) -> dict | None:
@@ -240,6 +261,7 @@ def _check_uv_rules(errors: list[dict], inventory: dict, rules: list[dict]) -> N
             if uv is None:
                 _error(errors, "uv_rule_missing_layer", f"{rid}: requested UV layer missing", obj["name"])
                 continue
+            reports.append({"id": rid, "object": obj["name"], "lod": obj["lod"], "uv": uv})
             checks = [
                 ("min_v_span", "v_span", lambda actual, target: actual >= target),
                 ("min_u_span", "u_span", lambda actual, target: actual >= target),
@@ -260,6 +282,7 @@ def _check_uv_rules(errors: list[dict], inventory: dict, rules: list[dict]) -> N
                         f"{rid}: {field}={actual:.4f} violates {rule_key}={target:.4f}",
                         obj["name"],
                     )
+    return reports
 
 
 def run(
@@ -410,9 +433,9 @@ def run(
             if any(abs(root["location"][i] - expected[i]) > tol for i in range(3)):
                 _error(errors, "pivot_rule", f"root origin {root['location']} is not bottom-center {expected} within {tol}", root_name)
 
-    _check_symmetry(errors, inventory, rules.get("mirror_symmetry", {}))
-    _check_dimension_boxes(errors, inventory, list(rules.get("dimension_boxes", [])))
-    _check_uv_rules(errors, inventory, list(rules.get("uv_checks", [])))
+    symmetry_report = _check_symmetry(errors, inventory, rules.get("mirror_symmetry", {}))
+    dimension_report = _check_dimension_boxes(errors, inventory, list(rules.get("dimension_boxes", [])))
+    uv_report = _check_uv_rules(errors, inventory, list(rules.get("uv_checks", [])))
 
     return {
         "status": "ok" if not errors else "error",
@@ -422,6 +445,11 @@ def run(
         "passed": not errors,
         "errors": errors,
         "warnings": warnings,
+        "evidence": {
+            "symmetry": symmetry_report,
+            "dimensions": dimension_report,
+            "uv": uv_report,
+        },
         "inventory": inventory,
     }
 
