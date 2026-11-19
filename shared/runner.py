@@ -104,6 +104,9 @@ def run_blender_module(
     timeout_sec: int = 600,
 ) -> dict:
     root = kit_root or resolve_kit_root()
+    args = list(module_args or [])
+    if any(arg == "--result-json" or arg.startswith("--result-json=") for arg in args):
+        raise ValueError("--result-json is owned by the host entrypoint, not Blender subcommands")
     exe = find_blender(blender_exe)
 
     with tempfile.TemporaryDirectory(prefix="bak_run_") as tmpdir:
@@ -112,7 +115,7 @@ def run_blender_module(
             blender_exe=exe,
             kit_root=root,
             module_name=module_name,
-            module_args=module_args or [],
+            module_args=args,
             result_json=result_file,
             blend_file=blend_file,
             addons=addons,
