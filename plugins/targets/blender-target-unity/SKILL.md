@@ -1,20 +1,28 @@
 ---
 name: blender-target-unity
-description: Use this skill when preparing, packing URP/HDRP PBR maps for, validating, or exporting Blender 5.2+ assets into Unity (FBX or static GLB), or setting up Unity's 2-stage BlenderAssetPostprocessor.cs.
+description: Use this skill when preparing, packing standard URP/HDRP PBR maps for, validating, or exporting Blender 5.2+ assets into Unity (FBX or static GLB), or when using the optional deterministic manifest-driven Unity import helper.
 ---
 
-# Blender Target: Unity (`urp` default, `hdrp` supported)
+# Blender Target: Unity
 
-Execute through `blender-core`'s single entrypoint:
+The Unity target owns **engine-level** conventions only. Project-specific budgets, hierarchy, socket rules, or custom texture layouts should be supplied through a project profile.
 
 ```bash
 python <blender-core>/scripts/run.py qa --blend in.blend --target unity --asset-class solid_prop
 python <blender-core>/scripts/run.py export --blend in.blend --target unity --profile urp --out build/
 ```
 
-## Unity-Specific Rules & Gotchas
-1. **FBX Scaling & Axes:** `target.json` enforces `FBX_SCALE_ALL`, `Forward -Z`, `Up Y`, `use_triangles: true`, and `use_tspace: true`. Static meshes use `apply_transform_static: true`; rigged meshes leave it `false` and rely on Unity's `Bake Axis Conversion`.
-2. **Animation Clips:** NLA strips are authoritative (`bake_anim_use_nla_strips: true`, `bake_anim_use_all_actions: false`) to prevent duplicate clips in Unity.
-3. **URP & HDRP Channel Packing:** OpenGL `+Y` normals (16-bit PNG, no flip). URP packs Smoothness (`1 - Roughness`) into `_MetallicGlossMap` Alpha; HDRP packs `R=Metallic, G=AO, B=Detail, A=Smoothness` into `_MaskMap`.
-4. **Unity 6.2+ Auto Mesh LODs:** When shipping `_LOD0`/`_LOD1` `LODGroup` hierarchies, `disable_unity_auto_mesh_lod: true` in `*.asset.manifest.json` tells `BlenderAssetPostprocessor.cs` to disable Unity 6.2+'s automatic Mesh LOD generator so the two systems do not conflict.
-5. **Unity Editor Bridge:** Copy `editor/BlenderAssetPostprocessor.cs` into your Unity project's `Assets/Editor/` folder. It uses a 2-stage import (`OnPreprocessTexture`/`OnPreprocessModel` + `OnPostprocessAllAssets`) and explicitly sets URP Lit `_Metallic = 1.0f` and `_Smoothness = 1.0f` so packed alpha smoothness is never halved.
+## Implemented Unity rules
+
+1. FBX uses `Forward -Z`, `Up Y`, `FBX_SCALE_ALL`, triangulation, and tangent export.
+2. Static meshes use the configured static transform handling; rigged meshes preserve the rig transform policy.
+3. NLA strips are authoritative by default and duplicate all-actions export is blocked.
+4. Standard URP and HDRP packing remains in `target.json`.
+5. The optional C# postprocessor deterministically binds a manifest to the exact model/texture it references before changing import settings.
+6. Unity 6.2+ automatic mesh LOD generation can be disabled when an asset manifest declares authored LODs.
+
+## Postprocessor boundary
+
+`editor/BlenderAssetPostprocessor.cs` is a generic helper, especially useful in scratch verification projects. It configures model/texture import and standard URP/HDRP material textures.
+
+It does **not** currently construct complete LODGroups, project-specific colliders, prefabs, content registrations, or custom project shaders. Downstream projects that own those systems should consume FBX/PNG + manifest evidence and keep their own Unity import pipeline authoritative.
