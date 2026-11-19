@@ -159,7 +159,7 @@
             "unity_type": "NormalMap"
           },
           "emission": {
-            "unity_slot": "_EmissionMap",
+            "unity_slot": "_EmissiveColorMap",
             "channels": [
               "emission.r",
               "emission.g",
