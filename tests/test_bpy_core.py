@@ -184,7 +184,8 @@ def run() -> dict:
                 "role": "station",
                 "lod": 0,
                 "root": "Vehicle_Station",
-                "file": "bundle_contract_Station_LOD0.fbx"
+                "file": "bundle_contract_Station_LOD0.fbx",
+                "zero_root_location": True
             }]
         }
         spec_path = root_dir / "bundle.json"

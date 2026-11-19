@@ -91,10 +91,15 @@ def _select(objects) -> None:
     bpy.context.view_layer.objects.active = objects[0]
 
 
-def _zero_root_default(part: dict) -> bool:
+def _zero_root_default(part: dict, project_data: dict | None = None) -> bool:
     if "zero_root_location" in part:
         return bool(part["zero_root_location"])
-    return part.get("role") in {"station", "kit"}
+    default_roles = set(
+        (project_data or {})
+        .get("bundle_defaults", {})
+        .get("zero_root_location_roles", [])
+    )
+    return part.get("role") in default_roles
 
 
 def run(
@@ -138,7 +143,7 @@ def run(
         export_file.parent.mkdir(parents=True, exist_ok=True)
         is_rigged = any(o.type == "ARMATURE" for o in objects)
 
-        zero_root = _zero_root_default(part)
+        zero_root = _zero_root_default(part, project_data=project_data)
         if zero_root and root_object is None:
             raise ValueError(
                 f"Bundle part '{part['id']}' requests zero_root_location but does not resolve to one root"
