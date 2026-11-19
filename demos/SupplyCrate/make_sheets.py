@@ -135,6 +135,8 @@ sources = (
 )
 for name, note in sources:
     im = load(RAW / f"{name}.png").resize((340, 340), Image.LANCZOS)
+    if max(ImageStat.Stat(im).stddev) < 1.0:
+        raise ValueError(f"Unexpectedly flat PBR source map: {name}")
     tiles.append(label(im, f"SOURCE: {name}", note))
 packed = (
     ("albedo", "_BaseMap"),
@@ -145,6 +147,18 @@ packed = (
 for key, slot in packed:
     path = BUILD / "textures" / f"SupplyCrate__Body__{key}.png"
     im = load(path).resize((340, 340), Image.LANCZOS)
+    if max(ImageStat.Stat(im).stddev) < 1.0:
+        raise ValueError(f"Unexpectedly flat Unity packed map: {key}")
+    if key == "metallic_smoothness":
+        # Reveal the real alpha channel (smoothness); an RGB preview hides it.
+        with Image.open(path) as original:
+            if "A" not in original.getbands():
+                raise ValueError("MetallicGlossMap must include alpha smoothness")
+            alpha = original.getchannel("A").resize((170, 340), Image.LANCZOS).convert("RGB")
+        side_by_side = Image.new("RGB", (340, 340))
+        side_by_side.paste(im.crop((0, 0, 170, 340)), (0, 0))
+        side_by_side.paste(alpha, (170, 0))
+        im = side_by_side
     tiles.append(label(im, f"UNITY URP: {slot}", f"packed map: {key}"))
 texture_sheet = grid(tiles, 3)
 if texture_sheet.getbbox() is None or not any(max(ImageStat.Stat(t).stddev) > 0 for t in tiles):
