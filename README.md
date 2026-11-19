@@ -48,7 +48,7 @@ This is a **real, reproducible demo produced through Blender Agent Kit**, not a 
 
 | LOD + collision output | PBR source → Unity URP packing |
 | --- | --- |
-| ![SupplyCrate LOD and collision sheet](demos/SupplyCrate/showcase/demo_lod_collision.webp) | **Historical six-tile texture proof:** five source maps (BaseColor, Roughness, Metallic, AO, Normal) plus the packed BaseMap. The previously displayed WebP was reported blank and is intentionally omitted until it can be regenerated and verified from the original raw and packed maps. The **new nine-tile generator** includes all four Unity URP outputs; its implementation and synthetic regression test are part of v0.2.1, but a fresh source-run sheet is still pending. |
+| ![SupplyCrate LOD and collision sheet](demos/SupplyCrate/showcase/demo_lod_collision.webp) | ![Original SupplyCrate six-tile PBR evidence, compressed preview](demos/SupplyCrate/showcase/demo_textures_historical.webp) **Historical six-tile evidence**, provided from the source ZIP. A newly regenerated nine-map image remains pending. The original reportedly blank WebP is no longer embedded. |
 
 <details>
 <summary><strong>Automated review evidence</strong></summary>
@@ -62,6 +62,13 @@ This is a **real, reproducible demo produced through Blender Agent Kit**, not a 
 The checked-in SupplyCrate rendering contact sheets record the demonstrated source run. The original six-tile texture proof image was supplied separately; the broken texture WebP is excluded from this README pending an evidence-grounded rebuild. The generic collision-review renderer has since been upgraded to overlay collision wireframes over the primary LOD, so fresh reruns use the clearer overlay view.
 
 ## Showcase 2 — Sci-Fi modular kit (independent agent trial)
+
+![Sci-Fi Aegis Station modular kit original agent hero, compact preview](demos/SciFiKit/showcase/01_hero_preview.webp)
+
+![Sci-Fi modular kit original LOD evidence, compact preview](demos/SciFiKit/showcase/03_lod_preview.webp)
+
+*These deliberately compact preview WebPs were resized from the independent agent's actual proof images, not rendered or painted anew. The original full-resolution images are retained in the supplied archive, not committed to Git.*
+
 
 The **Aegis Station** modular environment kit is a second, materially different trial of the Blender Agent Kit workflow. An independent agent supplied editable Blender scenes, a deterministic builder script, a 60-object modular assembly, QA/export/packing JSON, a bulkhead FBX, raw and packed textures, and five rendered proof images. We inspected the supplied archive and machine reports; this is not a newly rerun build.
 
