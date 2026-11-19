@@ -27,11 +27,12 @@ Compared with v0.1, PR #1 adds:
 - aggregate LOD/material budgets and LOD reduction ratios;
 - intact-vs-`Damage_*` triangle accounting with configurable allowed LODs;
 - configurable L/R mirror checks using triangle counts, mirrored bounds, and signed-volume magnitudes;
-- configurable semantic dimension boxes;
+- configurable semantic dimension boxes, including optional LOD scoping and exclude patterns;
 - configurable UV-range/V-scroll checks;
 - safe 8/16-bit channel packing plus Lanczos resizing via `--size`;
 - optional normal-Y convention reporting, explicitly marked heuristic;
 - hierarchy-safe static FBX Y-up prebaking for nested pivots and directional socket empties;
+- optional temporary LOD-suffix stripping for multi-LOD authoring scenes, with collision-safe name stashing/restoration;
 - zero-root export for selected compound parts;
 - FBX embedded-image magic-header checks;
 - semantic multi-file bundle export with authoring and export-coordinate inventories;
@@ -179,6 +180,19 @@ A bundle represents one logical asset that produces multiple engine files.
 ```
 
 Each part can be selected by exactly one collection or root hierarchy.
+
+Downstream profiles can opt into temporary authoring-name normalization:
+
+```json
+{
+  "export": {
+    "strip_lod_suffix_on_export": true,
+    "strip_lod_suffix_pattern": "_LOD[0-9]+$"
+  }
+}
+```
+
+When enabled, selected names such as `Turret_Pivot_LOD1` are exported as `Turret_Pivot`. Any unselected object already owning the base name is temporarily moved to an internal stash name; all selected and unselected names are restored after export. The exporter fails instead of guessing if stripping would create duplicate names inside the selected part.
 
 The exporter records both:
 

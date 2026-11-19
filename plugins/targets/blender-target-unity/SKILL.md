@@ -24,6 +24,17 @@ This temporary conversion is restored after export.
 
 Rigged/armature exports do **not** use the static hierarchy prebake.
 
+For downstream projects that author multiple LOD hierarchies in one `.blend`, the target also exposes an opt-in export naming rule:
+
+```json
+{
+  "strip_lod_suffix_on_export": true,
+  "strip_lod_suffix_pattern": "_LOD[0-9]+$"
+}
+```
+
+It is disabled in the base Unity target. When enabled by a project profile, names are normalized only inside the export context and restored afterward.
+
 ## Standard profiles
 
 `target.json` retains normal Unity profiles:

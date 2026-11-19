@@ -55,6 +55,21 @@ Profiles may supply:
 
 The generic exporter does not hardcode role meanings.
 
+## Multi-LOD authoring names
+
+A downstream target/profile can enable temporary suffix stripping:
+
+```json
+{
+  "export": {
+    "strip_lod_suffix_on_export": true,
+    "strip_lod_suffix_pattern": "_LOD[0-9]+$"
+  }
+}
+```
+
+For a selected LOD1 part, `Turret_Pivot_LOD1` can therefore become `Turret_Pivot` in the FBX while the assembled `.blend` retains its unique LOD-suffixed object names. Unselected base-name collisions are stashed temporarily and restored afterward.
+
 ## Evidence
 
 Every part records:
