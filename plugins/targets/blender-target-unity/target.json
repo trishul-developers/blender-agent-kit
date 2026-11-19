@@ -16,6 +16,8 @@
     "use_space_transform": false,
     "prebake_yup_hierarchy": true,
     "prebake_directional_patterns": ["Socket_*"],
+    "strip_lod_suffix_on_export": false,
+    "strip_lod_suffix_pattern": "_LOD[0-9]+$",
     "apply_transform_static": false,
     "apply_transform_rigged": false,
     "apply_modifiers": true,

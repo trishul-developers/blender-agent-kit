@@ -40,6 +40,8 @@
           "type": "array",
           "items": { "type": "string", "minLength": 1 }
         },
+        "strip_lod_suffix_on_export": { "type": "boolean" },
+        "strip_lod_suffix_pattern": { "type": "string", "minLength": 1 },
         "apply_transform_static": { "type": "boolean" },
         "apply_transform_rigged": { "type": "boolean" },
         "apply_modifiers": { "type": "boolean" },

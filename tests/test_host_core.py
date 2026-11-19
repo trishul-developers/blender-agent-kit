@@ -61,6 +61,8 @@ class TestRepoSpecsAndSchemas(unittest.TestCase):
         self.assertTrue(cfg["export"]["prebake_yup_hierarchy"])
         self.assertFalse(cfg["export"]["use_space_transform"])
         self.assertFalse(cfg["export"]["apply_transform_static"])
+        self.assertFalse(cfg["export"]["strip_lod_suffix_on_export"])
+        self.assertEqual(cfg["export"]["strip_lod_suffix_pattern"], "_LOD[0-9]+$")
 
     def test_reject_duplicate_anim_export_flags(self) -> None:
         cfg, _, _ = load_target("unity", kit_root=KIT_ROOT)

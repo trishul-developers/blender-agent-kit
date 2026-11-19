@@ -193,10 +193,12 @@ def _check_dimension_boxes(errors: list[dict], inventory: dict, rules: list[dict
         rid = str(rule.get("id", "dimension_box"))
         include = list(rule.get("include_patterns", []))
         exclude = list(rule.get("exclude_patterns", []))
+        lods = {int(v) for v in rule.get("lods", [])}
         entries = [
             o for o in mesh_entries
             if (not include or _match_any(o["name"], include))
             and (not exclude or not _match_any(o["name"], exclude))
+            and (not lods or int(o["lod"]) in lods)
         ]
         bounds = _bounds_for_entries(entries)
         if bounds is None:
@@ -206,6 +208,7 @@ def _check_dimension_boxes(errors: list[dict], inventory: dict, rules: list[dict
         reports.append({
             "id": rid,
             "matched_objects": [o["name"] for o in entries],
+            "lods": sorted(lods),
             "bounds": bounds,
             "expected_size": rule.get("expected_size", {}),
             "expected_min": rule.get("expected_min", {}),

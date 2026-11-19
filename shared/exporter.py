@@ -5,6 +5,7 @@ import argparse
 import hashlib
 import json
 import math
+import re
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -97,6 +98,67 @@ def _depth(obj) -> int:
     return depth
 
 
+def _strip_export_lod_suffix(name: str, export_cfg: dict) -> str:
+    if not export_cfg.get("strip_lod_suffix_on_export", False):
+        return name
+    pattern = str(export_cfg.get("strip_lod_suffix_pattern", r"_LOD[0-9]+$"))
+    try:
+        return re.sub(pattern, "", name)
+    except re.error as exc:
+        raise ValueError(f"Invalid strip_lod_suffix_pattern {pattern!r}: {exc}") from exc
+
+
+def _prepare_export_names(objects: list, export_cfg: dict) -> tuple[dict, dict]:
+    """Temporarily strip configured LOD suffixes without Blender auto-renaming collisions."""
+    import bpy
+
+    if not export_cfg.get("strip_lod_suffix_on_export", False):
+        return {}, {}
+
+    selected = set(objects)
+    saved_names = {obj: obj.name for obj in objects}
+    desired = {obj: _strip_export_lod_suffix(obj.name, export_cfg) for obj in objects}
+
+    reverse: dict[str, list] = {}
+    for obj, name in desired.items():
+        reverse.setdefault(name, []).append(obj)
+    duplicates = sorted(name for name, objs in reverse.items() if len(objs) > 1)
+    if duplicates:
+        raise ValueError(
+            "LOD suffix stripping would create duplicate selected object names: "
+            + ", ".join(duplicates)
+        )
+
+    desired_names = {name for obj, name in desired.items() if name != saved_names[obj]}
+    stashed_names: dict = {}
+    stash_index = 0
+    for obj in list(bpy.data.objects):
+        if obj in selected or obj.name not in desired_names:
+            continue
+        original = obj.name
+        while True:
+            candidate = f"__BAK_STASH__{stash_index:04d}"
+            stash_index += 1
+            if bpy.data.objects.get(candidate) is None:
+                break
+        obj.name = candidate
+        stashed_names[obj] = original
+
+    for obj in objects:
+        obj.name = desired[obj]
+
+    return saved_names, stashed_names
+
+
+def _restore_export_names(saved_names: dict, stashed_names: dict) -> None:
+    # Restore selected objects first so their temporary base names are released,
+    # then restore the unselected objects that originally owned those base names.
+    for obj, original in saved_names.items():
+        obj.name = original
+    for obj, original in stashed_names.items():
+        obj.name = original
+
+
 @contextmanager
 def _temporary_export_state(
     objects: list,
@@ -125,8 +187,12 @@ def _temporary_export_state(
     saved_parent_inverse = {obj: obj.matrix_parent_inverse.copy() for obj in ordered}
     saved_data: dict = {}
     temporary_meshes: list = []
+    saved_names: dict = {}
+    stashed_names: dict = {}
 
     try:
+        saved_names, stashed_names = _prepare_export_names(ordered, export_cfg)
+
         if zero_root_object is not None:
             zero_root_object.location = (0.0, 0.0, 0.0)
             bpy.context.view_layer.update()
@@ -186,6 +252,9 @@ def _temporary_export_state(
 
         expected_inventory = inspect_objects(ordered)
         expected_inventory["coordinate_basis"] = "unity_y_up" if prebake else "blender_native"
+        expected_inventory["export_name_map"] = {
+            original: obj.name for obj, original in saved_names.items()
+        }
         yield expected_inventory
     finally:
         for obj, data in saved_data.items():
@@ -193,6 +262,7 @@ def _temporary_export_state(
         for obj in ordered:
             obj.matrix_parent_inverse = saved_parent_inverse[obj]
             obj.matrix_local = saved_matrices[obj]
+        _restore_export_names(saved_names, stashed_names)
         bpy.context.view_layer.update()
         for mesh in temporary_meshes:
             if mesh.users == 0:

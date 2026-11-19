@@ -157,6 +157,11 @@ def run(
             zero_root_object=root_object if zero_root else None,
         )
         export_inventory["damage_prefix"] = damage_prefix
+        export_root_name = None
+        if root_object is not None:
+            export_root_name = export_inventory.get("export_name_map", {}).get(
+                root_object.name, root_object.name
+            )
 
         tri_count = sum(v["tri_count"] for v in assembly_inventory["lods"].values())
         intact_tri_count = sum(v["intact_tri_count"] for v in assembly_inventory["lods"].values())
@@ -172,7 +177,7 @@ def run(
             "lod": part.get("lod"),
             "file": str(export_file.relative_to(output)).replace("\\", "/"),
             "zero_root_location": zero_root,
-            "export_root": root_object.name if root_object else None,
+            "export_root": export_root_name,
             "tri_count": tri_count,
             "intact_tri_count": intact_tri_count,
             "damage_tri_count": damage_tri_count,
@@ -185,7 +190,7 @@ def run(
             "roundtrip": {"checked": False},
         }
         exported_parts.append(result)
-        required_zero = [root_object.name] if zero_root and root_object else []
+        required_zero = [export_root_name] if zero_root and export_root_name else []
         roundtrip_sources.append((export_file, export_inventory, result, required_zero))
 
     tolerance = float(target_cfg["qa"]["common"].get("roundtrip_armature_scale_tolerance", 0.001))

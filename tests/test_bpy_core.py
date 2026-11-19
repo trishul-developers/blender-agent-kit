@@ -158,6 +158,118 @@ def run() -> dict:
         assert any(e["code"] == "symmetry_bounds" for e in symmetry["errors"]), symmetry
     passed += 1
 
+    # Dimension boxes can explicitly target LOD0 and exclude wreck geometry.
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    _make_compliant_cube("Hull_LOD0", size=2.0)
+    _make_compliant_cube("Hull_LOD1", location=(0.0, 0.0, 2.0), size=8.0)
+    _make_compliant_cube("Wreck_Hull_LOD0", location=(0.0, 0.0, 4.0), size=10.0)
+    with tempfile.TemporaryDirectory(prefix="bak_profile_") as tmp:
+        profile_path = Path(tmp) / "profile.json"
+        profile_path.write_text(json.dumps({
+            "name": "dimension-test",
+            "version": "0.1.0",
+            "target_overrides": {
+                "unity": {
+                    "qa": {
+                        "common": {"require_monotonic_lod_tris": False},
+                        "asset_classes": {
+                            "dimension_test": {
+                                "reject_boundary_edges": False,
+                                "require_non_overlapping_uv1": False,
+                                "dimension_boxes": [{
+                                    "id": "lod0_hull",
+                                    "include_patterns": ["*Hull*"],
+                                    "exclude_patterns": ["Wreck*"],
+                                    "lods": [0],
+                                    "expected_size": {"X": 2.0, "Y": 2.0, "Z": 2.0},
+                                    "tolerance": 0.001
+                                }]
+                            }
+                        }
+                    }
+                }
+            }
+        }), encoding="utf-8")
+        dimension = run_qa(target="unity", asset_class="dimension_test", project_profile=str(profile_path))
+        assert dimension["passed"], dimension
+        assert dimension["evidence"]["dimensions"][0]["matched_objects"] == ["Hull_LOD0"], dimension
+    passed += 1
+
+    # LOD-suffixed authoring names are stripped only during export and all
+    # selected/unselected names are restored after the FBX is written.
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    base_root = _link_empty("Vehicle_Station")
+    base_turret = _link_empty("Turret_Pivot")
+    base_gun = _link_empty("Gun_Elevation_Pivot")
+    base_socket = _link_empty("Socket_Sight")
+
+    lod_root = _link_empty("Vehicle_Station_LOD1", location=(0.0, -0.04, 1.64))
+    lod_turret = _link_empty("Turret_Pivot_LOD1", parent=lod_root)
+    lod_gun = _link_empty("Gun_Elevation_Pivot_LOD1", parent=lod_turret, location=(0.0, -0.5, 0.3))
+    lod_socket = _link_empty(
+        "Socket_Sight_LOD1",
+        parent=lod_turret,
+        location=(0.65, -0.25, 0.4),
+        rotation=(0.1, -0.2, 0.25),
+    )
+    lod_mesh = _make_compliant_cube("Hull_LOD1", size=0.4)
+    lod_mesh.parent = lod_root
+    lod_mesh.location = (0.0, 0.0, 0.5)
+
+    with tempfile.TemporaryDirectory(prefix="bak_lod_strip_") as tmp:
+        root_dir = Path(tmp)
+        profile_path = root_dir / "profile.json"
+        profile_path.write_text(json.dumps({
+            "name": "lod-strip-test",
+            "version": "0.1.0",
+            "target_overrides": {
+                "unity": {
+                    "export": {
+                        "strip_lod_suffix_on_export": True,
+                        "strip_lod_suffix_pattern": "_LOD[0-9]+$"
+                    }
+                }
+            }
+        }), encoding="utf-8")
+        spec_path = root_dir / "bundle.json"
+        spec_path.write_text(json.dumps({
+            "schema_version": "1.0",
+            "asset_id": "lod_strip",
+            "parts": [{
+                "id": "station_lod1",
+                "role": "station",
+                "lod": 1,
+                "root": "Vehicle_Station_LOD1",
+                "file": "lod_strip_Station_LOD1.fbx",
+                "zero_root_location": True
+            }]
+        }), encoding="utf-8")
+
+        stripped = run_bundle(
+            str(spec_path),
+            target="unity",
+            project_profile=str(profile_path),
+            out_dir=str(root_dir / "out"),
+            verify_roundtrip=True,
+        )
+        assert stripped["status"] == "ok", stripped
+        part = stripped["parts"][0]
+        exported_names = {o["name"] for o in part["inventory"]["objects"]}
+        assert {"Vehicle_Station", "Turret_Pivot", "Gun_Elevation_Pivot", "Socket_Sight", "Hull"} <= exported_names, part
+        assert part["export_root"] == "Vehicle_Station", part
+        assert part["roundtrip"]["passed"], part["roundtrip"]
+
+        # Original authoring names and the unselected colliding base names survive.
+        assert lod_root.name == "Vehicle_Station_LOD1"
+        assert lod_turret.name == "Turret_Pivot_LOD1"
+        assert lod_gun.name == "Gun_Elevation_Pivot_LOD1"
+        assert lod_socket.name == "Socket_Sight_LOD1"
+        assert base_root.name == "Vehicle_Station"
+        assert base_turret.name == "Turret_Pivot"
+        assert base_gun.name == "Gun_Elevation_Pivot"
+        assert base_socket.name == "Socket_Sight"
+    passed += 1
+
     # Hierarchy-safe FBX prebake + station root zeroing must survive a fresh Blender import.
     bpy.ops.wm.read_factory_settings(use_empty=True)
     root = _link_empty("Vehicle_Station", location=(0.0, -0.04, 1.64))
