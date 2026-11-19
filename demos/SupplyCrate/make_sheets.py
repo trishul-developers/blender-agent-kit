@@ -25,7 +25,7 @@ def font(size):
 def read_png_16rgb(path):
     """Read the kit's own unfiltered, 16-bit PNGs without Pillow's implicit downcast."""
     data = path.read_bytes()
-    if not data.startswith(b"\\x89PNG\\r\\n\\x1a\\n"):
+    if not data.startswith(bytes.fromhex("89504e470d0a1a0a")):
         raise ValueError(f"Not a PNG: {path}")
     b = data[8:]
     pos, idat, ihdr = 0, b"", None
@@ -60,7 +60,7 @@ def load(path):
     if not path.is_file():
         raise FileNotFoundError(f"Missing texture showcase source: {path}")
     header = path.read_bytes()[:26]
-    if len(header) < 26 or not header.startswith(b"\\x89PNG\\r\\n\\x1a\\n"):
+    if len(header) < 26 or not header.startswith(bytes.fromhex("89504e470d0a1a0a")):
         raise ValueError(f"Invalid PNG texture source: {path}")
     depth = header[24]
     if depth == 16:
