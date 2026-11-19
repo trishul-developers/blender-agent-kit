@@ -14,7 +14,7 @@ from shared.version import KIT_VERSION
 
 
 def translate_fbx_kwargs(export_cfg: dict, filepath: str, is_rigged: bool = False) -> dict:
-    prebake = bool(export_cfg.get("prebake_yup_hierarchy", False))
+    prebake = bool(export_cfg.get("prebake_yup_hierarchy", False)) and not is_rigged
     apply_transform = (
         bool(export_cfg.get("apply_transform_rigged", False))
         if is_rigged
@@ -102,6 +102,7 @@ def _temporary_export_state(
     objects: list,
     export_cfg: dict,
     zero_root_object=None,
+    is_rigged: bool = False,
 ):
     """Temporarily convert a static Blender hierarchy into a Unity-friendly Y-up basis.
 
@@ -130,7 +131,7 @@ def _temporary_export_state(
             zero_root_object.location = (0.0, 0.0, 0.0)
             bpy.context.view_layer.update()
 
-        prebake = bool(export_cfg.get("prebake_yup_hierarchy", False))
+        prebake = bool(export_cfg.get("prebake_yup_hierarchy", False)) and not is_rigged
         if prebake:
             armatures = [obj.name for obj in ordered if obj.type == "ARMATURE"]
             if armatures:
@@ -207,7 +208,12 @@ def export_selected(
     import bpy
 
     selected = list(objects) if objects is not None else list(bpy.context.selected_objects)
-    with _temporary_export_state(selected, export_cfg, zero_root_object=zero_root_object) as expected:
+    with _temporary_export_state(
+        selected,
+        export_cfg,
+        zero_root_object=zero_root_object,
+        is_rigged=is_rigged,
+    ) as expected:
         fmt = export_file.suffix.lower().lstrip(".")
         if fmt == "fbx":
             bpy.ops.export_scene.fbx(

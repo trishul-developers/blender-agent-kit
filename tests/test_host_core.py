@@ -179,6 +179,14 @@ class TestExporterRnaRunnerAndHash(unittest.TestCase):
         self.assertFalse(fbx["use_space_transform"])
         self.assertFalse(fbx["bake_space_transform"])
         self.assertTrue(fbx["use_triangles"])
+
+        synthetic = dict(cfg["export"])
+        synthetic["use_space_transform"] = True
+        synthetic["apply_transform_rigged"] = True
+        rigged = translate_fbx_kwargs(synthetic, "rig.fbx", is_rigged=True)
+        self.assertTrue(rigged["use_space_transform"])
+        self.assertTrue(rigged["bake_space_transform"])
+
         glb = translate_gltf_kwargs(cfg["export"], "out.glb")
         self.assertEqual(glb["export_format"], "GLB")
 
