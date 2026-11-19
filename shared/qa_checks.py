@@ -117,8 +117,14 @@ def _check_symmetry(errors: list[dict], inventory: dict, rule: dict) -> list[dic
     left_token = str(rule.get("left_token", "_L"))
     right_token = str(rule.get("right_token", "_R"))
     include = list(rule.get("include_patterns", ["*"]))
-    names = {o["name"] for o in inventory["objects"]}
-    left_names = sorted(name for name in names if left_token in name and _match_any(name, include))
+    exclude = list(rule.get("exclude_patterns", []))
+    names = {o["name"] for o in inventory["objects"] if not o.get("excluded_from_lod")}
+    left_names = sorted(
+        name for name in names
+        if left_token in name
+        and _match_any(name, include)
+        and (not exclude or not _match_any(name, exclude))
+    )
     tri_tolerance = int(rule.get("tri_tolerance", 0))
     bounds_tolerance = float(rule.get("bounds_tolerance", 0.02))
     volume_rel_tolerance = float(rule.get("volume_relative_tolerance", 0.05))
@@ -240,9 +246,58 @@ def _uv_layer_bounds(obj: dict, rule: dict) -> dict | None:
         return None
     if rule.get("uv_layer_name"):
         name = str(rule["uv_layer_name"])
-        return next((b for b in bounds if b["name"] == name), None)
-    index = int(rule.get("uv_layer_index", 0))
-    return bounds[index] if 0 <= index < len(bounds) else None
+        base = next((b for b in bounds if b["name"] == name), None)
+    else:
+        index = int(rule.get("uv_layer_index", 0))
+        base = bounds[index] if 0 <= index < len(bounds) else None
+    if base is None:
+        return None
+    if not any(k in rule for k in ("face_u_min_gte", "face_u_max_lte", "exclude_face_u_min_gte")):
+        return base
+
+    import bpy
+
+    b_obj = bpy.data.objects.get(obj["name"])
+    if b_obj is None or b_obj.type != "MESH":
+        return base
+    mesh = b_obj.data
+    layer = mesh.uv_layers.get(base["name"])
+    if layer is None or not layer.data:
+        return None
+
+    face_u_min_gte = rule.get("face_u_min_gte")
+    face_u_max_lte = rule.get("face_u_max_lte")
+    exclude_face_u_min_gte = rule.get("exclude_face_u_min_gte")
+
+    us: list[float] = []
+    vs: list[float] = []
+    for poly in mesh.polygons:
+        f_us = [float(layer.data[li].uv.x) for li in poly.loop_indices]
+        f_vs = [float(layer.data[li].uv.y) for li in poly.loop_indices]
+        if not f_us:
+            continue
+        f_u_min = min(f_us)
+        f_u_max = max(f_us)
+        if face_u_min_gte is not None and f_u_min < float(face_u_min_gte):
+            continue
+        if face_u_max_lte is not None and f_u_max > float(face_u_max_lte):
+            continue
+        if exclude_face_u_min_gte is not None and f_u_min >= float(exclude_face_u_min_gte):
+            continue
+        us.extend(f_us)
+        vs.extend(f_vs)
+
+    if not us:
+        return None
+    return {
+        "name": base["name"],
+        "u_min": min(us),
+        "u_max": max(us),
+        "u_span": max(us) - min(us),
+        "v_min": min(vs),
+        "v_max": max(vs),
+        "v_span": max(vs) - min(vs),
+    }
 
 
 def _check_uv_rules(errors: list[dict], inventory: dict, rules: list[dict]) -> list[dict]:
@@ -255,6 +310,7 @@ def _check_uv_rules(errors: list[dict], inventory: dict, rules: list[dict]) -> l
         matches = [
             obj for obj in inventory["objects"]
             if obj["type"] == "MESH"
+            and not obj.get("excluded_from_lod")
             and (not patterns or _match_any(obj["name"], patterns))
             and (not exclude_patterns or not _match_any(obj["name"], exclude_patterns))
             and (not lods or int(obj["lod"]) in lods)
@@ -307,11 +363,18 @@ def run(
         raise KeyError(f"Unknown asset_class '{asset_class}'. Available: {sorted(classes.keys())}")
     rules = classes[asset_class]
     damage_prefix = rules.get("damage_prefix", common.get("damage_prefix"))
+    lod_exclude_patterns = list(
+        rules.get("lod_exclude_patterns", common.get("lod_exclude_patterns", []))
+    )
 
-    inventory = inspect_scene(damage_prefix=damage_prefix)
+    inventory = inspect_scene(
+        damage_prefix=damage_prefix,
+        lod_exclude_patterns=lod_exclude_patterns,
+    )
     errors: list[dict] = []
     warnings: list[dict] = []
     names = {o["name"] for o in inventory["objects"]}
+    collider_set = set(inventory.get("colliders", []))
 
     if inventory["mesh_count"] == 0:
         _error(errors, "no_meshes", "scene contains no mesh objects")
@@ -319,6 +382,7 @@ def run(
     for obj in inventory["objects"]:
         if obj["type"] != "MESH":
             continue
+        is_collider = obj["name"] in collider_set
         scale = obj["scale"]
         if common.get("reject_negative_scale", True) and any(s < 0 for s in scale):
             _error(errors, "negative_scale", f"negative scale: {tuple(scale)}", obj["name"])
@@ -335,9 +399,9 @@ def run(
                 _error(errors, "inward_normals", f"closed mesh has negative signed volume {volume}", obj["name"])
 
         uv_layers = obj.get("uv_layers", [])
-        if common.get("require_uv0", True) and not uv_layers:
+        if not is_collider and common.get("require_uv0", True) and not uv_layers:
             _error(errors, "missing_uv0", "missing UV0", obj["name"])
-        if rules.get("require_non_overlapping_uv1", False):
+        if not is_collider and rules.get("require_non_overlapping_uv1", False):
             if len(uv_layers) < 2:
                 _error(errors, "missing_uv1", "asset class requires a second UV layer", obj["name"])
             else:

@@ -134,6 +134,16 @@ def _is_collision_name(name: str) -> bool:
     return upper.startswith("COLLISION_") or "_COL_" in upper or upper.endswith("_COL")
 
 
+def _is_wreck_object(obj) -> bool:
+    candidates = [obj.name]
+    parent = obj.parent
+    while parent is not None:
+        candidates.append(parent.name)
+        parent = parent.parent
+    candidates.extend(c.name for c in getattr(obj, "users_collection", []))
+    return any("WRECK" in name.upper() for name in candidates)
+
+
 def _visible_meshes(scene) -> list:
     return [o for o in scene.objects if o.type == "MESH" and not o.hide_render]
 
@@ -149,7 +159,7 @@ def _set_mesh_visibility(
     damage_targets = {
         o.name[len(damage_prefix):]
         for o in scene.objects
-        if o.type == "MESH" and o.name.startswith(damage_prefix)
+        if o.type == "MESH" and o.name.startswith(damage_prefix) and not _is_wreck_object(o)
     }
     for obj in scene.objects:
         if obj.type != "MESH":
@@ -158,7 +168,7 @@ def _set_mesh_visibility(
         if collision_only:
             visible = _is_collision_name(obj.name)
         else:
-            visible = not _is_collision_name(obj.name)
+            visible = not _is_collision_name(obj.name) and not _is_wreck_object(obj)
             if lod is not None:
                 visible = visible and lod_index(obj) == lod
             if damage_mode == "intact" and obj.name.startswith(damage_prefix):
@@ -166,7 +176,7 @@ def _set_mesh_visibility(
             elif damage_mode == "damage":
                 if obj.name.startswith(damage_prefix):
                     visible = visible
-                elif obj.name in damage_targets:
+                elif any(obj.name == tgt or obj.name.endswith("_" + tgt) for tgt in damage_targets):
                     visible = False
         obj.hide_render = not visible
     return saved
@@ -215,7 +225,12 @@ def _render_reference_silhouette(scene, camera, subject_bounds: dict, reference_
     before = set(scene.objects)
     bpy.ops.import_scene.fbx(filepath=str(Path(reference_fbx).resolve()))
     imported = [o for o in scene.objects if o not in before]
-    imported_meshes = [o for o in imported if o.type == "MESH"]
+    for obj in imported:
+        if obj.type == "MESH" and (
+            obj.name.startswith("Damage_") or _is_collision_name(obj.name) or _is_wreck_object(obj)
+        ):
+            obj.hide_render = True
+    imported_meshes = [o for o in imported if o.type == "MESH" and not o.hide_render]
     if not imported_meshes:
         raise ValueError(f"Reference FBX imported no meshes: {reference_fbx}")
 
@@ -225,6 +240,7 @@ def _render_reference_silhouette(scene, camera, subject_bounds: dict, reference_
     roots = [o for o in imported if o.parent not in imported]
     for root in roots:
         root.location.y += shift_y
+    bpy.context.view_layer.update()
 
     combined_meshes = _visible_meshes(scene)
     combined_bounds = inspect_objects(combined_meshes)["bounds"]
@@ -234,10 +250,11 @@ def _render_reference_silhouette(scene, camera, subject_bounds: dict, reference_
     _render(scene, out_file)
 
     for obj in imported:
+        obj_type = obj.type
         data = getattr(obj, "data", None)
         bpy.data.objects.remove(obj, do_unlink=True)
         if data is not None and getattr(data, "users", 1) == 0:
-            collection = getattr(bpy.data, f"{obj.type.lower()}s", None)
+            collection = getattr(bpy.data, f"{obj_type.lower()}s", None)
             if collection is not None:
                 try:
                     collection.remove(data)

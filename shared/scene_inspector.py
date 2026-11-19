@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import re
 from collections import defaultdict
 
@@ -16,18 +17,31 @@ def _matrix_list(matrix) -> list[list[float]]:
     return [[float(v) for v in row] for row in matrix]
 
 
-def lod_index(obj) -> int:
+def _candidate_hierarchy_names(obj) -> list[str]:
     candidates = [obj.name]
     parent = obj.parent
     while parent is not None:
         candidates.append(parent.name)
         parent = parent.parent
     candidates.extend(c.name for c in getattr(obj, "users_collection", []))
-    for name in candidates:
+    return candidates
+
+
+def lod_index(obj) -> int:
+    for name in _candidate_hierarchy_names(obj):
         match = _LOD_RE.search(name)
         if match:
             return int(match.group("index"))
     return 0
+
+
+def _is_excluded_from_lod(obj, patterns: list[str] | None) -> bool:
+    if not patterns:
+        return False
+    for candidate in _candidate_hierarchy_names(obj):
+        if any(fnmatch.fnmatchcase(candidate, pat) for pat in patterns):
+            return True
+    return False
 
 
 def _world_bounds(obj) -> tuple[list[float], list[float]]:
@@ -79,7 +93,11 @@ def _is_damage_object(obj, damage_prefix: str | None) -> bool:
     return False
 
 
-def inspect_objects(objects=None, damage_prefix: str | None = None) -> dict:
+def inspect_objects(
+    objects=None,
+    damage_prefix: str | None = None,
+    lod_exclude_patterns: list[str] | None = None,
+) -> dict:
     import bmesh
     import bpy
 
@@ -99,10 +117,12 @@ def inspect_objects(objects=None, damage_prefix: str | None = None) -> dict:
     collider_names: list[str] = []
     bounds_min = [float("inf")] * 3
     bounds_max = [float("-inf")] * 3
+    primary_mesh_count = 0
     mesh_count = 0
 
     for obj in sorted(selected, key=lambda o: o.name):
         plus_y, plus_z = _basis_vectors(obj)
+        excluded_from_lod = _is_excluded_from_lod(obj, lod_exclude_patterns)
         entry = {
             "name": obj.name,
             "type": obj.type,
@@ -116,6 +136,7 @@ def inspect_objects(objects=None, damage_prefix: str | None = None) -> dict:
             "plus_z_world": plus_z,
             "lod": lod_index(obj),
             "is_damage": _is_damage_object(obj, damage_prefix),
+            "excluded_from_lod": excluded_from_lod,
         }
 
         if obj.type == "MESH":
@@ -140,9 +161,6 @@ def inspect_objects(objects=None, damage_prefix: str | None = None) -> dict:
             })
             max_weights = max((len(v.groups) for v in mesh.vertices), default=0)
             bmin, bmax = _world_bounds(obj)
-            for i in range(3):
-                bounds_min[i] = min(bounds_min[i], bmin[i])
-                bounds_max[i] = max(bounds_max[i], bmax[i])
 
             entry.update({
                 "tri_count": int(tri_count),
@@ -156,17 +174,22 @@ def inspect_objects(objects=None, damage_prefix: str | None = None) -> dict:
                 "max_vertex_group_influences": max_weights,
                 "bounds": {"min": bmin, "max": bmax},
             })
-            lod = lod_acc[entry["lod"]]
-            lod["tri_count"] += int(tri_count)
-            if entry["is_damage"]:
-                lod["damage_tri_count"] += int(tri_count)
-                lod["damage_mesh_count"] += 1
-                lod["damage_objects"].append(obj.name)
-            else:
-                lod["intact_tri_count"] += int(tri_count)
-            lod["mesh_count"] += 1
-            lod["materials"].update(material_names)
-            lod["objects"].append(obj.name)
+            if not excluded_from_lod:
+                primary_mesh_count += 1
+                for i in range(3):
+                    bounds_min[i] = min(bounds_min[i], bmin[i])
+                    bounds_max[i] = max(bounds_max[i], bmax[i])
+                lod = lod_acc[entry["lod"]]
+                lod["tri_count"] += int(tri_count)
+                if entry["is_damage"]:
+                    lod["damage_tri_count"] += int(tri_count)
+                    lod["damage_mesh_count"] += 1
+                    lod["damage_objects"].append(obj.name)
+                else:
+                    lod["intact_tri_count"] += int(tri_count)
+                lod["mesh_count"] += 1
+                lod["materials"].update(material_names)
+                lod["objects"].append(obj.name)
 
             upper_name = obj.name.upper()
             if "_COL_" in upper_name or upper_name.endswith("_COL") or upper_name.startswith("COLLISION_"):
@@ -174,7 +197,7 @@ def inspect_objects(objects=None, damage_prefix: str | None = None) -> dict:
 
         object_entries.append(entry)
 
-    if mesh_count:
+    if primary_mesh_count:
         bounds = {
             "min": bounds_min,
             "max": bounds_max,
@@ -214,8 +237,14 @@ def inspect_objects(objects=None, damage_prefix: str | None = None) -> dict:
     }
 
 
-def inspect_scene(damage_prefix: str | None = None) -> dict:
-    return inspect_objects(damage_prefix=damage_prefix)
+def inspect_scene(
+    damage_prefix: str | None = None,
+    lod_exclude_patterns: list[str] | None = None,
+) -> dict:
+    return inspect_objects(
+        damage_prefix=damage_prefix,
+        lod_exclude_patterns=lod_exclude_patterns,
+    )
 
 
 def cli_main(argv: list[str]) -> dict:
