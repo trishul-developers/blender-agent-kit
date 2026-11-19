@@ -147,7 +147,7 @@ for key, slot in packed:
     im = load(path).resize((340, 340), Image.LANCZOS)
     tiles.append(label(im, f"UNITY URP: {slot}", f"packed map: {key}"))
 texture_sheet = grid(tiles, 3)
-if texture_sheet.getbbox() is None or not any(ImageStat.Stat(t).stddev for t in tiles):
+if texture_sheet.getbbox() is None or not any(max(ImageStat.Stat(t).stddev) > 0 for t in tiles):
     raise ValueError("Refusing to save an empty texture showcase")
 texture_sheet.save(OUT / "demo_textures.webp", "WEBP", quality=85, method=6)
 with Image.open(OUT / "demo_textures.webp") as verified:
