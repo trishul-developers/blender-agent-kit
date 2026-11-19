@@ -55,7 +55,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--blend", default=None, help="Input .blend file")
     parser.add_argument("--blender", default=None, help="Override Blender executable")
     parser.add_argument("--addons", default=None, help="Comma-separated add-on IDs to enable")
-    known, remainder = parser.parse_known_args(argv)
+    parser.add_argument("--result-json", default=None, help="Optional public JSON output path (owned by this entrypoint)")
+    raw_args = list(argv if argv is not None else sys.argv[1:])
+    if sum(arg == "--result-json" or arg.startswith("--result-json=") for arg in raw_args) > 1:
+        parser.error("--result-json may only be supplied once")
+    known, remainder = parser.parse_known_args(raw_args)
 
     addon_list = [a.strip() for a in known.addons.split(",") if a.strip()] if known.addons else None
     result = run_blender_module(
@@ -66,7 +70,12 @@ def main(argv: list[str] | None = None) -> int:
         blender_exe=known.blender,
         kit_root=kit_root,
     )
-    print(json.dumps(result, indent=2))
+    serialized = json.dumps(result, indent=2)
+    if known.result_json:
+        destination = Path(known.result_json).expanduser().resolve()
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_text(serialized + "\n", encoding="utf-8")
+    print(serialized)
     return 0 if result.get("status") == "ok" else 1
 
 
