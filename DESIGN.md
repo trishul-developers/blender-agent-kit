@@ -426,7 +426,8 @@ Implemented:
 - simple bottom-center pivot rule;
 - mirror-pair triangle/bounds/absolute-volume checks;
 - semantic dimension-box checks with optional LOD scoping and exclude patterns;
-- configurable U/V bounds and V-span checks.
+- profile-driven hierarchy exclusions from LOD aggregates/bounds;
+- configurable U/V bounds and V-span checks, including per-face U-band filtering for merged atlas objects.
 
 Optional checks return structured evidence:
 
@@ -540,6 +541,9 @@ Tier 2 on Blender 5.2 covers:
 - LOD monotonicity;
 - damage LOD leakage;
 - mirror-bounds failure;
+- LOD hierarchy exclusions and collider UV exemption;
+- per-face atlas-band UV filtering;
+- generic review include/exclude pattern selection and imported-data cleanup;
 - nested station → turret → gun → barrel/socket FBX export;
 - temporary LOD-suffix stripping with unselected-name collision stashing/restoration;
 - LOD0-scoped dimension checks that exclude wreck geometry;

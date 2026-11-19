@@ -134,14 +134,25 @@ def _is_collision_name(name: str) -> bool:
     return upper.startswith("COLLISION_") or "_COL_" in upper or upper.endswith("_COL")
 
 
-def _is_wreck_object(obj) -> bool:
-    candidates = [obj.name]
+def _hierarchy_names(obj) -> list[str]:
+    names = [obj.name]
     parent = obj.parent
     while parent is not None:
-        candidates.append(parent.name)
+        names.append(parent.name)
         parent = parent.parent
-    candidates.extend(c.name for c in getattr(obj, "users_collection", []))
-    return any("WRECK" in name.upper() for name in candidates)
+    names.extend(c.name for c in getattr(obj, "users_collection", []))
+    return names
+
+
+def _matches_hierarchy_patterns(obj, patterns: list[str] | None) -> bool:
+    if not patterns:
+        return False
+    import fnmatch
+    return any(
+        fnmatch.fnmatchcase(name, pattern)
+        for name in _hierarchy_names(obj)
+        for pattern in patterns
+    )
 
 
 def _visible_meshes(scene) -> list:
@@ -154,27 +165,35 @@ def _set_mesh_visibility(
     damage_mode: str | None = None,
     damage_prefix: str = "Damage_",
     collision_only: bool = False,
+    include_patterns: list[str] | None = None,
+    exclude_patterns: list[str] | None = None,
 ) -> dict:
     saved = {o.name: bool(o.hide_render) for o in scene.objects if o.type == "MESH"}
     damage_targets = {
         o.name[len(damage_prefix):]
         for o in scene.objects
-        if o.type == "MESH" and o.name.startswith(damage_prefix) and not _is_wreck_object(o)
+        if o.type == "MESH"
+        and bool(damage_prefix)
+        and o.name.startswith(damage_prefix)
+        and not _matches_hierarchy_patterns(o, exclude_patterns)
     }
     for obj in scene.objects:
         if obj.type != "MESH":
             continue
-        visible = True
         if collision_only:
             visible = _is_collision_name(obj.name)
         else:
-            visible = not _is_collision_name(obj.name) and not _is_wreck_object(obj)
+            visible = not _is_collision_name(obj.name)
+            if include_patterns:
+                visible = visible and _matches_hierarchy_patterns(obj, include_patterns)
+            if exclude_patterns:
+                visible = visible and not _matches_hierarchy_patterns(obj, exclude_patterns)
             if lod is not None:
                 visible = visible and lod_index(obj) == lod
-            if damage_mode == "intact" and obj.name.startswith(damage_prefix):
+            if damage_mode == "intact" and damage_prefix and obj.name.startswith(damage_prefix):
                 visible = False
             elif damage_mode == "damage":
-                if obj.name.startswith(damage_prefix):
+                if damage_prefix and obj.name.startswith(damage_prefix):
                     visible = visible
                 elif any(obj.name == tgt or obj.name.endswith("_" + tgt) for tgt in damage_targets):
                     visible = False
@@ -219,7 +238,41 @@ def _collision_material():
     return mat
 
 
-def _render_reference_silhouette(scene, camera, subject_bounds: dict, reference_fbx: str, out_file: Path) -> dict:
+def _remove_imported_objects(imported: list) -> None:
+    import bpy
+
+    for obj in imported:
+        obj_type = obj.type
+        data = getattr(obj, "data", None)
+        bpy.data.objects.remove(obj, do_unlink=True)
+        if data is not None and getattr(data, "users", 1) == 0:
+            collection_name = {
+                "MESH": "meshes",
+                "CURVE": "curves",
+                "SURFACE": "curves",
+                "FONT": "curves",
+                "META": "metaballs",
+                "ARMATURE": "armatures",
+                "CAMERA": "cameras",
+                "LIGHT": "lights",
+            }.get(obj_type)
+            collection = getattr(bpy.data, collection_name, None) if collection_name else None
+            if collection is not None:
+                try:
+                    collection.remove(data)
+                except Exception:
+                    pass
+
+
+def _render_reference_silhouette(
+    scene,
+    camera,
+    subject_bounds: dict,
+    reference_fbx: str,
+    out_file: Path,
+    damage_prefix: str = "Damage_",
+    exclude_patterns: list[str] | None = None,
+) -> dict:
     import bpy
 
     before = set(scene.objects)
@@ -227,7 +280,9 @@ def _render_reference_silhouette(scene, camera, subject_bounds: dict, reference_
     imported = [o for o in scene.objects if o not in before]
     for obj in imported:
         if obj.type == "MESH" and (
-            obj.name.startswith("Damage_") or _is_collision_name(obj.name) or _is_wreck_object(obj)
+            obj.name.startswith(damage_prefix)
+            or _is_collision_name(obj.name)
+            or _matches_hierarchy_patterns(obj, exclude_patterns)
         ):
             obj.hide_render = True
     imported_meshes = [o for o in imported if o.type == "MESH" and not o.hide_render]
@@ -249,17 +304,7 @@ def _render_reference_silhouette(scene, camera, subject_bounds: dict, reference_
     _configure_view(camera, "side", center, radius)
     _render(scene, out_file)
 
-    for obj in imported:
-        obj_type = obj.type
-        data = getattr(obj, "data", None)
-        bpy.data.objects.remove(obj, do_unlink=True)
-        if data is not None and getattr(data, "users", 1) == 0:
-            collection = getattr(bpy.data, f"{obj_type.lower()}s", None)
-            if collection is not None:
-                try:
-                    collection.remove(data)
-                except Exception:
-                    pass
+    _remove_imported_objects(imported)
     return {"reference": str(Path(reference_fbx).resolve()), "path": str(out_file)}
 
 
@@ -307,10 +352,20 @@ def run(
     camera = _ensure_camera(scene)
     _ensure_lighting(scene, center, radius)
     damage_prefix = str(preset_cfg.get("damage_prefix", "Damage_"))
+    exclude_patterns = [str(v) for v in preset_cfg.get("exclude_patterns", [])]
+    reference_exclude_patterns = [
+        str(v) for v in preset_cfg.get("reference_exclude_patterns", exclude_patterns)
+    ]
 
     artifacts: dict[str, object] = {}
     requested = views or list(preset_cfg.get("orthographic_views", ["hero", "front", "side", "top"]))
-    saved = _set_mesh_visibility(scene, lod=int(preset_cfg.get("primary_lod", 0)), damage_mode="intact", damage_prefix=damage_prefix)
+    saved = _set_mesh_visibility(
+        scene,
+        lod=int(preset_cfg.get("primary_lod", 0)),
+        damage_mode="intact",
+        damage_prefix=damage_prefix,
+        exclude_patterns=exclude_patterns,
+    )
     try:
         bounds = _bounds_from_visible(scene) or base_bounds
         c = bounds["center"]
@@ -326,7 +381,13 @@ def run(
     closeup_distance = preset_cfg.get("closeup_distance_m")
     if closeup_distance is not None:
         primary_lod = int(preset_cfg.get("primary_lod", 0))
-        saved = _set_mesh_visibility(scene, lod=primary_lod, damage_mode="intact", damage_prefix=damage_prefix)
+        saved = _set_mesh_visibility(
+            scene,
+            lod=primary_lod,
+            damage_mode="intact",
+            damage_prefix=damage_prefix,
+            exclude_patterns=exclude_patterns,
+        )
         try:
             bounds = _bounds_from_visible(scene)
             if bounds:
@@ -353,7 +414,13 @@ def run(
     if ranges:
         range_artifacts: list[dict] = []
         for lod in lods:
-            saved = _set_mesh_visibility(scene, lod=lod, damage_mode="intact", damage_prefix=damage_prefix)
+            saved = _set_mesh_visibility(
+                scene,
+                lod=lod,
+                damage_mode="intact",
+                damage_prefix=damage_prefix,
+                exclude_patterns=exclude_patterns,
+            )
             try:
                 bounds = _bounds_from_visible(scene)
                 if not bounds:
@@ -378,7 +445,13 @@ def run(
     if preset_cfg.get("damage_views", False):
         damage_artifacts: list[dict] = []
         for lod in [int(v) for v in preset_cfg.get("damage_lods", [0, 1])]:
-            saved = _set_mesh_visibility(scene, lod=lod, damage_mode="damage", damage_prefix=damage_prefix)
+            saved = _set_mesh_visibility(
+                scene,
+                lod=lod,
+                damage_mode="damage",
+                damage_prefix=damage_prefix,
+                exclude_patterns=exclude_patterns,
+            )
             try:
                 bounds = _bounds_from_visible(scene)
                 if not bounds:
@@ -391,6 +464,43 @@ def run(
             finally:
                 _restore_visibility(scene, saved)
         artifacts["damage"] = damage_artifacts
+
+    variant_artifacts: list[dict] = []
+    for variant in preset_cfg.get("variant_views", []):
+        variant_id = str(variant.get("id", "variant"))
+        include = [str(v) for v in variant.get("include_patterns", [])]
+        if not include:
+            raise ValueError(f"Review variant '{variant_id}' requires include_patterns")
+        variant_exclude = [str(v) for v in variant.get("exclude_patterns", [])]
+        variant_lod = variant.get("lod")
+        saved = _set_mesh_visibility(
+            scene,
+            lod=int(variant_lod) if variant_lod is not None else None,
+            damage_prefix=damage_prefix,
+            include_patterns=include,
+            exclude_patterns=variant_exclude,
+        )
+        try:
+            bounds = _bounds_from_visible(scene)
+            if not bounds:
+                raise ValueError(
+                    f"Review variant '{variant_id}' matched no visible meshes; patterns={include}"
+                )
+            view = str(variant.get("view", "hero"))
+            r = max(max(bounds["size"]) * 0.6, 0.5)
+            _configure_view(camera, view, bounds["center"], r)
+            out_file = out_path / f"review_{variant_id}.png"
+            _render(scene, out_file)
+            variant_artifacts.append({
+                "id": variant_id,
+                "lod": int(variant_lod) if variant_lod is not None else None,
+                "include_patterns": include,
+                "path": str(out_file),
+            })
+        finally:
+            _restore_visibility(scene, saved)
+    if variant_artifacts:
+        artifacts["variants"] = variant_artifacts
 
     if preset_cfg.get("collision_view", False):
         saved = _set_mesh_visibility(scene, collision_only=True)
@@ -415,7 +525,13 @@ def run(
 
     effective_reference = reference_fbx or preset_cfg.get("reference_fbx")
     if effective_reference:
-        saved = _set_mesh_visibility(scene, lod=int(preset_cfg.get("primary_lod", 0)), damage_mode="intact", damage_prefix=damage_prefix)
+        saved = _set_mesh_visibility(
+            scene,
+            lod=int(preset_cfg.get("primary_lod", 0)),
+            damage_mode="intact",
+            damage_prefix=damage_prefix,
+            exclude_patterns=exclude_patterns,
+        )
         try:
             subject_bounds = _bounds_from_visible(scene)
             if subject_bounds:
@@ -425,6 +541,8 @@ def run(
                     subject_bounds,
                     str(effective_reference),
                     out_path / "review_silhouette_comparison.png",
+                    damage_prefix=damage_prefix,
+                    exclude_patterns=reference_exclude_patterns,
                 )
         finally:
             _restore_visibility(scene, saved)

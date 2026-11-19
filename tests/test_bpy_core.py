@@ -7,6 +7,11 @@ from pathlib import Path
 
 from shared.bundle_exporter import run as run_bundle
 from shared.qa_checks import run as run_qa
+from shared.review_shots import (
+    _matches_hierarchy_patterns,
+    _remove_imported_objects,
+    _set_mesh_visibility,
+)
 
 
 def _ensure_uv(obj, second: bool = True):
@@ -280,6 +285,149 @@ def run() -> dict:
         part = stripped["parts"][0]
         assert part["export_root"] == "Vehicle_Station", part
         assert part["roundtrip"]["passed"], part["roundtrip"]
+    passed += 1
+
+    # LOD exclusion is generic and hierarchy-aware; colliders are exempt from UV0.
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    _make_compliant_cube("Body_LOD0", size=2.0)
+    wreck_root = _link_empty("Variant_Destroyed_LOD0")
+    wreck_mesh = _make_compliant_cube("DestroyedBody", location=(0.0, 0.0, 4.0), size=4.0)
+    wreck_mesh.parent = wreck_root
+    bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0.0, 0.0, 1.0))
+    collider = bpy.context.object
+    collider.name = "Collision_Hull"
+    bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+    with tempfile.TemporaryDirectory(prefix="bak_profile_") as tmp:
+        profile_path = Path(tmp) / "profile.json"
+        profile_path.write_text(json.dumps({
+            "name": "lod-exclude-test",
+            "version": "0.1.0",
+            "target_overrides": {
+                "unity": {
+                    "qa": {
+                        "common": {
+                            "require_monotonic_lod_tris": False,
+                            "lod_exclude_patterns": ["Variant_Destroyed*", "Collision_*"]
+                        },
+                        "asset_classes": {
+                            "lod_exclude_test": {
+                                "reject_boundary_edges": False,
+                                "require_non_overlapping_uv1": False,
+                                "max_tris": {"lod0": 20}
+                            }
+                        }
+                    }
+                }
+            }
+        }), encoding="utf-8")
+        excluded = run_qa(
+            target="unity",
+            asset_class="lod_exclude_test",
+            project_profile=str(profile_path),
+        )
+        assert excluded["passed"], excluded
+        assert excluded["inventory"]["lods"]["0"]["tri_count"] == 12, excluded
+        flags = {o["name"]: o["excluded_from_lod"] for o in excluded["inventory"]["objects"]}
+        assert flags["DestroyedBody"] is True
+        assert flags["Collision_Hull"] is True
+    passed += 1
+
+    # Per-face UV filtering separates two atlas bands inside one merged LOD mesh.
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    merged = _make_compliant_cube("Merged_LOD2", size=2.0)
+    uv = merged.data.uv_layers[0]
+    for poly in merged.data.polygons:
+        high_band = (poly.index % 2) == 0
+        uvals = [0.80, 0.90, 0.90, 0.80] if high_band else [0.10, 0.70, 0.70, 0.10]
+        vvals = [0.0, 10.0, 20.0, 30.0] if high_band else [0.0, 1.0, 1.0, 0.0]
+        for offset, loop_index in enumerate(poly.loop_indices):
+            uv.data[loop_index].uv = (uvals[offset % len(uvals)], vvals[offset % len(vvals)])
+    with tempfile.TemporaryDirectory(prefix="bak_profile_") as tmp:
+        profile_path = Path(tmp) / "profile.json"
+        profile_path.write_text(json.dumps({
+            "name": "atlas-band-test",
+            "version": "0.1.0",
+            "target_overrides": {
+                "unity": {
+                    "qa": {
+                        "common": {"require_monotonic_lod_tris": False},
+                        "asset_classes": {
+                            "atlas_band_test": {
+                                "reject_boundary_edges": False,
+                                "require_non_overlapping_uv1": False,
+                                "uv_checks": [
+                                    {
+                                        "id": "high_band",
+                                        "patterns": ["Merged*"],
+                                        "lods": [2],
+                                        "face_u_min_gte": 0.78,
+                                        "u_min_gte": 0.78,
+                                        "u_max_lte": 1.0,
+                                        "min_v_span": 5.0
+                                    },
+                                    {
+                                        "id": "body_band",
+                                        "patterns": ["Merged*"],
+                                        "lods": [2],
+                                        "exclude_face_u_min_gte": 0.78,
+                                        "u_max_lte": 0.74
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        }), encoding="utf-8")
+        atlas = run_qa(
+            target="unity",
+            asset_class="atlas_band_test",
+            project_profile=str(profile_path),
+        )
+        assert atlas["passed"], atlas
+        by_id = {item["id"]: item["uv"] for item in atlas["evidence"]["uv"]}
+        assert by_id["high_band"]["u_min"] >= 0.78
+        assert by_id["high_band"]["v_span"] >= 5.0
+        assert by_id["body_band"]["u_max"] <= 0.74
+    passed += 1
+
+    # Review visibility uses generic hierarchy patterns, not vehicle/wreck semantics.
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    normal = _make_compliant_cube("Body_LOD0", size=1.0)
+    variant_root = _link_empty("Variant_Destroyed_LOD0")
+    variant = _make_compliant_cube("Body_Destroyed", location=(0.0, 0.0, 2.0), size=1.0)
+    variant.parent = variant_root
+    assert _matches_hierarchy_patterns(variant, ["Variant_Destroyed*"])
+    saved = _set_mesh_visibility(
+        bpy.context.scene,
+        lod=0,
+        exclude_patterns=["Variant_Destroyed*"],
+    )
+    assert normal.hide_render is False
+    assert variant.hide_render is True
+    _restore = saved
+    for obj in bpy.context.scene.objects:
+        if obj.type == "MESH" and obj.name in _restore:
+            obj.hide_render = _restore[obj.name]
+    saved = _set_mesh_visibility(
+        bpy.context.scene,
+        lod=0,
+        include_patterns=["Variant_Destroyed*"],
+    )
+    assert normal.hide_render is True
+    assert variant.hide_render is False
+    for obj in bpy.context.scene.objects:
+        if obj.type == "MESH" and obj.name in saved:
+            obj.hide_render = saved[obj.name]
+    passed += 1
+
+    # Imported-object cleanup caches type/data before deletion and removes orphan mesh data.
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    temp = _make_compliant_cube("ImportedTemp", size=1.0)
+    mesh_name = temp.data.name
+    _remove_imported_objects([temp])
+    assert bpy.data.objects.get("ImportedTemp") is None
+    assert bpy.data.meshes.get(mesh_name) is None
     passed += 1
 
     # Hierarchy-safe FBX prebake + station root zeroing must survive a fresh Blender import.

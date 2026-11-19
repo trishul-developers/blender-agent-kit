@@ -28,7 +28,8 @@ Compared with v0.1, PR #1 adds:
 - intact-vs-`Damage_*` triangle accounting with configurable allowed LODs;
 - configurable L/R mirror checks using triangle counts, mirrored bounds, and signed-volume magnitudes;
 - configurable semantic dimension boxes, including optional LOD scoping and exclude patterns;
-- configurable UV-range/V-scroll checks;
+- profile-driven LOD aggregation exclusions for variant/collision hierarchies in multi-LOD authoring scenes;
+- configurable UV-range/V-scroll checks, including per-face U-band selection for merged atlases;
 - safe 8/16-bit channel packing plus Lanczos resizing via `--size`;
 - optional normal-Y convention reporting, explicitly marked heuristic;
 - hierarchy-safe static FBX Y-up prebaking for nested pivots and directional socket empties;
