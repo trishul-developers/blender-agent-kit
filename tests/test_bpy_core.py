@@ -8,8 +8,13 @@ from pathlib import Path
 from shared.bundle_exporter import run as run_bundle
 from shared.qa_checks import run as run_qa
 from shared.review_shots import (
+    _ensure_lighting,
     _matches_hierarchy_patterns,
+    _prepare_collision_wireframe,
     _remove_imported_objects,
+    _restore_collision_wireframe,
+    _review_light_scale,
+    _set_collision_overlay_visibility,
     _set_mesh_visibility,
 )
 
@@ -416,6 +421,41 @@ def run() -> dict:
     )
     assert normal.hide_render is True
     assert variant.hide_render is False
+    for obj in bpy.context.scene.objects:
+        if obj.type == "MESH" and obj.name in saved:
+            obj.hide_render = saved[obj.name]
+    passed += 1
+
+    # Auto review lighting scales with subject size instead of assuming vehicle-scale assets.
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    scene = bpy.context.scene
+    assert abs(_review_light_scale(0.5) - 0.04) < 1e-9
+    assert abs(_review_light_scale(2.5) - 1.0) < 1e-9
+    _ensure_lighting(scene, [0.0, 0.0, 0.0], 0.5)
+    energies = {o.name: o.data.energy for o in scene.objects if o.type == "LIGHT"}
+    assert set(energies) == {"QA_Key", "QA_Fill", "QA_Rim"}, energies
+    assert abs(energies["QA_Key"] - 36.0) < 1e-6, energies
+    assert abs(energies["QA_Fill"] - 20.0) < 1e-6, energies
+    assert abs(energies["QA_Rim"] - 28.0) < 1e-6, energies
+    passed += 1
+
+    # Collision review keeps the primary LOD visible and overlays temporary wire geometry.
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    body0 = _make_compliant_cube("Prop_LOD0", size=1.0)
+    body1 = _make_compliant_cube("Prop_LOD1", location=(0.0, 0.0, 2.0), size=0.8)
+    collider = _make_compliant_cube("Prop_COL_01", size=1.05)
+    saved = _set_collision_overlay_visibility(bpy.context.scene, lod=0)
+    assert body0.hide_render is False
+    assert body1.hide_render is True
+    assert collider.hide_render is False
+    overlay = _prepare_collision_wireframe(bpy.context.scene, 0.5)
+    assert len(overlay) == 1, overlay
+    assert overlay[0]["object"] is collider
+    assert overlay[0]["modifier"].type == "WIREFRAME"
+    assert len(collider.data.materials) == 1
+    _restore_collision_wireframe(overlay)
+    assert not any(mod.type == "WIREFRAME" for mod in collider.modifiers)
+    assert len(collider.data.materials) == 0
     for obj in bpy.context.scene.objects:
         if obj.type == "MESH" and obj.name in saved:
             obj.hide_render = saved[obj.name]
