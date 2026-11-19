@@ -300,6 +300,9 @@
                     },
                     "unpremultiplied_rgba": {
                       "type": "boolean"
+                    },
+                    "optional": {
+                      "type": "boolean"
                     }
                   }
                 }
