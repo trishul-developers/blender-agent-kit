@@ -58,5 +58,4 @@ jobs:
           gh release create v0.2.1 \
             --target "$VERIFIED_SHA" \
             --title "Blender Agent Kit v0.2.1" \
-            --notes-file RELEASES/v0.2.1.md \
-            --verify-tag=false
+            --notes-file RELEASES/v0.2.1.md
