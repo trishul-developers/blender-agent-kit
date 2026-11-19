@@ -97,7 +97,42 @@ The agent estimated the with-kit minutes from its implementation record and esti
 
 Read the [complete independent report](demo/REPORT.md), [capability evaluation](demo/KIT_EVALUATION.md), [effort methodology](demo/EFFORT_ANALYSIS.md), and [improvement backlog](demo/IMPROVEMENT_BACKLOG.md). No Unity Editor import was performed; the proof is based on Blender validation and documented texture checks.
 
+
 ---
+
+## Blind-subagent workflow comparison — 0.48 m quadcopter
+
+A **second, separately conducted experiment** assigned a matching 0.48 m quadcopter brief to **two fresh, reportedly isolated subagents**: Arm A used plain Blender Python (`bpy`) without being told about Blender Agent Kit or the comparison; Arm B was explicitly given the kit's skills and CLI. Both produced original Blender scenes and scripts. Afterward, the evaluator ran **the same Unity `solid_prop` QA policy on both scenes**, including the baseline. This is stronger isolation than the **earlier same-session exploratory experiment**, which is **not** the data shown below.
+
+The supplied ZIP contains both Python builders, both `.blend` scenes, original renders, exported FBX files, separate audit JSON, and the kit's final QA/export reports. The plain-`bpy` builder has **no kit imports/CLI references**; the kit-guided builder contains explicit kit integration. **Fresh-subagent prompt isolation is described by the experiment report, but raw subagent prompts/transcripts or independent execution-attestation logs were not included in the submitted ZIP**, so complete absence of contextual leakage cannot be proven from these files alone.
+
+| Observed result | Arm A: blind plain `bpy` | Arm B: Blender Agent Kit |
+| --- | ---: | ---: |
+| Agent turns | **8** | **13** (includes skill discovery and QA fixes) |
+| Recorded Blender compute across actual runs | **376.12 s** (4 executions) | **56.49 s** (8 CLI executions) |
+| Reported end-to-end elapsed time | **~15 min** | **~7.5 min** |
+| Custom studio/render/export boilerplate | **150 lines** | **0 lines** (agent-classified) |
+| Uniform Unity `solid_prop` QA errors | **90 — FAIL** | **0 — PASS** |
+| QA warnings | **0** | **43 `uv1_overlap_unverified`** |
+| Final mesh count / triangles | **81 / 23,746** | **43 / 10,240** |
+| Materials | **23** | **2** |
+| Blender FBX verification | Custom round-trip reported as passed; no kit manifest | Kit fresh-import **PASS: 10,240 → 10,240 triangles** plus manifest |
+| Skill reading | No explicit kit skill reads reported | Six skill documents + internal kit references; **~2,648 tokens estimated from characters**, not metered |
+
+### Findings and trade-offs
+
+- **QA and export readiness:** The independent uniform audit recorded **81 missing UV1**, **6 boundary-edge**, **1 triangle-budget**, **1 material-budget**, and **1 pivot-rule** error in Arm A (90 total). Arm B's initial QA found a **20-edge non-manifold GPS mast dome**; the agent fixed it, producing **zero final errors**, 43 watertight meshes and Blender FBX parity. The **43 final UV1-overlap-unverified warnings** are an explicit remaining validation limitation.
+- **Execution efficiency:** The observed Blender compute total was **319.63 s (85.0%) lower**, or approximately **6.7× less**, in Arm B; the report also gives **~2× lower overall elapsed time**. The tasks shared an asset brief but **did not execute equivalent rendering or verification workloads**. Arm A invested in longer CPU Cycles studio renders, while Arm B used quicker four-view technical review rendering. This is an **observed workflow difference, not an isolated library-speed or token-efficiency benchmark**.
+- **Boilerplate and agent effort:** The evaluator classified **150 lines of render/export/QA plumbing** in Arm A versus **none in Arm B**, whose script delegated these stages to kit commands. Arm B nevertheless needed **5 more agent turns** (13 vs 8) to read skills, inspect kit internals and remediate QA findings. The script-length and token figures are not model-billing measurements.
+- **Presentation-quality trade-off:** Arm A's custom studio renders were reported as brighter and more presentation-ready. Arm B's fast automated review views had **darker backgrounds and less effective framing** for carbon/anodized surfaces—an actionable improvement area for review presets.
+- **Different final models:** Arm A retained 23,746 triangles, 23 materials and studio objects in its source scene; Arm B produced a 10,240-triangle, two-material, single-root asset. Despite the matching brief and shared evaluation policy, this is **one pair of independent implementations**, not a repeated statistical trial or a comparison of geometrically identical assets.
+
+**Bottom line:** In the supplied two-subagent comparison, the kit-guided arm produced a **Unity-policy-QA-passing Blender asset and structured export evidence** with less recorded Blender compute and less custom pipeline code, at the cost of more agent turns and less polished default presentation renders. These are **single-run observed outcomes**, not universally guaranteed percentage savings. The earlier independent SupplyCrate/Sci-Fi **74–80% pipeline / 55–63% end-to-end** figures remain separate *retrospective estimates*.
+
+*Evidence provenance:* `blind_a_b_benchmark_quadcopter_assembly_in_blender_plain_bpy_vs_blender_agent_kit.html` and `quadcopter-blind-ab-assets.zip`, supplied after the earlier exploratory report. The source archive contains `arm_a_no_skill/`, `arm_b_with_skill/` and `audit/` with raw scenes, code, renders and structured checks; the full archive and HTML have **not yet been published to the repository**, so this README describes submitted evidence rather than a maintainer rerun.
+
+---
+
 ## What can an agent do?
 
 | Agent task | Support |
