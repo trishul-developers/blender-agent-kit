@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "asset_id": "SF_Bulkhead_Arch",
+  "parts": [
+    {
+      "id": "bulkhead_full",
+      "role": "module_hierarchy",
+      "lod": 0,
+      "root": "SF_Bulkhead_Arch",
+      "file": "SF_Bulkhead_Arch_Complete.fbx"
+    },
+    {
+      "id": "bulkhead_lod0",
+      "role": "mesh",
+      "lod": 0,
+      "collection": "Bulkhead_LOD0",
+      "file": "SF_Bulkhead_Arch_LOD0.fbx"
+    },
+    {
+      "id": "bulkhead_lod1",
+      "role": "mesh",
+      "lod": 1,
+      "collection": "Bulkhead_LOD1",
+      "file": "SF_Bulkhead_Arch_LOD1.fbx"
+    },
+    {
+      "id": "bulkhead_lod2",
+      "role": "mesh",
+      "lod": 2,
+      "collection": "Bulkhead_LOD2",
+      "file": "SF_Bulkhead_Arch_LOD2.fbx"
+    },
+    {
+      "id": "bulkhead_lod3",
+      "role": "mesh",
+      "lod": 3,
+      "collection": "Bulkhead_LOD3",
+      "file": "SF_Bulkhead_Arch_LOD3.fbx"
+    },
+    {
+      "id": "bulkhead_collision",
+      "role": "collision",
+      "collection": "Bulkhead_COL",
+      "file": "SF_Bulkhead_Arch_COL.fbx"
+    }
+  ]
+}

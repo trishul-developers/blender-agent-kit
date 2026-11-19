@@ -1,0 +1,589 @@
+{
+  "status": "ok",
+  "target": "unity",
+  "project_profile": null,
+  "asset_class": "solid_prop",
+  "passed": true,
+  "errors": [],
+  "warnings": [
+    {
+      "object": "SupplyCrate_LOD0",
+      "warning": "uv1_overlap_not_geometrically_verified",
+      "code": "uv1_overlap_unverified"
+    },
+    {
+      "object": "SupplyCrate_LOD1",
+      "warning": "uv1_overlap_not_geometrically_verified",
+      "code": "uv1_overlap_unverified"
+    },
+    {
+      "object": "SupplyCrate_LOD2",
+      "warning": "uv1_overlap_not_geometrically_verified",
+      "code": "uv1_overlap_unverified"
+    }
+  ],
+  "evidence": {
+    "symmetry": [],
+    "dimensions": [],
+    "uv": []
+  },
+  "inventory": {
+    "object_count": 5,
+    "mesh_count": 4,
+    "damage_prefix": null,
+    "roots": [
+      "SupplyCrate"
+    ],
+    "bounds": {
+      "min": [
+        -0.5955106019973755,
+        -0.43150001764297485,
+        0.0
+      ],
+      "max": [
+        0.5955106019973755,
+        0.43150001764297485,
+        0.7289999723434448
+      ],
+      "size": [
+        1.191021203994751,
+        0.8630000352859497,
+        0.7289999723434448
+      ],
+      "center": [
+        0.0,
+        0.0,
+        0.3644999861717224
+      ]
+    },
+    "lods": {
+      "0": {
+        "tri_count": 4216,
+        "intact_tri_count": 4216,
+        "damage_tri_count": 0,
+        "mesh_count": 2,
+        "damage_mesh_count": 0,
+        "material_count": 1,
+        "materials": [
+          "M_SupplyCrate_Body"
+        ],
+        "objects": [
+          "SupplyCrate_COL_01",
+          "SupplyCrate_LOD0"
+        ],
+        "damage_objects": []
+      },
+      "1": {
+        "tri_count": 1084,
+        "intact_tri_count": 1084,
+        "damage_tri_count": 0,
+        "mesh_count": 1,
+        "damage_mesh_count": 0,
+        "material_count": 1,
+        "materials": [
+          "M_SupplyCrate_Body"
+        ],
+        "objects": [
+          "SupplyCrate_LOD1"
+        ],
+        "damage_objects": []
+      },
+      "2": {
+        "tri_count": 136,
+        "intact_tri_count": 136,
+        "damage_tri_count": 0,
+        "mesh_count": 1,
+        "damage_mesh_count": 0,
+        "material_count": 1,
+        "materials": [
+          "M_SupplyCrate_Body"
+        ],
+        "objects": [
+          "SupplyCrate_LOD2"
+        ],
+        "damage_objects": []
+      }
+    },
+    "colliders": [
+      "SupplyCrate_COL_01"
+    ],
+    "objects": [
+      {
+        "name": "SupplyCrate",
+        "type": "EMPTY",
+        "parent": null,
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "SupplyCrate_COL_01",
+        "type": "MESH",
+        "parent": "SupplyCrate",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 12,
+        "uv_layers": [],
+        "uv_bounds": [],
+        "material_names": [],
+        "material_slots": 0,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 0.7493035992159615,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            -0.5955106019973755,
+            -0.43150001764297485,
+            0.0
+          ],
+          "max": [
+            0.5955106019973755,
+            0.43150001764297485,
+            0.7289999723434448
+          ]
+        }
+      },
+      {
+        "name": "SupplyCrate_LOD0",
+        "type": "MESH",
+        "parent": "SupplyCrate",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 4204,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9800000190734863,
+            "v_span": 0.9600000195205212
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 0.9999999403953552,
+            "v_span": 0.9999999403953552
+          }
+        ],
+        "material_names": [
+          "M_SupplyCrate_Body"
+        ],
+        "material_slots": 1,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 0.5736119012409147,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            -0.5955106019973755,
+            -0.43150001764297485,
+            0.0
+          ],
+          "max": [
+            0.5955106019973755,
+            0.43150001764297485,
+            0.7289999723434448
+          ]
+        }
+      },
+      {
+        "name": "SupplyCrate_LOD1",
+        "type": "MESH",
+        "parent": "SupplyCrate",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 1,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 1084,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9800000190734863,
+            "v_span": 0.9600000195205212
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 1.0,
+            "v_span": 1.0
+          }
+        ],
+        "material_names": [
+          "M_SupplyCrate_Body"
+        ],
+        "material_slots": 1,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 0.5735248750342549,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            -0.5946602821350098,
+            -0.43150001764297485,
+            0.0
+          ],
+          "max": [
+            0.5946602821350098,
+            0.43150001764297485,
+            0.7289999723434448
+          ]
+        }
+      },
+      {
+        "name": "SupplyCrate_LOD2",
+        "type": "MESH",
+        "parent": "SupplyCrate",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 2,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 136,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.8806400299072266,
+            "v_span": 0.8606400303542614
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 1.0,
+            "v_span": 1.0
+          }
+        ],
+        "material_names": [
+          "M_SupplyCrate_Body"
+        ],
+        "material_slots": 1,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 0.6168297466981626,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            -0.550000011920929,
+            -0.40150001645088196,
+            0.0
+          ],
+          "max": [
+            0.550000011920929,
+            0.4065000116825104,
+            0.7239999771118164
+          ]
+        }
+      }
+    ]
+  }
+}

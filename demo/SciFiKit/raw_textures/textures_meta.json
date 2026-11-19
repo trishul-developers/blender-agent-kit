@@ -1,0 +1,19 @@
+{
+  "trim_sheet": {
+    "resolution": [
+      2048,
+      2048
+    ],
+    "seed": 101,
+    "normal_bit_depth": 16,
+    "normal_convention": "opengl"
+  },
+  "emissive": {
+    "resolution": [
+      1024,
+      1024
+    ],
+    "seed": 202,
+    "normal_bit_depth": 16
+  }
+}

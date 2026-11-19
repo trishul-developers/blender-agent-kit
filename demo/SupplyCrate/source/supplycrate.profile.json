@@ -1,0 +1,40 @@
+{
+  "name": "supplycrate-trial",
+  "version": "1.0.0",
+  "description": "Independent trial profile for SupplyCrate prop review and QA.",
+  "target_overrides": {
+    "unity": {
+      "qa": {
+        "common": {
+          "lod_exclude_patterns": ["*_COL_*"]
+        }
+      }
+    }
+  },
+  "review_presets": {
+    "showcase_tiles": {
+      "resolution": [960, 540],
+      "orthographic_views": ["front", "side", "rear", "top"],
+      "primary_lod": 0,
+      "closeup_distance_m": 2.65,
+      "range_shots_m": [2.6, 5.5, 11.0],
+      "azimuth_deg": 38.0,
+      "elevation_deg": 24.0,
+      "lens_mm": 50.0,
+      "lods": [0, 1, 2],
+      "collision_view": true
+    },
+    "hero_hd": {
+      "resolution": [1920, 1080],
+      "orthographic_views": [],
+      "primary_lod": 0,
+      "closeup_distance_m": 2.65,
+      "range_shots_m": [],
+      "azimuth_deg": 36.0,
+      "elevation_deg": 22.0,
+      "lens_mm": 50.0,
+      "lods": [0],
+      "collision_view": true
+    }
+  }
+}

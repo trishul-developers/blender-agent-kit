@@ -1,0 +1,1357 @@
+{
+  "status": "ok",
+  "blender_version": "5.2.4 LTS",
+  "device": "CPU",
+  "resolution": [
+    960,
+    540
+  ],
+  "project_profile": "scifikit-trial",
+  "preset": "bulkhead_lods",
+  "inventory": {
+    "object_count": 15,
+    "mesh_count": 7,
+    "damage_prefix": null,
+    "roots": [
+      "SF_Bulkhead_Arch"
+    ],
+    "bounds": {
+      "min": [
+        -2.0199999809265137,
+        -0.5239999890327454,
+        0.0
+      ],
+      "max": [
+        2.0199999809265137,
+        0.5239999890327454,
+        3.5999999046325684
+      ],
+      "size": [
+        4.039999961853027,
+        1.0479999780654907,
+        3.5999999046325684
+      ],
+      "center": [
+        0.0,
+        0.0,
+        1.7999999523162842
+      ]
+    },
+    "lods": {
+      "0": {
+        "tri_count": 2428,
+        "intact_tri_count": 2428,
+        "damage_tri_count": 0,
+        "mesh_count": 4,
+        "damage_mesh_count": 0,
+        "material_count": 2,
+        "materials": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "objects": [
+          "SF_Bulkhead_Arch_COL_01",
+          "SF_Bulkhead_Arch_COL_02",
+          "SF_Bulkhead_Arch_COL_03",
+          "SF_Bulkhead_Arch_LOD0"
+        ],
+        "damage_objects": []
+      },
+      "1": {
+        "tri_count": 904,
+        "intact_tri_count": 904,
+        "damage_tri_count": 0,
+        "mesh_count": 1,
+        "damage_mesh_count": 0,
+        "material_count": 2,
+        "materials": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "objects": [
+          "SF_Bulkhead_Arch_LOD1"
+        ],
+        "damage_objects": []
+      },
+      "2": {
+        "tri_count": 336,
+        "intact_tri_count": 336,
+        "damage_tri_count": 0,
+        "mesh_count": 1,
+        "damage_mesh_count": 0,
+        "material_count": 2,
+        "materials": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "objects": [
+          "SF_Bulkhead_Arch_LOD2"
+        ],
+        "damage_objects": []
+      },
+      "3": {
+        "tri_count": 60,
+        "intact_tri_count": 60,
+        "damage_tri_count": 0,
+        "mesh_count": 1,
+        "damage_mesh_count": 0,
+        "material_count": 2,
+        "materials": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "objects": [
+          "SF_Bulkhead_Arch_LOD3"
+        ],
+        "damage_objects": []
+      }
+    },
+    "colliders": [
+      "SF_Bulkhead_Arch_COL_01",
+      "SF_Bulkhead_Arch_COL_02",
+      "SF_Bulkhead_Arch_COL_03"
+    ],
+    "objects": [
+      {
+        "name": "SF_Bulkhead_Arch",
+        "type": "EMPTY",
+        "parent": null,
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "SF_Bulkhead_Arch_COL_01",
+        "type": "MESH",
+        "parent": "SF_Bulkhead_Arch",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 12,
+        "uv_layers": [],
+        "uv_bounds": [],
+        "material_names": [],
+        "material_slots": 0,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 2.7539995450973693,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            -2.0,
+            -0.44999998807907104,
+            0.0
+          ],
+          "max": [
+            -1.1500000953674316,
+            0.44999998807907104,
+            3.5999999046325684
+          ]
+        }
+      },
+      {
+        "name": "SF_Bulkhead_Arch_COL_02",
+        "type": "MESH",
+        "parent": "SF_Bulkhead_Arch",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 12,
+        "uv_layers": [],
+        "uv_bounds": [],
+        "material_names": [],
+        "material_slots": 0,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 2.753999545097369,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            1.1500000953674316,
+            -0.44999998807907104,
+            0.0
+          ],
+          "max": [
+            2.0,
+            0.44999998807907104,
+            3.5999999046325684
+          ]
+        }
+      },
+      {
+        "name": "SF_Bulkhead_Arch_COL_03",
+        "type": "MESH",
+        "parent": "SF_Bulkhead_Arch",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 12,
+        "uv_layers": [],
+        "uv_bounds": [],
+        "material_names": [],
+        "material_slots": 0,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 1.9664995123148163,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            -1.149999976158142,
+            -0.44999998807907104,
+            2.6500000953674316
+          ],
+          "max": [
+            1.149999976158142,
+            0.44999998807907104,
+            3.5999999046325684
+          ]
+        }
+      },
+      {
+        "name": "SF_Bulkhead_Arch_Header",
+        "type": "EMPTY",
+        "parent": "SF_Bulkhead_Arch",
+        "location": [
+          0.0,
+          0.0,
+          3.125
+        ],
+        "world_location": [
+          0.0,
+          0.0,
+          3.125
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            3.125
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "SF_Bulkhead_Arch_LOD0",
+        "type": "MESH",
+        "parent": "SF_Bulkhead_Arch",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 2392,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9800000190734863,
+            "v_span": 0.9600000195205212
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 1.0,
+            "v_span": 1.0
+          }
+        ],
+        "material_names": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "material_slots": 2,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 9.34457583772968,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            -2.0199999809265137,
+            -0.5239999890327454,
+            0.0
+          ],
+          "max": [
+            2.0199999809265137,
+            0.5239999890327454,
+            3.5999999046325684
+          ]
+        }
+      },
+      {
+        "name": "SF_Bulkhead_Arch_LOD1",
+        "type": "MESH",
+        "parent": "SF_Bulkhead_Arch",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 1,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 904,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9800000190734863,
+            "v_span": 0.9600000195205212
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 0.9999999403953552,
+            "u_span": 0.9999999403953552,
+            "v_min": 0.0,
+            "v_max": 1.0,
+            "v_span": 1.0
+          }
+        ],
+        "material_names": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "material_slots": 2,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 9.299530132548476,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            -2.0199999809265137,
+            -0.5239999890327454,
+            0.0
+          ],
+          "max": [
+            2.0199999809265137,
+            0.5239999890327454,
+            3.5999999046325684
+          ]
+        }
+      },
+      {
+        "name": "SF_Bulkhead_Arch_LOD2",
+        "type": "MESH",
+        "parent": "SF_Bulkhead_Arch",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 2,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 336,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9800000190734863,
+            "v_span": 0.9600000195205212
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 0.9999999403953552,
+            "v_span": 0.9999999403953552
+          }
+        ],
+        "material_names": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "material_slots": 2,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 9.200336605890406,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            -2.0199999809265137,
+            -0.492000013589859,
+            0.0
+          ],
+          "max": [
+            2.0199999809265137,
+            0.492000013589859,
+            3.5999999046325684
+          ]
+        }
+      },
+      {
+        "name": "SF_Bulkhead_Arch_LOD3",
+        "type": "MESH",
+        "parent": "SF_Bulkhead_Arch",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 3,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 60,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.23999999463558197,
+            "v_max": 0.9800000190734863,
+            "v_span": 0.7400000244379044
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 1.0,
+            "v_span": 1.0
+          }
+        ],
+        "material_names": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "material_slots": 2,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 7.588518593712062,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            -2.0,
+            -0.4699999988079071,
+            0.0
+          ],
+          "max": [
+            2.0,
+            0.44999998807907104,
+            3.5999999046325684
+          ]
+        }
+      },
+      {
+        "name": "Socket_Front",
+        "type": "EMPTY",
+        "parent": "SF_Bulkhead_Arch",
+        "location": [
+          0.0,
+          -0.44999998807907104,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          -0.44999998807907104,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          3.1415927410125732
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -1.0,
+            8.742277657347586e-08,
+            0.0,
+            0.0
+          ],
+          [
+            -8.742277657347586e-08,
+            -1.0,
+            0.0,
+            -0.44999998807907104
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          8.742277657347586e-08,
+          -1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Left",
+        "type": "EMPTY",
+        "parent": "SF_Bulkhead_Arch",
+        "location": [
+          -2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          -2.0,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            -1.0,
+            0.0,
+            -2.0
+          ],
+          [
+            1.0,
+            -4.371138828673793e-08,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          -1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_OverheadConduit",
+        "type": "EMPTY",
+        "parent": "SF_Bulkhead_Arch_Header",
+        "location": [
+          0.0,
+          0.0,
+          0.4749999940395355
+        ],
+        "world_location": [
+          0.0,
+          0.0,
+          3.5999999046325684
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.47499990463256836
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Rear",
+        "type": "EMPTY",
+        "parent": "SF_Bulkhead_Arch",
+        "location": [
+          0.0,
+          0.44999998807907104,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          0.44999998807907104,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.44999998807907104
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Right",
+        "type": "EMPTY",
+        "parent": "SF_Bulkhead_Arch",
+        "location": [
+          2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          2.0,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          -1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            1.0,
+            0.0,
+            2.0
+          ],
+          [
+            -1.0,
+            -4.371138828673793e-08,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_StatusBeacon",
+        "type": "EMPTY",
+        "parent": "SF_Bulkhead_Arch_Header",
+        "location": [
+          0.0,
+          -0.46000000834465027,
+          -0.375
+        ],
+        "world_location": [
+          0.0,
+          -0.46000000834465027,
+          2.75
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          3.1415927410125732
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -1.0,
+            8.742277657347586e-08,
+            0.0,
+            0.0
+          ],
+          [
+            -8.742277657347586e-08,
+            -1.0,
+            0.0,
+            -0.46000000834465027
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            -0.375
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          8.742277657347586e-08,
+          -1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      }
+    ]
+  },
+  "artifacts": {
+    "front": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/renders/bulkhead_review/review_front.png",
+    "side": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/renders/bulkhead_review/review_side.png",
+    "top": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/renders/bulkhead_review/review_top.png",
+    "closeup": {
+      "lod": 0,
+      "distance_m": 6.2,
+      "path": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/renders/bulkhead_review/review_closeup.png"
+    },
+    "ranges": [
+      {
+        "lod": 0,
+        "distance_m": 6.5,
+        "path": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/renders/bulkhead_review/review_lod0_6m.png"
+      },
+      {
+        "lod": 1,
+        "distance_m": 6.5,
+        "path": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/renders/bulkhead_review/review_lod1_6m.png"
+      },
+      {
+        "lod": 2,
+        "distance_m": 6.5,
+        "path": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/renders/bulkhead_review/review_lod2_6m.png"
+      },
+      {
+        "lod": 3,
+        "distance_m": 6.5,
+        "path": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/renders/bulkhead_review/review_lod3_6m.png"
+      }
+    ],
+    "collision": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/renders/bulkhead_review/review_collision_outline.png"
+  }
+}

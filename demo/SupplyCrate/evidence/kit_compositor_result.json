@@ -1,0 +1,29 @@
+{
+  "status": "ok",
+  "path": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SupplyCrate/evidence/kit_compositor_sample.webp",
+  "width": 1944,
+  "height": 1212,
+  "tile_count": 4,
+  "tiles": [
+    {
+      "source": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SupplyCrate/renders/tiles/review_front.png",
+      "label": "Front (-Y)",
+      "evidence": "LOD0 4,204 tris"
+    },
+    {
+      "source": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SupplyCrate/renders/tiles/review_side.png",
+      "label": "Side (+X)",
+      "evidence": "Bounds 1.19x0.86x0.73m"
+    },
+    {
+      "source": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SupplyCrate/renders/tiles/review_rear.png",
+      "label": "Rear (+Y)",
+      "evidence": "QA PASS"
+    },
+    {
+      "source": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SupplyCrate/renders/tiles/review_top.png",
+      "label": "Top (+Z)",
+      "evidence": "1 Material"
+    }
+  ]
+}

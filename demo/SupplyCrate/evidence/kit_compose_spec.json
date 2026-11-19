@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "columns": 2,
+  "tile_size": [960, 540],
+  "tiles": [
+    {"path": "../renders/tiles/review_front.png", "label": "Front (-Y)", "evidence": "LOD0 4,204 tris"},
+    {"path": "../renders/tiles/review_side.png", "label": "Side (+X)", "evidence": "Bounds 1.19x0.86x0.73m"},
+    {"path": "../renders/tiles/review_rear.png", "label": "Rear (+Y)", "evidence": "QA PASS"},
+    {"path": "../renders/tiles/review_top.png", "label": "Top (+Z)", "evidence": "1 Material"}
+  ]
+}

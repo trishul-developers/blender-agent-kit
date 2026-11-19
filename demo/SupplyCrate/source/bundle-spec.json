@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "asset_id": "SupplyCrate",
+  "parts": [
+    {
+      "id": "lod0",
+      "role": "mesh",
+      "lod": 0,
+      "collection": "SupplyCrate_LOD0",
+      "file": "SupplyCrate_LOD0.fbx"
+    },
+    {
+      "id": "lod1",
+      "role": "mesh",
+      "lod": 1,
+      "collection": "SupplyCrate_LOD1",
+      "file": "SupplyCrate_LOD1.fbx"
+    },
+    {
+      "id": "lod2",
+      "role": "mesh",
+      "lod": 2,
+      "collection": "SupplyCrate_LOD2",
+      "file": "SupplyCrate_LOD2.fbx"
+    },
+    {
+      "id": "collision",
+      "role": "collision",
+      "collection": "SupplyCrate_COL",
+      "file": "SupplyCrate_COL_01.fbx"
+    }
+  ]
+}

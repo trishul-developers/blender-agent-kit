@@ -1,0 +1,8044 @@
+{
+  "status": "ok",
+  "blender_version": "5.2.4 LTS",
+  "inventory": {
+    "object_count": 109,
+    "mesh_count": 21,
+    "damage_prefix": null,
+    "roots": [
+      "Bulkhead_Bay01",
+      "Bulkhead_Bay02",
+      "CamFill",
+      "Ceiling_00",
+      "Ceiling_01",
+      "Ceiling_02",
+      "Ceiling_03",
+      "Floor_00",
+      "Floor_01",
+      "Floor_02",
+      "Floor_03",
+      "HeroCam",
+      "KeyLight_0.0",
+      "KeyLight_2.0",
+      "KeyLight_4.0",
+      "KeyLight_6.0",
+      "KeyLight_8.0",
+      "Pillar_00",
+      "Pillar_01",
+      "Pillar_02",
+      "Pillar_03",
+      "Wall_Corner_NW",
+      "Wall_L0",
+      "Wall_L1",
+      "Wall_R0",
+      "Wall_R1",
+      "Wall_Turn_N",
+      "Wall_Turn_S"
+    ],
+    "bounds": {
+      "min": [
+        -2.26200008392334,
+        -2.0,
+        -0.25
+      ],
+      "max": [
+        6.0,
+        10.26200008392334,
+        3.9499998092651367
+      ],
+      "size": [
+        8.26200008392334,
+        12.26200008392334,
+        4.199999809265137
+      ],
+      "center": [
+        1.86899995803833,
+        4.13100004196167,
+        1.8499999046325684
+      ]
+    },
+    "lods": {
+      "0": {
+        "tri_count": 13308,
+        "intact_tri_count": 13308,
+        "damage_tri_count": 0,
+        "mesh_count": 21,
+        "damage_mesh_count": 0,
+        "material_count": 2,
+        "materials": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "objects": [
+          "Bulkhead_Bay01_Mesh",
+          "Bulkhead_Bay02_Mesh",
+          "Ceiling_00_Mesh",
+          "Ceiling_01_Mesh",
+          "Ceiling_02_Mesh",
+          "Ceiling_03_Mesh",
+          "Floor_00_Mesh",
+          "Floor_01_Mesh",
+          "Floor_02_Mesh",
+          "Floor_03_Mesh",
+          "Pillar_00_Mesh",
+          "Pillar_01_Mesh",
+          "Pillar_02_Mesh",
+          "Pillar_03_Mesh",
+          "Wall_Corner_NW_Mesh",
+          "Wall_L0_Mesh",
+          "Wall_L1_Mesh",
+          "Wall_R0_Mesh",
+          "Wall_R1_Mesh",
+          "Wall_Turn_N_Mesh",
+          "Wall_Turn_S_Mesh"
+        ],
+        "damage_objects": []
+      }
+    },
+    "colliders": [],
+    "objects": [
+      {
+        "name": "Bulkhead_Bay01",
+        "type": "EMPTY",
+        "parent": null,
+        "location": [
+          0.0,
+          2.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          2.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            2.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Bulkhead_Bay01_Header",
+        "type": "EMPTY",
+        "parent": "Bulkhead_Bay01",
+        "location": [
+          0.0,
+          0.0,
+          3.125
+        ],
+        "world_location": [
+          0.0,
+          2.0,
+          3.125
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            3.125
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Bulkhead_Bay01_Mesh",
+        "type": "MESH",
+        "parent": "Bulkhead_Bay01",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          2.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 2392,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9800000190734863,
+            "v_span": 0.9600000195205212
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 1.0,
+            "v_span": 1.0
+          }
+        ],
+        "material_names": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "material_slots": 2,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 9.34457583772968,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            -2.0199999809265137,
+            1.4760000705718994,
+            0.0
+          ],
+          "max": [
+            2.0199999809265137,
+            2.5239999294281006,
+            3.5999999046325684
+          ]
+        }
+      },
+      {
+        "name": "Bulkhead_Bay02",
+        "type": "EMPTY",
+        "parent": null,
+        "location": [
+          0.0,
+          6.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          6.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            6.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Bulkhead_Bay02_Header",
+        "type": "EMPTY",
+        "parent": "Bulkhead_Bay02",
+        "location": [
+          0.0,
+          0.0,
+          3.125
+        ],
+        "world_location": [
+          0.0,
+          6.0,
+          3.125
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            3.125
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Bulkhead_Bay02_Mesh",
+        "type": "MESH",
+        "parent": "Bulkhead_Bay02",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          6.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 2392,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9800000190734863,
+            "v_span": 0.9600000195205212
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 1.0,
+            "v_span": 1.0
+          }
+        ],
+        "material_names": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "material_slots": 2,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 9.344575837729677,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            -2.0199999809265137,
+            5.47599983215332,
+            0.0
+          ],
+          "max": [
+            2.0199999809265137,
+            6.52400016784668,
+            3.5999999046325684
+          ]
+        }
+      },
+      {
+        "name": "CamFill",
+        "type": "LIGHT",
+        "parent": null,
+        "location": [
+          -0.6000000238418579,
+          -1.600000023841858,
+          2.200000047683716
+        ],
+        "world_location": [
+          -0.6000000238418579,
+          -1.600000023841858,
+          2.200000047683716
+        ],
+        "rotation_euler": [
+          1.2566370964050293,
+          0.0,
+          -0.20943951606750488
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            0.9781476259231567,
+            0.06424824148416519,
+            -0.1977357715368271,
+            -0.6000000238418579
+          ],
+          [
+            -0.20791170001029968,
+            0.3022642135620117,
+            -0.9302736520767212,
+            -1.600000023841858
+          ],
+          [
+            0.0,
+            0.9510565400123596,
+            0.30901697278022766,
+            2.200000047683716
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.06424824148416519,
+          0.3022642135620117,
+          0.9510565400123596
+        ],
+        "plus_z_world": [
+          -0.1977357715368271,
+          -0.9302736520767212,
+          0.30901697278022766
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Ceiling_00",
+        "type": "EMPTY",
+        "parent": null,
+        "location": [
+          0.0,
+          0.0,
+          3.5999999046325684
+        ],
+        "world_location": [
+          0.0,
+          0.0,
+          3.5999999046325684
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            3.5999999046325684
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Ceiling_00_Mesh",
+        "type": "MESH",
+        "parent": "Ceiling_00",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          0.0,
+          3.5999999046325684
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 388,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9599999785423279,
+            "v_span": 0.9399999789893627
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 1.0,
+            "v_span": 1.0
+          }
+        ],
+        "material_names": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "material_slots": 2,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 4.8934700539283895,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            -2.0,
+            -2.0,
+            3.5999999046325684
+          ],
+          "max": [
+            2.0,
+            2.0,
+            3.9499998092651367
+          ]
+        }
+      },
+      {
+        "name": "Ceiling_01",
+        "type": "EMPTY",
+        "parent": null,
+        "location": [
+          0.0,
+          4.0,
+          3.5999999046325684
+        ],
+        "world_location": [
+          0.0,
+          4.0,
+          3.5999999046325684
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            4.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            3.5999999046325684
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Ceiling_01_Mesh",
+        "type": "MESH",
+        "parent": "Ceiling_01",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          4.0,
+          3.5999999046325684
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 388,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9599999785423279,
+            "v_span": 0.9399999789893627
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 1.0,
+            "v_span": 1.0
+          }
+        ],
+        "material_names": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "material_slots": 2,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 4.8934700539283895,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            -2.0,
+            2.0,
+            3.5999999046325684
+          ],
+          "max": [
+            2.0,
+            6.0,
+            3.9499998092651367
+          ]
+        }
+      },
+      {
+        "name": "Ceiling_02",
+        "type": "EMPTY",
+        "parent": null,
+        "location": [
+          0.0,
+          8.0,
+          3.5999999046325684
+        ],
+        "world_location": [
+          0.0,
+          8.0,
+          3.5999999046325684
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            8.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            3.5999999046325684
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Ceiling_02_Mesh",
+        "type": "MESH",
+        "parent": "Ceiling_02",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          8.0,
+          3.5999999046325684
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 388,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9599999785423279,
+            "v_span": 0.9399999789893627
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 1.0,
+            "v_span": 1.0
+          }
+        ],
+        "material_names": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "material_slots": 2,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 4.8934700539283895,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            -2.0,
+            6.0,
+            3.5999999046325684
+          ],
+          "max": [
+            2.0,
+            10.0,
+            3.9499998092651367
+          ]
+        }
+      },
+      {
+        "name": "Ceiling_03",
+        "type": "EMPTY",
+        "parent": null,
+        "location": [
+          4.0,
+          8.0,
+          3.5999999046325684
+        ],
+        "world_location": [
+          4.0,
+          8.0,
+          3.5999999046325684
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            4.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            8.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            3.5999999046325684
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Ceiling_03_Mesh",
+        "type": "MESH",
+        "parent": "Ceiling_03",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          4.0,
+          8.0,
+          3.5999999046325684
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 388,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9599999785423279,
+            "v_span": 0.9399999789893627
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 1.0,
+            "v_span": 1.0
+          }
+        ],
+        "material_names": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "material_slots": 2,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 4.8934700539283895,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            2.0,
+            6.0,
+            3.5999999046325684
+          ],
+          "max": [
+            6.0,
+            10.0,
+            3.9499998092651367
+          ]
+        }
+      },
+      {
+        "name": "Floor_00",
+        "type": "EMPTY",
+        "parent": null,
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Floor_00_Mesh",
+        "type": "MESH",
+        "parent": "Floor_00",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 280,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9599999785423279,
+            "v_span": 0.9399999789893627
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 0.9999999403953552,
+            "v_span": 0.9999999403953552
+          }
+        ],
+        "material_names": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "material_slots": 2,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 3.790620678397393,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            -2.0,
+            -2.0,
+            -0.25
+          ],
+          "max": [
+            2.0,
+            2.0,
+            0.003999999724328518
+          ]
+        }
+      },
+      {
+        "name": "Floor_01",
+        "type": "EMPTY",
+        "parent": null,
+        "location": [
+          0.0,
+          4.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          4.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            4.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Floor_01_Mesh",
+        "type": "MESH",
+        "parent": "Floor_01",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          4.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 280,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9599999785423279,
+            "v_span": 0.9399999789893627
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 0.9999999403953552,
+            "v_span": 0.9999999403953552
+          }
+        ],
+        "material_names": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "material_slots": 2,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 3.790620678397393,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            -2.0,
+            2.0,
+            -0.25
+          ],
+          "max": [
+            2.0,
+            6.0,
+            0.003999999724328518
+          ]
+        }
+      },
+      {
+        "name": "Floor_02",
+        "type": "EMPTY",
+        "parent": null,
+        "location": [
+          0.0,
+          8.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          8.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            8.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Floor_02_Mesh",
+        "type": "MESH",
+        "parent": "Floor_02",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          8.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 280,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9599999785423279,
+            "v_span": 0.9399999789893627
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 0.9999999403953552,
+            "v_span": 0.9999999403953552
+          }
+        ],
+        "material_names": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "material_slots": 2,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 3.790620678397393,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            -2.0,
+            6.0,
+            -0.25
+          ],
+          "max": [
+            2.0,
+            10.0,
+            0.003999999724328518
+          ]
+        }
+      },
+      {
+        "name": "Floor_03",
+        "type": "EMPTY",
+        "parent": null,
+        "location": [
+          4.0,
+          8.0,
+          0.0
+        ],
+        "world_location": [
+          4.0,
+          8.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            4.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            8.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Floor_03_Mesh",
+        "type": "MESH",
+        "parent": "Floor_03",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          4.0,
+          8.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 280,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9599999785423279,
+            "v_span": 0.9399999789893627
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 0.9999999403953552,
+            "v_span": 0.9999999403953552
+          }
+        ],
+        "material_names": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "material_slots": 2,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 3.790620678397393,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            2.0,
+            6.0,
+            -0.25
+          ],
+          "max": [
+            6.0,
+            10.0,
+            0.003999999724328518
+          ]
+        }
+      },
+      {
+        "name": "HeroCam",
+        "type": "CAMERA",
+        "parent": null,
+        "location": [
+          -0.5199999809265137,
+          -1.5499999523162842,
+          1.5499999523162842
+        ],
+        "world_location": [
+          -0.5199999809265137,
+          -1.5499999523162842,
+          1.5499999523162842
+        ],
+        "rotation_euler": [
+          1.5791501998901367,
+          -8.705465681657643e-09,
+          -0.08363678306341171
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            0.9965044856071472,
+            -0.0006978773162700236,
+            -0.08353639394044876,
+            -0.5199999809265137
+          ],
+          [
+            -0.08353930711746216,
+            -0.008324574679136276,
+            -0.9964697360992432,
+            -1.5499999523162842
+          ],
+          [
+            8.705465681657643e-09,
+            0.9999651312828064,
+            -0.008353776298463345,
+            1.5499999523162842
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          -0.0006978773162700236,
+          -0.008324574679136276,
+          0.9999651312828064
+        ],
+        "plus_z_world": [
+          -0.08353639394044876,
+          -0.9964697360992432,
+          -0.008353776298463345
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "KeyLight_0.0",
+        "type": "LIGHT",
+        "parent": null,
+        "location": [
+          0.0,
+          0.0,
+          3.4000000953674316
+        ],
+        "world_location": [
+          0.0,
+          0.0,
+          3.4000000953674316
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            3.4000000953674316
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "KeyLight_2.0",
+        "type": "LIGHT",
+        "parent": null,
+        "location": [
+          0.0,
+          2.0,
+          3.4000000953674316
+        ],
+        "world_location": [
+          0.0,
+          2.0,
+          3.4000000953674316
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            2.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            3.4000000953674316
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "KeyLight_4.0",
+        "type": "LIGHT",
+        "parent": null,
+        "location": [
+          0.0,
+          4.0,
+          3.4000000953674316
+        ],
+        "world_location": [
+          0.0,
+          4.0,
+          3.4000000953674316
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            4.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            3.4000000953674316
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "KeyLight_6.0",
+        "type": "LIGHT",
+        "parent": null,
+        "location": [
+          0.0,
+          6.0,
+          3.4000000953674316
+        ],
+        "world_location": [
+          0.0,
+          6.0,
+          3.4000000953674316
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            6.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            3.4000000953674316
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "KeyLight_8.0",
+        "type": "LIGHT",
+        "parent": null,
+        "location": [
+          0.0,
+          8.0,
+          3.4000000953674316
+        ],
+        "world_location": [
+          0.0,
+          8.0,
+          3.4000000953674316
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            8.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            3.4000000953674316
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Pillar_00",
+        "type": "EMPTY",
+        "parent": null,
+        "location": [
+          -1.6200000047683716,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          -1.6200000047683716,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            -1.6200000047683716
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Pillar_00_Mesh",
+        "type": "MESH",
+        "parent": "Pillar_00",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          -1.6200000047683716,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 236,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9800000190734863,
+            "v_span": 0.9600000195205212
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 0.9999999403953552,
+            "v_span": 0.9999999403953552
+          }
+        ],
+        "material_names": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "material_slots": 2,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 1.1077785925122225,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            -1.9449999332427979,
+            -0.32499998807907104,
+            0.0
+          ],
+          "max": [
+            -1.2950000762939453,
+            0.32499998807907104,
+            3.6000001430511475
+          ]
+        }
+      },
+      {
+        "name": "Pillar_01",
+        "type": "EMPTY",
+        "parent": null,
+        "location": [
+          1.6200000047683716,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          1.6200000047683716,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            1.6200000047683716
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Pillar_01_Mesh",
+        "type": "MESH",
+        "parent": "Pillar_01",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          1.6200000047683716,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 236,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9800000190734863,
+            "v_span": 0.9600000195205212
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 0.9999999403953552,
+            "v_span": 0.9999999403953552
+          }
+        ],
+        "material_names": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "material_slots": 2,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 1.1077785925122225,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            1.2950000762939453,
+            -0.32499998807907104,
+            0.0
+          ],
+          "max": [
+            1.9449999332427979,
+            0.32499998807907104,
+            3.6000001430511475
+          ]
+        }
+      },
+      {
+        "name": "Pillar_02",
+        "type": "EMPTY",
+        "parent": null,
+        "location": [
+          -1.6200000047683716,
+          4.0,
+          0.0
+        ],
+        "world_location": [
+          -1.6200000047683716,
+          4.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            -1.6200000047683716
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            4.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Pillar_02_Mesh",
+        "type": "MESH",
+        "parent": "Pillar_02",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          -1.6200000047683716,
+          4.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 236,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9800000190734863,
+            "v_span": 0.9600000195205212
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 0.9999999403953552,
+            "v_span": 0.9999999403953552
+          }
+        ],
+        "material_names": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "material_slots": 2,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 1.1077785925122225,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            -1.9449999332427979,
+            3.674999952316284,
+            0.0
+          ],
+          "max": [
+            -1.2950000762939453,
+            4.324999809265137,
+            3.6000001430511475
+          ]
+        }
+      },
+      {
+        "name": "Pillar_03",
+        "type": "EMPTY",
+        "parent": null,
+        "location": [
+          1.6200000047683716,
+          4.0,
+          0.0
+        ],
+        "world_location": [
+          1.6200000047683716,
+          4.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            1.6200000047683716
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            4.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Pillar_03_Mesh",
+        "type": "MESH",
+        "parent": "Pillar_03",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          1.6200000047683716,
+          4.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 236,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9800000190734863,
+            "v_span": 0.9600000195205212
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 0.9999999403953552,
+            "v_span": 0.9999999403953552
+          }
+        ],
+        "material_names": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "material_slots": 2,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 1.1077785925122225,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            1.2950000762939453,
+            3.674999952316284,
+            0.0
+          ],
+          "max": [
+            1.9449999332427979,
+            4.324999809265137,
+            3.6000001430511475
+          ]
+        }
+      },
+      {
+        "name": "Socket_Base",
+        "type": "EMPTY",
+        "parent": "Pillar_00",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          -1.6200000047683716,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Base.001",
+        "type": "EMPTY",
+        "parent": "Pillar_01",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          1.6200000047683716,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Base.002",
+        "type": "EMPTY",
+        "parent": "Pillar_02",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          -1.6200000047683716,
+          4.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Base.003",
+        "type": "EMPTY",
+        "parent": "Pillar_03",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          1.6200000047683716,
+          4.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_East",
+        "type": "EMPTY",
+        "parent": "Floor_00",
+        "location": [
+          2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          2.0,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          -1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            1.0,
+            0.0,
+            2.0
+          ],
+          [
+            -1.0,
+            -4.371138828673793e-08,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_East.001",
+        "type": "EMPTY",
+        "parent": "Floor_01",
+        "location": [
+          2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          2.0,
+          4.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          -1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            1.0,
+            0.0,
+            2.0
+          ],
+          [
+            -1.0,
+            -4.371138828673793e-08,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_East.002",
+        "type": "EMPTY",
+        "parent": "Floor_02",
+        "location": [
+          2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          2.0,
+          8.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          -1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            1.0,
+            0.0,
+            2.0
+          ],
+          [
+            -1.0,
+            -4.371138828673793e-08,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_East.003",
+        "type": "EMPTY",
+        "parent": "Floor_03",
+        "location": [
+          2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          6.0,
+          8.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          -1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            1.0,
+            0.0,
+            2.0
+          ],
+          [
+            -1.0,
+            -4.371138828673793e-08,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Front",
+        "type": "EMPTY",
+        "parent": "Bulkhead_Bay01",
+        "location": [
+          0.0,
+          -0.44999998807907104,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          1.5499999523162842,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          3.1415927410125732
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -1.0,
+            8.742277657347586e-08,
+            0.0,
+            0.0
+          ],
+          [
+            -8.742277657347586e-08,
+            -1.0,
+            0.0,
+            -0.4500000476837158
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          8.742277657347586e-08,
+          -1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Front.001",
+        "type": "EMPTY",
+        "parent": "Bulkhead_Bay02",
+        "location": [
+          0.0,
+          -0.44999998807907104,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          5.550000190734863,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          3.1415927410125732
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -1.0,
+            8.742277657347586e-08,
+            0.0,
+            0.0
+          ],
+          [
+            -8.742277657347586e-08,
+            -1.0,
+            0.0,
+            -0.4499998092651367
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          8.742277657347586e-08,
+          -1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Left",
+        "type": "EMPTY",
+        "parent": "Wall_L0",
+        "location": [
+          -2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          -1.9999998807907104,
+          -2.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            -1.0,
+            0.0,
+            -2.0
+          ],
+          [
+            1.0,
+            -4.371138828673793e-08,
+            -0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          8.742277657347586e-08,
+          -1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Left.001",
+        "type": "EMPTY",
+        "parent": "Wall_L1",
+        "location": [
+          -2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          -1.9999998807907104,
+          2.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            -1.0,
+            0.0,
+            -2.0
+          ],
+          [
+            1.0,
+            -4.371138828673793e-08,
+            -0.0,
+            -1.1920928955078125e-07
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          8.742277657347586e-08,
+          -1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Left.002",
+        "type": "EMPTY",
+        "parent": "Wall_R0",
+        "location": [
+          -2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          2.0,
+          2.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            -1.0,
+            0.0,
+            -1.9999998807907104
+          ],
+          [
+            1.0,
+            -4.371138828673793e-08,
+            0.0,
+            -1.1920928955078125e-07
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Left.003",
+        "type": "EMPTY",
+        "parent": "Wall_R1",
+        "location": [
+          -2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          2.0,
+          6.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            -1.0,
+            0.0,
+            -2.0
+          ],
+          [
+            1.0,
+            -4.371138828673793e-08,
+            0.0,
+            -1.1920928955078125e-07
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Left.004",
+        "type": "EMPTY",
+        "parent": "Wall_Turn_N",
+        "location": [
+          -2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          2.0,
+          10.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            -1.0,
+            0.0,
+            -2.0
+          ],
+          [
+            1.0,
+            -4.371138828673793e-08,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          -1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Left.005",
+        "type": "EMPTY",
+        "parent": "Wall_Turn_S",
+        "location": [
+          -2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          6.0,
+          6.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138118131057e-08,
+            -1.0,
+            0.0,
+            -2.0
+          ],
+          [
+            1.0,
+            -4.371138118131057e-08,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          1.0,
+          1.3113415775478643e-07,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Left.006",
+        "type": "EMPTY",
+        "parent": "Bulkhead_Bay01",
+        "location": [
+          -2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          -2.0,
+          2.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            -1.0,
+            0.0,
+            -2.0
+          ],
+          [
+            1.0,
+            -4.371138828673793e-08,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          -1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Left.007",
+        "type": "EMPTY",
+        "parent": "Bulkhead_Bay02",
+        "location": [
+          -2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          -2.0,
+          6.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            -1.0,
+            0.0,
+            -2.0
+          ],
+          [
+            1.0,
+            -4.371138828673793e-08,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          -1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_North",
+        "type": "EMPTY",
+        "parent": "Floor_00",
+        "location": [
+          0.0,
+          2.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          2.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            2.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_North.001",
+        "type": "EMPTY",
+        "parent": "Floor_01",
+        "location": [
+          0.0,
+          2.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          6.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            2.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_North.002",
+        "type": "EMPTY",
+        "parent": "Floor_02",
+        "location": [
+          0.0,
+          2.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          10.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            2.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_North.003",
+        "type": "EMPTY",
+        "parent": "Floor_03",
+        "location": [
+          0.0,
+          2.0,
+          0.0
+        ],
+        "world_location": [
+          4.0,
+          10.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            2.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_North.004",
+        "type": "EMPTY",
+        "parent": "Ceiling_00",
+        "location": [
+          0.0,
+          2.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          2.0,
+          3.5999999046325684
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            2.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_North.005",
+        "type": "EMPTY",
+        "parent": "Ceiling_01",
+        "location": [
+          0.0,
+          2.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          6.0,
+          3.5999999046325684
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            2.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_North.006",
+        "type": "EMPTY",
+        "parent": "Ceiling_02",
+        "location": [
+          0.0,
+          2.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          10.0,
+          3.5999999046325684
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            2.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_North.007",
+        "type": "EMPTY",
+        "parent": "Ceiling_03",
+        "location": [
+          0.0,
+          2.0,
+          0.0
+        ],
+        "world_location": [
+          4.0,
+          10.0,
+          3.5999999046325684
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            2.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_OverheadConduit",
+        "type": "EMPTY",
+        "parent": "Bulkhead_Bay01_Header",
+        "location": [
+          0.0,
+          0.0,
+          0.4749999940395355
+        ],
+        "world_location": [
+          0.0,
+          2.0,
+          3.5999999046325684
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.47499990463256836
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_OverheadConduit.001",
+        "type": "EMPTY",
+        "parent": "Bulkhead_Bay02_Header",
+        "location": [
+          0.0,
+          0.0,
+          0.4749999940395355
+        ],
+        "world_location": [
+          0.0,
+          6.0,
+          3.5999999046325684
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.47499990463256836
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Rear",
+        "type": "EMPTY",
+        "parent": "Bulkhead_Bay01",
+        "location": [
+          0.0,
+          0.44999998807907104,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          2.450000047683716,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.4500000476837158
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Rear.001",
+        "type": "EMPTY",
+        "parent": "Bulkhead_Bay02",
+        "location": [
+          0.0,
+          0.44999998807907104,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          6.449999809265137,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.4499998092651367
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Right",
+        "type": "EMPTY",
+        "parent": "Wall_L0",
+        "location": [
+          2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          -2.0,
+          2.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          -1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            1.0,
+            0.0,
+            1.9999998807907104
+          ],
+          [
+            -1.0,
+            -4.371138828673793e-08,
+            -0.0,
+            -1.1920928955078125e-07
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Right.001",
+        "type": "EMPTY",
+        "parent": "Wall_L1",
+        "location": [
+          2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          -2.0,
+          6.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          -1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            1.0,
+            0.0,
+            2.0
+          ],
+          [
+            -1.0,
+            -4.371138828673793e-08,
+            -0.0,
+            -1.1920928955078125e-07
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Right.002",
+        "type": "EMPTY",
+        "parent": "Wall_R0",
+        "location": [
+          2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          1.9999998807907104,
+          -2.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          -1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            1.0,
+            0.0,
+            2.0
+          ],
+          [
+            -1.0,
+            -4.371138828673793e-08,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          -8.742277657347586e-08,
+          -1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Right.003",
+        "type": "EMPTY",
+        "parent": "Wall_R1",
+        "location": [
+          2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          1.9999998807907104,
+          2.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          -1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            1.0,
+            0.0,
+            2.0
+          ],
+          [
+            -1.0,
+            -4.371138828673793e-08,
+            0.0,
+            -1.1920928955078125e-07
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          -8.742277657347586e-08,
+          -1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Right.004",
+        "type": "EMPTY",
+        "parent": "Wall_Turn_N",
+        "location": [
+          2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          6.0,
+          10.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          -1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            1.0,
+            0.0,
+            2.0
+          ],
+          [
+            -1.0,
+            -4.371138828673793e-08,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Right.005",
+        "type": "EMPTY",
+        "parent": "Wall_Turn_S",
+        "location": [
+          2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          2.0,
+          6.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          -1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            1.0,
+            0.0,
+            2.0
+          ],
+          [
+            -1.0,
+            -4.371138828673793e-08,
+            0.0,
+            -4.76837158203125e-07
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          -1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Right.006",
+        "type": "EMPTY",
+        "parent": "Bulkhead_Bay01",
+        "location": [
+          2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          2.0,
+          2.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          -1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            1.0,
+            0.0,
+            2.0
+          ],
+          [
+            -1.0,
+            -4.371138828673793e-08,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Right.007",
+        "type": "EMPTY",
+        "parent": "Bulkhead_Bay02",
+        "location": [
+          2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          2.0,
+          6.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          -1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            1.0,
+            0.0,
+            2.0
+          ],
+          [
+            -1.0,
+            -4.371138828673793e-08,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_South",
+        "type": "EMPTY",
+        "parent": "Floor_00",
+        "location": [
+          0.0,
+          -2.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          -2.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          3.1415927410125732
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -1.0,
+            8.742277657347586e-08,
+            0.0,
+            0.0
+          ],
+          [
+            -8.742277657347586e-08,
+            -1.0,
+            0.0,
+            -2.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          8.742277657347586e-08,
+          -1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_South.001",
+        "type": "EMPTY",
+        "parent": "Floor_01",
+        "location": [
+          0.0,
+          -2.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          2.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          3.1415927410125732
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -1.0,
+            8.742277657347586e-08,
+            0.0,
+            0.0
+          ],
+          [
+            -8.742277657347586e-08,
+            -1.0,
+            0.0,
+            -2.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          8.742277657347586e-08,
+          -1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_South.002",
+        "type": "EMPTY",
+        "parent": "Floor_02",
+        "location": [
+          0.0,
+          -2.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          6.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          3.1415927410125732
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -1.0,
+            8.742277657347586e-08,
+            0.0,
+            0.0
+          ],
+          [
+            -8.742277657347586e-08,
+            -1.0,
+            0.0,
+            -2.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          8.742277657347586e-08,
+          -1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_South.003",
+        "type": "EMPTY",
+        "parent": "Floor_03",
+        "location": [
+          0.0,
+          -2.0,
+          0.0
+        ],
+        "world_location": [
+          4.0,
+          6.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          3.1415927410125732
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -1.0,
+            8.742277657347586e-08,
+            0.0,
+            0.0
+          ],
+          [
+            -8.742277657347586e-08,
+            -1.0,
+            0.0,
+            -2.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          8.742277657347586e-08,
+          -1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_South.004",
+        "type": "EMPTY",
+        "parent": "Ceiling_00",
+        "location": [
+          0.0,
+          -2.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          -2.0,
+          3.5999999046325684
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          3.1415927410125732
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -1.0,
+            8.742277657347586e-08,
+            0.0,
+            0.0
+          ],
+          [
+            -8.742277657347586e-08,
+            -1.0,
+            0.0,
+            -2.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          8.742277657347586e-08,
+          -1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_South.005",
+        "type": "EMPTY",
+        "parent": "Ceiling_01",
+        "location": [
+          0.0,
+          -2.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          2.0,
+          3.5999999046325684
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          3.1415927410125732
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -1.0,
+            8.742277657347586e-08,
+            0.0,
+            0.0
+          ],
+          [
+            -8.742277657347586e-08,
+            -1.0,
+            0.0,
+            -2.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          8.742277657347586e-08,
+          -1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_South.006",
+        "type": "EMPTY",
+        "parent": "Ceiling_02",
+        "location": [
+          0.0,
+          -2.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          6.0,
+          3.5999999046325684
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          3.1415927410125732
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -1.0,
+            8.742277657347586e-08,
+            0.0,
+            0.0
+          ],
+          [
+            -8.742277657347586e-08,
+            -1.0,
+            0.0,
+            -2.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          8.742277657347586e-08,
+          -1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_South.007",
+        "type": "EMPTY",
+        "parent": "Ceiling_03",
+        "location": [
+          0.0,
+          -2.0,
+          0.0
+        ],
+        "world_location": [
+          4.0,
+          6.0,
+          3.5999999046325684
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          3.1415927410125732
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -1.0,
+            8.742277657347586e-08,
+            0.0,
+            0.0
+          ],
+          [
+            -8.742277657347586e-08,
+            -1.0,
+            0.0,
+            -2.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          8.742277657347586e-08,
+          -1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_South.008",
+        "type": "EMPTY",
+        "parent": "Wall_Corner_NW",
+        "location": [
+          1.7799999713897705,
+          -2.0,
+          0.0
+        ],
+        "world_location": [
+          1.9999998807907104,
+          9.779999732971191,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          3.1415927410125732
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -1.0,
+            8.74227694680485e-08,
+            0.0,
+            1.7799997329711914
+          ],
+          [
+            -8.74227694680485e-08,
+            -1.0,
+            0.0,
+            -1.9999998807907104
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          1.0,
+          1.3113415775478643e-07,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_StatusBeacon",
+        "type": "EMPTY",
+        "parent": "Bulkhead_Bay01_Header",
+        "location": [
+          0.0,
+          -0.46000000834465027,
+          -0.375
+        ],
+        "world_location": [
+          0.0,
+          1.5399999618530273,
+          2.75
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          3.1415927410125732
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -1.0,
+            8.742277657347586e-08,
+            0.0,
+            0.0
+          ],
+          [
+            -8.742277657347586e-08,
+            -1.0,
+            0.0,
+            -0.46000003814697266
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            -0.375
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          8.742277657347586e-08,
+          -1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_StatusBeacon.001",
+        "type": "EMPTY",
+        "parent": "Bulkhead_Bay02_Header",
+        "location": [
+          0.0,
+          -0.46000000834465027,
+          -0.375
+        ],
+        "world_location": [
+          0.0,
+          5.539999961853027,
+          2.75
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          3.1415927410125732
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -1.0,
+            8.742277657347586e-08,
+            0.0,
+            0.0
+          ],
+          [
+            -8.742277657347586e-08,
+            -1.0,
+            0.0,
+            -0.46000003814697266
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            -0.375
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          8.742277657347586e-08,
+          -1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Top",
+        "type": "EMPTY",
+        "parent": "Pillar_00",
+        "location": [
+          0.0,
+          0.0,
+          3.5999999046325684
+        ],
+        "world_location": [
+          -1.6200000047683716,
+          0.0,
+          3.5999999046325684
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            3.5999999046325684
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Top.001",
+        "type": "EMPTY",
+        "parent": "Pillar_01",
+        "location": [
+          0.0,
+          0.0,
+          3.5999999046325684
+        ],
+        "world_location": [
+          1.6200000047683716,
+          0.0,
+          3.5999999046325684
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            3.5999999046325684
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Top.002",
+        "type": "EMPTY",
+        "parent": "Pillar_02",
+        "location": [
+          0.0,
+          0.0,
+          3.5999999046325684
+        ],
+        "world_location": [
+          -1.6200000047683716,
+          4.0,
+          3.5999999046325684
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            3.5999999046325684
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_Top.003",
+        "type": "EMPTY",
+        "parent": "Pillar_03",
+        "location": [
+          0.0,
+          0.0,
+          3.5999999046325684
+        ],
+        "world_location": [
+          1.6200000047683716,
+          4.0,
+          3.5999999046325684
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            3.5999999046325684
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_West",
+        "type": "EMPTY",
+        "parent": "Floor_00",
+        "location": [
+          -2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          -2.0,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            -1.0,
+            0.0,
+            -2.0
+          ],
+          [
+            1.0,
+            -4.371138828673793e-08,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          -1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_West.001",
+        "type": "EMPTY",
+        "parent": "Floor_01",
+        "location": [
+          -2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          -2.0,
+          4.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            -1.0,
+            0.0,
+            -2.0
+          ],
+          [
+            1.0,
+            -4.371138828673793e-08,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          -1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_West.002",
+        "type": "EMPTY",
+        "parent": "Floor_02",
+        "location": [
+          -2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          -2.0,
+          8.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            -1.0,
+            0.0,
+            -2.0
+          ],
+          [
+            1.0,
+            -4.371138828673793e-08,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          -1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_West.003",
+        "type": "EMPTY",
+        "parent": "Floor_03",
+        "location": [
+          -2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          2.0,
+          8.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            -1.0,
+            0.0,
+            -2.0
+          ],
+          [
+            1.0,
+            -4.371138828673793e-08,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          -1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Socket_West.004",
+        "type": "EMPTY",
+        "parent": "Wall_Corner_NW",
+        "location": [
+          -2.0,
+          1.7799999713897705,
+          0.0
+        ],
+        "world_location": [
+          -1.779999852180481,
+          6.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            -1.0,
+            0.0,
+            -2.0
+          ],
+          [
+            1.0,
+            -4.371138828673793e-08,
+            0.0,
+            1.7799999713897705
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          8.742277657347586e-08,
+          -1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Wall_Corner_NW",
+        "type": "EMPTY",
+        "parent": null,
+        "location": [
+          0.0,
+          8.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          8.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            1.0,
+            -4.371138828673793e-08,
+            0.0,
+            8.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          -1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Wall_Corner_NW_Mesh",
+        "type": "MESH",
+        "parent": "Wall_Corner_NW",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          0.0,
+          8.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          -1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 324,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9800000190734863,
+            "v_span": 0.9600000195205212
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 0.9999999403953552,
+            "v_span": 0.9999999403953552
+          }
+        ],
+        "material_names": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "material_slots": 2,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 16.362082679028084,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            -2.0,
+            6.0,
+            0.0
+          ],
+          "max": [
+            2.0,
+            10.0,
+            3.5999999046325684
+          ]
+        }
+      },
+      {
+        "name": "Wall_L0",
+        "type": "EMPTY",
+        "parent": null,
+        "location": [
+          -2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          -2.0,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            -1.0,
+            0.0,
+            -2.0
+          ],
+          [
+            1.0,
+            -4.371138828673793e-08,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          -1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Wall_L0_Mesh",
+        "type": "MESH",
+        "parent": "Wall_L0",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          -2.0,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            -0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          -1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 764,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9800000190734863,
+            "v_span": 0.9600000195205212
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 1.0,
+            "v_span": 1.0
+          }
+        ],
+        "material_names": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "material_slots": 2,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 9.353970182156974,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            -2.26200008392334,
+            -2.0,
+            0.0
+          ],
+          "max": [
+            -1.7379999160766602,
+            2.0,
+            3.6000001430511475
+          ]
+        }
+      },
+      {
+        "name": "Wall_L1",
+        "type": "EMPTY",
+        "parent": null,
+        "location": [
+          -2.0,
+          4.0,
+          0.0
+        ],
+        "world_location": [
+          -2.0,
+          4.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            -1.0,
+            0.0,
+            -2.0
+          ],
+          [
+            1.0,
+            -4.371138828673793e-08,
+            0.0,
+            4.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          -1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Wall_L1_Mesh",
+        "type": "MESH",
+        "parent": "Wall_L1",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          -2.0,
+          4.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            -0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          -1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 764,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9800000190734863,
+            "v_span": 0.9600000195205212
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 1.0,
+            "v_span": 1.0
+          }
+        ],
+        "material_names": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "material_slots": 2,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 9.353970182156974,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            -2.26200008392334,
+            2.0,
+            0.0
+          ],
+          "max": [
+            -1.7379999160766602,
+            6.0,
+            3.6000001430511475
+          ]
+        }
+      },
+      {
+        "name": "Wall_R0",
+        "type": "EMPTY",
+        "parent": null,
+        "location": [
+          2.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          2.0,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          -1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            1.0,
+            0.0,
+            2.0
+          ],
+          [
+            -1.0,
+            -4.371138828673793e-08,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Wall_R0_Mesh",
+        "type": "MESH",
+        "parent": "Wall_R0",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          2.0,
+          0.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 764,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9800000190734863,
+            "v_span": 0.9600000195205212
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 1.0,
+            "v_span": 1.0
+          }
+        ],
+        "material_names": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "material_slots": 2,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 9.353970182156974,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            1.7379999160766602,
+            -2.0,
+            0.0
+          ],
+          "max": [
+            2.26200008392334,
+            2.0,
+            3.6000001430511475
+          ]
+        }
+      },
+      {
+        "name": "Wall_R1",
+        "type": "EMPTY",
+        "parent": null,
+        "location": [
+          2.0,
+          4.0,
+          0.0
+        ],
+        "world_location": [
+          2.0,
+          4.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          -1.5707963705062866
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -4.371138828673793e-08,
+            1.0,
+            0.0,
+            2.0
+          ],
+          [
+            -1.0,
+            -4.371138828673793e-08,
+            0.0,
+            4.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Wall_R1_Mesh",
+        "type": "MESH",
+        "parent": "Wall_R1",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          2.0,
+          4.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          1.0,
+          -4.371138828673793e-08,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 764,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9800000190734863,
+            "v_span": 0.9600000195205212
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 1.0,
+            "v_span": 1.0
+          }
+        ],
+        "material_names": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "material_slots": 2,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 9.353970182156974,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            1.7379999160766602,
+            2.0,
+            0.0
+          ],
+          "max": [
+            2.26200008392334,
+            6.0,
+            3.6000001430511475
+          ]
+        }
+      },
+      {
+        "name": "Wall_Turn_N",
+        "type": "EMPTY",
+        "parent": null,
+        "location": [
+          4.0,
+          10.0,
+          0.0
+        ],
+        "world_location": [
+          4.0,
+          10.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            4.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            10.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Wall_Turn_N_Mesh",
+        "type": "MESH",
+        "parent": "Wall_Turn_N",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          4.0,
+          10.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 764,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9800000190734863,
+            "v_span": 0.9600000195205212
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 1.0,
+            "v_span": 1.0
+          }
+        ],
+        "material_names": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "material_slots": 2,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 9.353970182156974,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            2.0,
+            9.73799991607666,
+            0.0
+          ],
+          "max": [
+            6.0,
+            10.26200008392334,
+            3.6000001430511475
+          ]
+        }
+      },
+      {
+        "name": "Wall_Turn_S",
+        "type": "EMPTY",
+        "parent": null,
+        "location": [
+          4.0,
+          6.0,
+          0.0
+        ],
+        "world_location": [
+          4.0,
+          6.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          3.1415927410125732
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            -1.0,
+            8.742277657347586e-08,
+            0.0,
+            4.0
+          ],
+          [
+            -8.742277657347586e-08,
+            -1.0,
+            0.0,
+            6.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          8.742277657347586e-08,
+          -1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false
+      },
+      {
+        "name": "Wall_Turn_S_Mesh",
+        "type": "MESH",
+        "parent": "Wall_Turn_S",
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_location": [
+          4.0,
+          6.0,
+          0.0
+        ],
+        "rotation_euler": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "matrix_local": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "plus_y_world": [
+          8.742277657347586e-08,
+          -1.0,
+          0.0
+        ],
+        "plus_z_world": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "lod": 0,
+        "is_damage": false,
+        "excluded_from_lod": false,
+        "tri_count": 764,
+        "uv_layers": [
+          "UVMap",
+          "LightmapUV"
+        ],
+        "uv_bounds": [
+          {
+            "name": "UVMap",
+            "u_min": 0.019999999552965164,
+            "u_max": 0.9800000190734863,
+            "u_span": 0.9600000195205212,
+            "v_min": 0.019999999552965164,
+            "v_max": 0.9800000190734863,
+            "v_span": 0.9600000195205212
+          },
+          {
+            "name": "LightmapUV",
+            "u_min": 0.0,
+            "u_max": 1.0,
+            "u_span": 1.0,
+            "v_min": 0.0,
+            "v_max": 1.0,
+            "v_span": 1.0
+          }
+        ],
+        "material_names": [
+          "M_SciFi_Emissive",
+          "M_SciFi_TrimSheet"
+        ],
+        "material_slots": 2,
+        "non_manifold_edges": 0,
+        "boundary_edges": 0,
+        "signed_volume": 9.353970182156974,
+        "max_vertex_group_influences": 0,
+        "bounds": {
+          "min": [
+            2.0,
+            5.73799991607666,
+            0.0
+          ],
+          "max": [
+            6.0,
+            6.26200008392334,
+            3.6000001430511475
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "showcase": {
+    "01_hero_assembly": {
+      "png": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/showcase/01_hero_assembly.png",
+      "png_size": [
+        1920,
+        1164
+      ],
+      "png_bytes": 1895985,
+      "webp": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/showcase/01_hero_assembly.webp",
+      "webp_size": [
+        1600,
+        970
+      ],
+      "webp_bytes": 100414
+    },
+    "02_technical_multiview": {
+      "png": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/showcase/02_technical_multiview.png",
+      "png_size": [
+        1980,
+        1360
+      ],
+      "png_bytes": 1514408,
+      "webp": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/showcase/02_technical_multiview.webp",
+      "webp_size": [
+        1600,
+        1099
+      ],
+      "webp_bytes": 74688
+    },
+    "03_lod_comparison": {
+      "png": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/showcase/03_lod_comparison.png",
+      "png_size": [
+        1980,
+        1360
+      ],
+      "png_bytes": 1277377,
+      "webp": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/showcase/03_lod_comparison.webp",
+      "webp_size": [
+        1600,
+        1099
+      ],
+      "webp_bytes": 94312
+    },
+    "04_collision_hierarchy_sockets": {
+      "png": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/showcase/04_collision_hierarchy_sockets.png",
+      "png_size": [
+        1920,
+        1080
+      ],
+      "png_bytes": 516943,
+      "webp": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/showcase/04_collision_hierarchy_sockets.webp",
+      "webp_size": [
+        1600,
+        900
+      ],
+      "webp_bytes": 104948
+    },
+    "05_textures_materials": {
+      "png": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/showcase/05_textures_materials.png",
+      "png_size": [
+        2020,
+        1240
+      ],
+      "png_bytes": 765851,
+      "webp": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/showcase/05_textures_materials.webp",
+      "webp_size": [
+        1600,
+        982
+      ],
+      "webp_bytes": 148026
+    }
+  },
+  "texture_validation": {
+    "trim_sheet_raw_normal_bit_depth": 16,
+    "trim_sheet_packed_normal_bit_depth": 16,
+    "trim_sheet_smoothness_mae": 2.9850916405393946e-08,
+    "trim_sheet_verified": true
+  }
+}

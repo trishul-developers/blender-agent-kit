@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0",
+  "recorded_at_utc": "2026-11-19T12:10:00Z",
+  "os": {
+    "system": "Linux",
+    "release": "6.12.105+",
+    "distribution": "Debian GNU/Linux 12 (bookworm)",
+    "architecture": "x86_64",
+    "platform": "Linux-6.12.105+-x86_64-with-glibc2.36",
+    "cpu_cores": 2,
+    "memory_gib": 7.8
+  },
+  "blender": {
+    "version": "5.2.4 LTS",
+    "version_tuple": [5, 2, 4],
+    "build_hash": "cd5dc428cce1",
+    "build_date": "2026-11-10",
+    "binary_path": "/home/spark/opt/blender-5.2.4-linux-x64/blender",
+    "download_url": "https://download.blender.org/release/Blender5.2/blender-5.2.4-linux-x64.tar.xz"
+  },
+  "python": {
+    "version": "3.11.2",
+    "full_version": "3.11.2 (main, Oct  7 2026, 12:35:07) [GCC 12.2.0]",
+    "executable": "/usr/bin/python3"
+  },
+  "toolkit": {
+    "repository": "https://github.com/trishul-developers/blender-agent-kit",
+    "release_tag": "v0.2.1",
+    "commit_sha": "0c6c3d10cb7265166fe46e7c5ccab69ff2abf793",
+    "install_command": "python3 tools/install.py --agent all --targets unity",
+    "install_result": "Installed 18 skill links. Pointer: /home/spark/.config/blender-agent-kit/manifest.json"
+  },
+  "dependencies": {
+    "Pillow": "11.1.0",
+    "numpy": "2.1.3",
+    "jsonschema": "4.23.0",
+    "scipy": "1.15.2"
+  },
+  "render_devices": {
+    "gpu_detected": false,
+    "cycles_device": "CPU",
+    "eevee_available_headless": false
+  },
+  "doctor": {
+    "before_path_or_env": {
+      "status": "error",
+      "exit_code": 1,
+      "error": "Blender executable not found. Set BLENDER_EXECUTABLE or add blender to PATH."
+    },
+    "after_blender_executable": {
+      "status": "ok",
+      "exit_code": 0,
+      "blender_version": "5.2.4 LTS",
+      "version_tuple": [5, 2, 4],
+      "meets_5_2_lts": true,
+      "build_hash": "cd5dc428cce1",
+      "cycles_device": "CPU",
+      "addons": ["cycles", "io_scene_fbx", "io_scene_gltf2"],
+      "smoke_save_reopen": true
+    }
+  },
+  "test_suites": {
+    "host": {
+      "command": "python3 tools/run_tests.py --suite host",
+      "status": "ok",
+      "exit_code": 0,
+      "tests_passed": 33,
+      "duration_sec": 1.232
+    },
+    "core": {
+      "command": "python3 tools/run_tests.py --suite core",
+      "status": "ok",
+      "exit_code": 0,
+      "tests_passed": 16
+    },
+    "targets": {
+      "command": "python3 tools/run_tests.py --suite targets",
+      "status": "ok",
+      "exit_code": 0,
+      "targets_tested": ["unity"],
+      "roundtrip_passed": true
+    },
+    "validate_skills": {
+      "command": "python3 tools/validate_skills.py",
+      "status": "ok",
+      "exit_code": 0,
+      "output": "ALL SKILLS, TARGETS, PROJECT PROFILES, AND JSON SCHEMAS VALID."
+    }
+  },
+  "installation_issues_and_workarounds": [
+    {
+      "issue": "Blender discovery fails with exit code 1 when Blender is installed in a non-system user directory and neither PATH nor BLENDER_EXECUTABLE is configured.",
+      "error": "Blender executable not found. Set BLENDER_EXECUTABLE or add blender to PATH.",
+      "root_cause": "shared/runner.py only checks explicit arg, BLENDER_EXECUTABLE, PATH, and standard Linux paths (/usr/local/bin/blender, /usr/bin/blender, /snap/bin/blender).",
+      "workaround": "Export BLENDER_EXECUTABLE=/home/spark/opt/blender-5.2.4-linux-x64/blender (or prepend its directory to PATH).",
+      "proposed_improvement": "Document BLENDER_EXECUTABLE prominently in README Quick Start and optionally probe $HOME/opt/blender* or persist a verified binary path during install."
+    },
+    {
+      "issue": "Container workspace filesystem (/working_dir) stripped shared libraries (.so) after extraction, causing Blender subprocesses to fail with exit code 127 (libblender_cpu_check.so not found).",
+      "error": "error while loading shared libraries: libblender_cpu_check.so: cannot open shared object file: No such file or directory",
+      "root_cause": "Sandbox environment policy on /working_dir rather than a toolkit defect; however, tools/doctor.py only reported 'Blender exited with code 127 without writing result JSON' without surfacing stderr inline.",
+      "workaround": "Extracted Blender 5.2.4 LTS tarball into /home/spark/opt/blender-5.2.4-linux-x64 and pointed BLENDER_EXECUTABLE there.",
+      "proposed_improvement": "Have shared/runner.py include the last few lines of stderr in the JSON error payload when Blender exits non-zero without writing result JSON."
+    },
+    {
+      "issue": "README Quick Start uses `python` rather than `python3`, while Debian 12 only provides `python3` by default unless `python-is-python3` is installed.",
+      "error": "N/A (anticipated on Debian 12 and invoked python3 directly)",
+      "root_cause": "Cross-platform documentation assumes `python` alias exists.",
+      "workaround": "Invoked `python3` throughout.",
+      "proposed_improvement": "Note `python3` for Linux/macOS in README Quick Start."
+    }
+  ]
+}

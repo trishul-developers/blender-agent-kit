@@ -1,0 +1,12 @@
+{
+  "raw_normal_bit_depth": 16,
+  "packed_normal_bit_depth": 16,
+  "packed_metallic_gloss_channels": 4,
+  "smoothness_alpha_min_max": [
+    0.0941176488995552,
+    0.7372549176216125
+  ],
+  "smoothness_vs_1_minus_roughness_mae": 2.2253370701719177e-08,
+  "smoothness_verified": true,
+  "normal_16bit_verified": true
+}

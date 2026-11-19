@@ -1,0 +1,35 @@
+{
+  "seed": 42,
+  "resolution": [
+    2048,
+    2048
+  ],
+  "normal_convention": "opengl",
+  "normal_bit_depth": 16,
+  "maps": {
+    "base_color": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SupplyCrate/raw_textures/base_color.png",
+    "metallic": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SupplyCrate/raw_textures/metallic.png",
+    "roughness": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SupplyCrate/raw_textures/roughness.png",
+    "ao": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SupplyCrate/raw_textures/ao.png",
+    "normal": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SupplyCrate/raw_textures/normal.png"
+  },
+  "stats": {
+    "metallic_min_max": [
+      0.0,
+      0.9399999976158142
+    ],
+    "roughness_min_max": [
+      0.2629418671131134,
+      0.9066329598426819
+    ],
+    "ao_min_max": [
+      0.1663021445274353,
+      0.9934741854667664
+    ],
+    "normal_mean_rgb": [
+      0.49984657764434814,
+      0.5001899003982544,
+      0.9964399933815002
+    ]
+  }
+}

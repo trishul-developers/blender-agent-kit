@@ -1,0 +1,72 @@
+{
+  "status": "ok",
+  "target": "unity",
+  "profile": "urp",
+  "project_profile": null,
+  "asset_id": "SciFiKit",
+  "material": "M_SciFi_Emissive",
+  "raw_maps": [
+    "ao",
+    "base_color",
+    "metallic",
+    "normal",
+    "roughness"
+  ],
+  "target_size": [
+    1024,
+    1024
+  ],
+  "resized_maps": [],
+  "normal_y_detection": {
+    "convention": "ambiguous",
+    "heuristic_only": true,
+    "mean_green": 0.5000076293945312,
+    "median_green": 0.5000076293945312,
+    "confidence": 3.0517578125e-05,
+    "note": "Tangent-space normal convention cannot be proven from pixels alone; this is a directional-bias heuristic."
+  },
+  "artifacts": {
+    "textures": [
+      {
+        "map_key": "albedo",
+        "slot": "_BaseMap",
+        "material_name": "M_SciFi_Emissive",
+        "path": "textures/SciFiKit__M_SciFi_Emissive__albedo.png",
+        "srgb": true,
+        "bit_depth": 8,
+        "normal_map": false,
+        "max_size": 1024
+      },
+      {
+        "map_key": "metallic_smoothness",
+        "slot": "_MetallicGlossMap",
+        "material_name": "M_SciFi_Emissive",
+        "path": "textures/SciFiKit__M_SciFi_Emissive__metallic_smoothness.png",
+        "srgb": false,
+        "bit_depth": 8,
+        "normal_map": false,
+        "max_size": 1024
+      },
+      {
+        "map_key": "normal",
+        "slot": "_BumpMap",
+        "material_name": "M_SciFi_Emissive",
+        "path": "textures/SciFiKit__M_SciFi_Emissive__normal.png",
+        "srgb": false,
+        "bit_depth": 16,
+        "normal_map": true,
+        "max_size": 1024
+      },
+      {
+        "map_key": "ao",
+        "slot": "_OcclusionMap",
+        "material_name": "M_SciFi_Emissive",
+        "path": "textures/SciFiKit__M_SciFi_Emissive__ao.png",
+        "srgb": false,
+        "bit_depth": 8,
+        "normal_map": false,
+        "max_size": 1024
+      }
+    ]
+  }
+}

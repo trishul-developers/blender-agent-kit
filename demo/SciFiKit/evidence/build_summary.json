@@ -1,0 +1,69 @@
+{
+  "bulkhead_blend": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/scenes/SF_Bulkhead_Arch.blend",
+  "catalog": {
+    "blend": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/scenes/SF_Modules_Catalog.blend",
+    "modules": {
+      "SF_Bulkhead_Arch": {
+        "tris": 2392,
+        "sockets": [
+          "Socket_Front",
+          "Socket_Left",
+          "Socket_OverheadConduit",
+          "Socket_Rear",
+          "Socket_Right",
+          "Socket_StatusBeacon"
+        ]
+      },
+      "SF_Wall_Straight": {
+        "tris": 764,
+        "sockets": [
+          "Socket_Left.001",
+          "Socket_Right.001"
+        ]
+      },
+      "SF_Wall_Corner": {
+        "tris": 324,
+        "sockets": [
+          "Socket_South",
+          "Socket_West"
+        ]
+      },
+      "SF_Floor_Panel": {
+        "tris": 280,
+        "sockets": [
+          "Socket_East",
+          "Socket_North",
+          "Socket_South.001",
+          "Socket_West.001"
+        ]
+      },
+      "SF_Ceiling_Panel": {
+        "tris": 388,
+        "sockets": [
+          "Socket_North.001",
+          "Socket_South.002"
+        ]
+      },
+      "SF_Pillar_Support": {
+        "tris": 236,
+        "sockets": [
+          "Socket_Base",
+          "Socket_Top"
+        ]
+      }
+    },
+    "renders": {
+      "persp": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/renders/catalog_persp.png",
+      "top": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/renders/catalog_top.png",
+      "front": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/renders/catalog_front.png"
+    }
+  },
+  "assembly": {
+    "blend": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/scenes/SciFi_Corridor_Assembly.blend",
+    "module_instances": 21,
+    "object_count": 109,
+    "mesh_count": 21,
+    "total_tris": 13308,
+    "hero_render": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SciFiKit/renders/hero_corridor_1920x1080.png"
+  }
+}

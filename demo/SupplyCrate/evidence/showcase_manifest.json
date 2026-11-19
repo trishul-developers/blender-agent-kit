@@ -1,0 +1,100 @@
+{
+  "showcase": {
+    "01_hero": {
+      "png": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SupplyCrate/showcase/01_hero.png",
+      "png_size": [
+        1920,
+        1164
+      ],
+      "png_bytes": 1504115,
+      "webp": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SupplyCrate/showcase/01_hero.webp",
+      "webp_size": [
+        1600,
+        970
+      ],
+      "webp_bytes": 94950
+    },
+    "02_orthographic_multiview": {
+      "png": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SupplyCrate/showcase/02_orthographic_multiview.png",
+      "png_size": [
+        1980,
+        1360
+      ],
+      "png_bytes": 1141298,
+      "webp": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SupplyCrate/showcase/02_orthographic_multiview.webp",
+      "webp_size": [
+        1600,
+        1099
+      ],
+      "webp_bytes": 84626
+    },
+    "03_lod_comparison": {
+      "png": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SupplyCrate/showcase/03_lod_comparison.png",
+      "png_size": [
+        2000,
+        556
+      ],
+      "png_bytes": 732761,
+      "webp": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SupplyCrate/showcase/03_lod_comparison.webp",
+      "webp_size": [
+        1600,
+        445
+      ],
+      "webp_bytes": 80264
+    },
+    "04_lod_distance_grid": {
+      "png": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SupplyCrate/showcase/04_lod_distance_grid.png",
+      "png_size": [
+        2000,
+        1444
+      ],
+      "png_bytes": 1146994,
+      "webp": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SupplyCrate/showcase/04_lod_distance_grid.webp",
+      "webp_size": [
+        1600,
+        1155
+      ],
+      "webp_bytes": 107074
+    },
+    "05_collision_overlay": {
+      "png": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SupplyCrate/showcase/05_collision_overlay.png",
+      "png_size": [
+        1920,
+        1164
+      ],
+      "png_bytes": 1496331,
+      "webp": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SupplyCrate/showcase/05_collision_overlay.webp",
+      "webp_size": [
+        1600,
+        970
+      ],
+      "webp_bytes": 99326
+    },
+    "06_pbr_to_urp_textures": {
+      "png": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SupplyCrate/showcase/06_pbr_to_urp_textures.png",
+      "png_size": [
+        2000,
+        2284
+      ],
+      "png_bytes": 2272399,
+      "webp": "/working_dir/c_8a60c390ab5010b6/blender-agent-kit-independent-trial/SupplyCrate/showcase/06_pbr_to_urp_textures.webp",
+      "webp_size": [
+        1600,
+        1827
+      ],
+      "webp_bytes": 232344
+    }
+  },
+  "texture_validation": {
+    "raw_normal_bit_depth": 16,
+    "packed_normal_bit_depth": 16,
+    "packed_metallic_gloss_channels": 4,
+    "smoothness_alpha_min_max": [
+      0.0941176488995552,
+      0.7372549176216125
+    ],
+    "smoothness_vs_1_minus_roughness_mae": 2.2253370701719177e-08,
+    "smoothness_verified": true,
+    "normal_16bit_verified": true
+  }
+}

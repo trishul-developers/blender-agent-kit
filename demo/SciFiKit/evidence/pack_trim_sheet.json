@@ -1,0 +1,72 @@
+{
+  "status": "ok",
+  "target": "unity",
+  "profile": "urp",
+  "project_profile": null,
+  "asset_id": "SciFiKit",
+  "material": "M_SciFi_TrimSheet",
+  "raw_maps": [
+    "ao",
+    "base_color",
+    "metallic",
+    "normal",
+    "roughness"
+  ],
+  "target_size": [
+    2048,
+    2048
+  ],
+  "resized_maps": [],
+  "normal_y_detection": {
+    "convention": "ambiguous",
+    "heuristic_only": true,
+    "mean_green": 0.49999451637268066,
+    "median_green": 0.5000076293945312,
+    "confidence": 2.193450927734375e-05,
+    "note": "Tangent-space normal convention cannot be proven from pixels alone; this is a directional-bias heuristic."
+  },
+  "artifacts": {
+    "textures": [
+      {
+        "map_key": "albedo",
+        "slot": "_BaseMap",
+        "material_name": "M_SciFi_TrimSheet",
+        "path": "textures/SciFiKit__M_SciFi_TrimSheet__albedo.png",
+        "srgb": true,
+        "bit_depth": 8,
+        "normal_map": false,
+        "max_size": 2048
+      },
+      {
+        "map_key": "metallic_smoothness",
+        "slot": "_MetallicGlossMap",
+        "material_name": "M_SciFi_TrimSheet",
+        "path": "textures/SciFiKit__M_SciFi_TrimSheet__metallic_smoothness.png",
+        "srgb": false,
+        "bit_depth": 8,
+        "normal_map": false,
+        "max_size": 2048
+      },
+      {
+        "map_key": "normal",
+        "slot": "_BumpMap",
+        "material_name": "M_SciFi_TrimSheet",
+        "path": "textures/SciFiKit__M_SciFi_TrimSheet__normal.png",
+        "srgb": false,
+        "bit_depth": 16,
+        "normal_map": true,
+        "max_size": 2048
+      },
+      {
+        "map_key": "ao",
+        "slot": "_OcclusionMap",
+        "material_name": "M_SciFi_TrimSheet",
+        "path": "textures/SciFiKit__M_SciFi_TrimSheet__ao.png",
+        "srgb": false,
+        "bit_depth": 8,
+        "normal_map": false,
+        "max_size": 2048
+      }
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "status": "error",
+  "error": "'list' object has no attribute 'get'",
+  "traceback": "Traceback (most recent call last):\n  File \"/working_dir/c_8a60c390ab5010b6/blender-agent-kit/shared/bootstrap.py\", line 46, in main\n    result = mod.cli_main(remainder)\n  File \"/working_dir/c_8a60c390ab5010b6/blender-agent-kit/shared/qa_checks.py\", line 535, in cli_main\n    return run(target=ns.target, asset_class=ns.asset_class, project_profile=ns.project_profile)\n  File \"/working_dir/c_8a60c390ab5010b6/blender-agent-kit/shared/qa_checks.py\", line 473, in run\n    child = relation.get(\"child\")\n            ^^^^^^^^^^^^\nAttributeError: 'list' object has no attribute 'get'\n",
+  "returncode": 1,
+  "log_file": "/tmp/blender-agent-kit-logs/shared_qa_checks_933.log"
+}

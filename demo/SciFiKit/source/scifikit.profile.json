@@ -1,0 +1,57 @@
+{
+  "name": "scifikit-trial",
+  "version": "1.0.0",
+  "description": "Independent trial profile for Helios Conduit Sci-Fi modular kit.",
+  "target_overrides": {
+    "unity": {
+      "qa": {
+        "common": {
+          "lod_exclude_patterns": ["*_COL_*"]
+        },
+        "asset_classes": {
+          "modular_bulkhead": {
+            "reject_boundary_edges": true,
+            "require_non_overlapping_uv1": true,
+            "pivot_rule": "bottom_center_z0",
+            "max_tris": {
+              "lod0": 8000,
+              "lod1": 3500,
+              "lod2": 1200,
+              "lod3": 300
+            },
+            "max_material_slots": 2,
+            "required_nodes": [
+              "SF_Bulkhead_Arch",
+              "SF_Bulkhead_Arch_Header",
+              "Socket_Front",
+              "Socket_Rear",
+              "Socket_Left",
+              "Socket_Right",
+              "Socket_OverheadConduit"
+            ],
+            "required_parent_pairs": [
+              {"child": "SF_Bulkhead_Arch_Header", "parent": "SF_Bulkhead_Arch"},
+              {"child": "Socket_OverheadConduit", "parent": "SF_Bulkhead_Arch_Header"},
+              {"child": "Socket_Front", "parent": "SF_Bulkhead_Arch"},
+              {"child": "Socket_Rear", "parent": "SF_Bulkhead_Arch"}
+            ]
+          }
+        }
+      }
+    }
+  },
+  "review_presets": {
+    "bulkhead_lods": {
+      "resolution": [960, 540],
+      "orthographic_views": ["front", "side", "top"],
+      "primary_lod": 0,
+      "closeup_distance_m": 6.2,
+      "range_shots_m": [6.5],
+      "azimuth_deg": 32.0,
+      "elevation_deg": 18.0,
+      "lens_mm": 45.0,
+      "lods": [0, 1, 2, 3],
+      "collision_view": true
+    }
+  }
+}

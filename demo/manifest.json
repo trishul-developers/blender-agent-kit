@@ -1,0 +1,728 @@
+{
+  "schema_version": "1.0",
+  "package": "blender-agent-kit-independent-trial",
+  "toolkit_repo": "https://github.com/trishul-developers/blender-agent-kit",
+  "toolkit_tag": "v0.2.1",
+  "toolkit_commit": "0c6c3d10cb7265166fe46e7c5ccab69ff2abf793",
+  "blender_version": "5.2.4 LTS",
+  "blender_build_hash": "cd5dc428cce1",
+  "file_count": 143,
+  "total_bytes": 119920936,
+  "files": [
+    {
+      "path": "EFFORT_ANALYSIS.md",
+      "bytes": 9252,
+      "sha256": "abe4aca818f337aaa6c5e1723349a5bfbdaf9c0279cff65e9fe327eff279de79"
+    },
+    {
+      "path": "IMPROVEMENT_BACKLOG.md",
+      "bytes": 9633,
+      "sha256": "b06229de8608b8faed4955873f891ec3c25b25553352324eeb9a26777e4bf9a3"
+    },
+    {
+      "path": "KIT_EVALUATION.md",
+      "bytes": 17933,
+      "sha256": "90b17d9f30564192253effba3ded69dd3f93cc7154fc109bc0c19384b43dec06"
+    },
+    {
+      "path": "REPORT.md",
+      "bytes": 4209,
+      "sha256": "b60b60eb6a61cf84387ed6f9edb3bc53e51e0c52a0c6500aab303f2575c00d44"
+    },
+    {
+      "path": "SciFiKit/README.md",
+      "bytes": 5682,
+      "sha256": "dedfa6f81f78501cc534c1e0956ae88d58bd325d88f7d082c0440d6ea7deeb09"
+    },
+    {
+      "path": "SciFiKit/evidence/build_summary.json",
+      "bytes": 2093,
+      "sha256": "d3560aaad2058977e7696c02db01b310f09dd564865e4ca977e5d6eafcbb86fe"
+    },
+    {
+      "path": "SciFiKit/evidence/bundle_bulkhead.json",
+      "bytes": 176925,
+      "sha256": "d9a82cd19f949b904d7a1ae269a6d519628c99c8e14ab3017b866e11b16cc12c"
+    },
+    {
+      "path": "SciFiKit/evidence/inspect_assembly.json",
+      "bytes": 149695,
+      "sha256": "95d68685a83b29d319be6f675ff40796136be841321bd3890927e97a36bd5acb"
+    },
+    {
+      "path": "SciFiKit/evidence/pack_emissive.json",
+      "bytes": 1857,
+      "sha256": "e420bd471755515968478a0dc25c16767813ccfd5de7e706d99899cf563cad8a"
+    },
+    {
+      "path": "SciFiKit/evidence/pack_trim_sheet.json",
+      "bytes": 1872,
+      "sha256": "25e0b90689afd1bcf3d9094c4aaa0101de075b87cab571e6b67ccbaef484b369"
+    },
+    {
+      "path": "SciFiKit/evidence/qa_bulkhead.json",
+      "bytes": 26345,
+      "sha256": "0d69fbb7f92b80f79264689c770debd48f83cd633565e130b54c8351e4bae6ff"
+    },
+    {
+      "path": "SciFiKit/evidence/qa_bulkhead_schema_crash.json",
+      "bytes": 777,
+      "sha256": "811744f5f31073b831b244f133fbab3fd9a81fbb94db3c6c532d9e57b9c9090c"
+    },
+    {
+      "path": "SciFiKit/evidence/review_bulkhead.json",
+      "bytes": 27375,
+      "sha256": "6e258018d05be2c3b127802472eee2364b2300c1f169eb85c566a67fdb148985"
+    },
+    {
+      "path": "SciFiKit/evidence/showcase_manifest.json",
+      "bytes": 2548,
+      "sha256": "910202db437282115d310251dc61eb9f252e20926b1c313857177b6555e62204"
+    },
+    {
+      "path": "SciFiKit/evidence/texture_validation.json",
+      "bytes": 174,
+      "sha256": "a172a8460565f82dfd09cc9c914c733005d9a279eacc8c51eda95e207be2161e"
+    },
+    {
+      "path": "SciFiKit/exports/SF_Bulkhead_Arch.bundle.manifest.json",
+      "bytes": 176963,
+      "sha256": "bcc1aed2359759e3b6b0069b20669a2864b3566326318a1d24b65cb4485b8a20"
+    },
+    {
+      "path": "SciFiKit/exports/SF_Bulkhead_Arch_COL.fbx",
+      "bytes": 15548,
+      "sha256": "5e82d0edb36cfe5b21aa63f804c6b9f896a81bab8cc0bff4f3721a957a74213a"
+    },
+    {
+      "path": "SciFiKit/exports/SF_Bulkhead_Arch_Complete.fbx",
+      "bytes": 323132,
+      "sha256": "7f23e7929eaaca1bf56104c21cafeb27057f23456bb48990f63f2f8faeec4b06"
+    },
+    {
+      "path": "SciFiKit/exports/SF_Bulkhead_Arch_LOD0.fbx",
+      "bytes": 206316,
+      "sha256": "94480e63688dff49977153fbfb2b7beeacc31564b7d156ebadc014aa628909ad"
+    },
+    {
+      "path": "SciFiKit/exports/SF_Bulkhead_Arch_LOD1.fbx",
+      "bytes": 95644,
+      "sha256": "187dd1bf6c70ae75849b669b9a6ef3eb5bbdfd8308a3e85b69dcdf14262f1ed4"
+    },
+    {
+      "path": "SciFiKit/exports/SF_Bulkhead_Arch_LOD2.fbx",
+      "bytes": 48764,
+      "sha256": "7d9a18a869ce17ffa12dea329ae0c5ff3d3813231f7b000ccd454a0858a90440"
+    },
+    {
+      "path": "SciFiKit/exports/SF_Bulkhead_Arch_LOD3.fbx",
+      "bytes": 32668,
+      "sha256": "25ace1240ca5c71c985a29b0148a0e50f3996aa35d41b4565e54f76fe891efe9"
+    },
+    {
+      "path": "SciFiKit/packed_textures/textures/SciFiKit__M_SciFi_Emissive__albedo.png",
+      "bytes": 103356,
+      "sha256": "2f4d9c63900fb95e1a2d5f957d8a54edb35974908c003838ec57d4ebb1bb69a7"
+    },
+    {
+      "path": "SciFiKit/packed_textures/textures/SciFiKit__M_SciFi_Emissive__ao.png",
+      "bytes": 3154,
+      "sha256": "e4c1b8cb92d0141d1278ee08becdc80ae4606e4021f36df8d932cb93b126e067"
+    },
+    {
+      "path": "SciFiKit/packed_textures/textures/SciFiKit__M_SciFi_Emissive__metallic_smoothness.png",
+      "bytes": 6501,
+      "sha256": "d23f26a8e39d1136baae466042e53366af7308fe753c7016fc45244aa8672610"
+    },
+    {
+      "path": "SciFiKit/packed_textures/textures/SciFiKit__M_SciFi_Emissive__normal.png",
+      "bytes": 12389,
+      "sha256": "9c88a7a66be37780c283c69610327ed2ef8c4c96f3a9fa8a6fdade1b5864db54"
+    },
+    {
+      "path": "SciFiKit/packed_textures/textures/SciFiKit__M_SciFi_TrimSheet__albedo.png",
+      "bytes": 1652227,
+      "sha256": "c1cd2a63b8473d1a8cd49786772caf4e2868af04c3a4249c3c7839dd044a3b7c"
+    },
+    {
+      "path": "SciFiKit/packed_textures/textures/SciFiKit__M_SciFi_TrimSheet__ao.png",
+      "bytes": 28297,
+      "sha256": "6d5180667544560427d2da7a78c09540161ac1dc330cb56a06c69d320e0b1781"
+    },
+    {
+      "path": "SciFiKit/packed_textures/textures/SciFiKit__M_SciFi_TrimSheet__metallic_smoothness.png",
+      "bytes": 2311504,
+      "sha256": "da0fa5468ab8acceeea39b47b9de8a5da04e452632342bec665f4df1911b8197"
+    },
+    {
+      "path": "SciFiKit/packed_textures/textures/SciFiKit__M_SciFi_TrimSheet__normal.png",
+      "bytes": 12651216,
+      "sha256": "707d68f43308c0f7cd56b303b92e9dcb20c3f69010101cefbf8efecfaea2b2d9"
+    },
+    {
+      "path": "SciFiKit/raw_textures/emissive/ao.png",
+      "bytes": 3157,
+      "sha256": "5ed11e3dfe2f8a33a3cdd51e872a3db1a2fbbdab553aeea946ef9273a9f3e3f3"
+    },
+    {
+      "path": "SciFiKit/raw_textures/emissive/base_color.png",
+      "bytes": 120028,
+      "sha256": "1a5c3b45595b95ac60176f4c678f4e93efea64e1b6f9e6680c4a2893ac9a6825"
+    },
+    {
+      "path": "SciFiKit/raw_textures/emissive/emission.png",
+      "bytes": 121939,
+      "sha256": "7f2832d873eb99d061a436556c33d3fcf9ba746d23e737890d70f4579b9d7da0"
+    },
+    {
+      "path": "SciFiKit/raw_textures/emissive/metallic.png",
+      "bytes": 3158,
+      "sha256": "8702d0574bb84253a659e0a44c975826eb911fa79c6844bc9496bfa45bc25fc4"
+    },
+    {
+      "path": "SciFiKit/raw_textures/emissive/normal.png",
+      "bytes": 12389,
+      "sha256": "9c88a7a66be37780c283c69610327ed2ef8c4c96f3a9fa8a6fdade1b5864db54"
+    },
+    {
+      "path": "SciFiKit/raw_textures/emissive/roughness.png",
+      "bytes": 3158,
+      "sha256": "2a4c4cbe30781f1dade97f83380cd3eecb888ed1f035d6a0c563a393bbb5a641"
+    },
+    {
+      "path": "SciFiKit/raw_textures/textures_meta.json",
+      "bytes": 270,
+      "sha256": "10663aa0aef42cf27fb72eb04c2634825e7aaa14bdf191d64963a3e924687cdf"
+    },
+    {
+      "path": "SciFiKit/raw_textures/trim_sheet/ao.png",
+      "bytes": 18434,
+      "sha256": "ac80ddfca504c64c7219e05a53e7b6760114ec950753fc16345d6e6b773d3386"
+    },
+    {
+      "path": "SciFiKit/raw_textures/trim_sheet/base_color.png",
+      "bytes": 1504178,
+      "sha256": "ae043b6cbf21a52073290863deeecb0d85156eefcf3e73fc287e264328b39583"
+    },
+    {
+      "path": "SciFiKit/raw_textures/trim_sheet/metallic.png",
+      "bytes": 391060,
+      "sha256": "a2f33695bed323406a678d91f576a36c57293d4c7f12fef4db27a53f226266ab"
+    },
+    {
+      "path": "SciFiKit/raw_textures/trim_sheet/normal.png",
+      "bytes": 12651216,
+      "sha256": "707d68f43308c0f7cd56b303b92e9dcb20c3f69010101cefbf8efecfaea2b2d9"
+    },
+    {
+      "path": "SciFiKit/raw_textures/trim_sheet/roughness.png",
+      "bytes": 772134,
+      "sha256": "ad88777b46b3e3812213d680f54c80edd4845922772d3ba6e312465a012092c8"
+    },
+    {
+      "path": "SciFiKit/renders/bulkhead_review/review_closeup.png",
+      "bytes": 529522,
+      "sha256": "01846c86af33b710ce4d178ff0d8d2a8f784ad1d26dd0bda0c422aed4ef73630"
+    },
+    {
+      "path": "SciFiKit/renders/bulkhead_review/review_collision_outline.png",
+      "bytes": 494408,
+      "sha256": "b39bb253b2c8bc280f2096d33a8ce61348444c1ab2ab59dabce5174f6c984fba"
+    },
+    {
+      "path": "SciFiKit/renders/bulkhead_review/review_front.png",
+      "bytes": 424403,
+      "sha256": "59c755f0894cd1551c592a33fd5482a41f67846d1cecf96e00a66be87e8e3e6f"
+    },
+    {
+      "path": "SciFiKit/renders/bulkhead_review/review_lod0_6m.png",
+      "bytes": 520088,
+      "sha256": "cd184adc60f88edbac7ea3b331a2d15503c524ff2162b32f58eed742871d5e9e"
+    },
+    {
+      "path": "SciFiKit/renders/bulkhead_review/review_lod1_6m.png",
+      "bytes": 503832,
+      "sha256": "56e61cbb67446a72a83c56aa594b4767e5976451ec77cffe08ccc89580169559"
+    },
+    {
+      "path": "SciFiKit/renders/bulkhead_review/review_lod2_6m.png",
+      "bytes": 498106,
+      "sha256": "3466620e8e396d740da805a09dc97f832d36e254b330197f7af179a09cdea4aa"
+    },
+    {
+      "path": "SciFiKit/renders/bulkhead_review/review_lod3_6m.png",
+      "bytes": 441731,
+      "sha256": "fcde27135850347bd0b714710925f5a86e9e5334f053d095128fc72662118183"
+    },
+    {
+      "path": "SciFiKit/renders/bulkhead_review/review_side.png",
+      "bytes": 274486,
+      "sha256": "4b79494be7c8ab817e95cf43c23e1b9a24c091ed898bcb88cc30095a7e6f7fd9"
+    },
+    {
+      "path": "SciFiKit/renders/bulkhead_review/review_top.png",
+      "bytes": 247637,
+      "sha256": "96264de29e2a76874a95624c2f8a4e63105f0387672f9bc9c26759a613aa1cac"
+    },
+    {
+      "path": "SciFiKit/renders/catalog_front.png",
+      "bytes": 988544,
+      "sha256": "ff6b7a3f3afd8fd67ba9dfd3bff92a9e80a0ff6b53e055254ce3b56cb1a479c5"
+    },
+    {
+      "path": "SciFiKit/renders/catalog_persp.png",
+      "bytes": 1075758,
+      "sha256": "9cebcc043cebc4bb35b18ce108a5c961a437fda91c3807d4caea7381c80eb6b0"
+    },
+    {
+      "path": "SciFiKit/renders/catalog_top.png",
+      "bytes": 1030564,
+      "sha256": "6e1befc154e9eb4fc755ae1a2ba4e7123c0c879fa74a6811aa9fe62c8fdecf14"
+    },
+    {
+      "path": "SciFiKit/renders/hero_corridor_1920x1080.png",
+      "bytes": 2764885,
+      "sha256": "9fb069b9b7fdc77a251911d3059c05fb7e5a92df3f3b83df541c3e898cbe996e"
+    },
+    {
+      "path": "SciFiKit/scenes/SF_Bulkhead_Arch.blend",
+      "bytes": 168920,
+      "sha256": "dd2c0f322734377ff9747f3afc6f946a618bf8ede9ef3ea9dc1589157b1a4144"
+    },
+    {
+      "path": "SciFiKit/scenes/SF_Modules_Catalog.blend",
+      "bytes": 184127,
+      "sha256": "67a1a60b1dcdfc3f80ebb99b6c9ccd532065300261b1cac2bd016b50bf09318e"
+    },
+    {
+      "path": "SciFiKit/scenes/SciFi_Corridor_Assembly.blend",
+      "bytes": 208167,
+      "sha256": "c4cdc7d0a6cfe060d2a9a827821932392f3c69fbb3f68ff0033e19fce183d1da"
+    },
+    {
+      "path": "SciFiKit/showcase/01_hero_assembly.png",
+      "bytes": 1895985,
+      "sha256": "b8cfe977d56ea916771054b7d8727e9cc238ed29b89eb54716613ccfff704f7b"
+    },
+    {
+      "path": "SciFiKit/showcase/01_hero_assembly.webp",
+      "bytes": 100414,
+      "sha256": "f294d4ccf6d7b2fd83703499297f662685772cf3191677d5817a66c42c489dd6"
+    },
+    {
+      "path": "SciFiKit/showcase/02_technical_multiview.png",
+      "bytes": 1514408,
+      "sha256": "db65cf21df0be7ab18014d247079b000de3cf72f31f150c4748e45753512627c"
+    },
+    {
+      "path": "SciFiKit/showcase/02_technical_multiview.webp",
+      "bytes": 74688,
+      "sha256": "27e33eb0ffb5e38b480cbde7e9d8416ea3806b71949653b0ed1a11f497ea8d5f"
+    },
+    {
+      "path": "SciFiKit/showcase/03_lod_comparison.png",
+      "bytes": 1277377,
+      "sha256": "b4b98f631e9f2503ad4e9104a2e224d0f3342d8bfa2b31915b8b5fe784df9c6c"
+    },
+    {
+      "path": "SciFiKit/showcase/03_lod_comparison.webp",
+      "bytes": 94312,
+      "sha256": "96dccccec5350a5cc3ab171a01845a1cdee199493d04961a77eef14966cf20dd"
+    },
+    {
+      "path": "SciFiKit/showcase/04_collision_hierarchy_sockets.png",
+      "bytes": 516943,
+      "sha256": "348ad1edf66bf6a2de84ec8f37b3d08e0c32b97714948332f37a42fa0ba71ad9"
+    },
+    {
+      "path": "SciFiKit/showcase/04_collision_hierarchy_sockets.webp",
+      "bytes": 104948,
+      "sha256": "3cf5e83a3f9e8882bc69ed0462f565910775eb743e91f17b5f1cb43008e4f28f"
+    },
+    {
+      "path": "SciFiKit/showcase/05_textures_materials.png",
+      "bytes": 765851,
+      "sha256": "f831ab263d8890bbe3992622eb57ec81f5e6a3dae6bd4e6e8d42b666067ea19b"
+    },
+    {
+      "path": "SciFiKit/showcase/05_textures_materials.webp",
+      "bytes": 148026,
+      "sha256": "2728ea0794bd161a350f04e2ee101f03a05f5bf30cba4391d3901cd572eb81c0"
+    },
+    {
+      "path": "SciFiKit/source/build_scifi_kit.py",
+      "bytes": 37753,
+      "sha256": "70755bfd422c2cd77e60cff8b88ebadb0a59ed97407bbf68aadf291a230b39c1"
+    },
+    {
+      "path": "SciFiKit/source/bundle-spec.json",
+      "bytes": 1040,
+      "sha256": "d23b7b8b2d5d395b39dee4992fff1159c0716482ba50dc70b37980ca2d32dc72"
+    },
+    {
+      "path": "SciFiKit/source/compose_scifi_showcase.py",
+      "bytes": 18584,
+      "sha256": "3dae1ef7d4b126bdc62dcd2f938bdf3a4a5a153a76acbebee7c215c9a110aa97"
+    },
+    {
+      "path": "SciFiKit/source/generate_scifi_textures.py",
+      "bytes": 14352,
+      "sha256": "ca47ead5189824eee5321be0c8c5c4816c71effb4c458592e1a75ff504a07bbd"
+    },
+    {
+      "path": "SciFiKit/source/scifikit.profile.json",
+      "bytes": 1701,
+      "sha256": "8444b636fcf3b2bcc4208bc76d0969ff82983f47fb7b66877f69608102a1c236"
+    },
+    {
+      "path": "SupplyCrate/README.md",
+      "bytes": 4353,
+      "sha256": "7cff9e8ef6a72d1b6ef8d6f87b7330c5191d4678f2291a0b49df3ff736e7e65b"
+    },
+    {
+      "path": "SupplyCrate/evidence/bundle.json",
+      "bytes": 50852,
+      "sha256": "80cce42c4fdf8b56131f879dcdd31e3bddc68ea64d3ae1960c8828549c1e5bf8"
+    },
+    {
+      "path": "SupplyCrate/evidence/inspect.json",
+      "bytes": 10274,
+      "sha256": "d02d45b8e70bf5617e4736b4838841fdc86d4d56c9ea4e0e63605adcd67ef45d"
+    },
+    {
+      "path": "SupplyCrate/evidence/kit_compose_spec.json",
+      "bytes": 496,
+      "sha256": "221c17e08da5248070f07ae23587298736370029da8b4923c425d162b9a4bcff"
+    },
+    {
+      "path": "SupplyCrate/evidence/kit_compositor_result.json",
+      "bytes": 1039,
+      "sha256": "777494b210f3dbd888dbcbfdd1e4d38b687fe493c02f7cfcec6d3432b92687c7"
+    },
+    {
+      "path": "SupplyCrate/evidence/kit_compositor_sample.webp",
+      "bytes": 84346,
+      "sha256": "c1a66c29e0d17cdc08b2663e68612045ca4e590b4b7e87fb11e60908bc6b9817"
+    },
+    {
+      "path": "SupplyCrate/evidence/pack.json",
+      "bytes": 1895,
+      "sha256": "32725ece51a1a4c55b266a8bae227a96cf073e810f7cbe1da881756d2599b856"
+    },
+    {
+      "path": "SupplyCrate/evidence/qa.json",
+      "bytes": 11865,
+      "sha256": "90570deeac576c72e5b24314b28ced2a0779a8314efce8f5c49b25fab7ca6e28"
+    },
+    {
+      "path": "SupplyCrate/evidence/qa_base.json",
+      "bytes": 11883,
+      "sha256": "f14cae52384fa79bb50833b494a79c3b230a6021cc30f2ed0fb60b6c477c5b7b"
+    },
+    {
+      "path": "SupplyCrate/evidence/qa_before_pivot_center_fix.json",
+      "bytes": 12183,
+      "sha256": "5fe26e6ae36be9adad561bf47753cbfefe9c9fef91b858576d6e1f301fc91194"
+    },
+    {
+      "path": "SupplyCrate/evidence/qa_before_root_fix.json",
+      "bytes": 11102,
+      "sha256": "1b287cdc1b5b624a709850081a05b01726316dfac3d95e540375b9540cdf2808"
+    },
+    {
+      "path": "SupplyCrate/evidence/review_hd.json",
+      "bytes": 11746,
+      "sha256": "78ba24d3e90b21c488956275c5c884a4f0ea3fc7a35c56b84581bc01c9f1cff1"
+    },
+    {
+      "path": "SupplyCrate/evidence/review_tiles.json",
+      "bytes": 14022,
+      "sha256": "4353b0c37055a01adc296cc0ab1849b2b630cb9030c8f52538e0336b148c215d"
+    },
+    {
+      "path": "SupplyCrate/evidence/showcase_manifest.json",
+      "bytes": 3154,
+      "sha256": "9b6979468acb10a49c09b1e7d0ae18b0044596e0b95d074deea43355121bd515"
+    },
+    {
+      "path": "SupplyCrate/evidence/texture_validation.json",
+      "bytes": 318,
+      "sha256": "56e587a4ac62da528ad579076fd88542052e0a1eae236f07fca6a31159298b42"
+    },
+    {
+      "path": "SupplyCrate/exports/SupplyCrate.bundle.manifest.json",
+      "bytes": 50890,
+      "sha256": "4738edb048b95f7f30602a8a47f5b8590d60ef10a3c13de20145cda40d788386"
+    },
+    {
+      "path": "SupplyCrate/exports/SupplyCrate_COL_01.fbx",
+      "bytes": 11708,
+      "sha256": "3ea56697cc533593535566ea01e9a51b4d1c87a32785371282aab420e089b987"
+    },
+    {
+      "path": "SupplyCrate/exports/SupplyCrate_LOD0.fbx",
+      "bytes": 303532,
+      "sha256": "61728c544ab7ed3119328e956682853b7ac5166c53d5eec868e6b5c3a783a7e4"
+    },
+    {
+      "path": "SupplyCrate/exports/SupplyCrate_LOD1.fbx",
+      "bytes": 87340,
+      "sha256": "b0226d8f77f6d639e94f9b7605dc63039c7533d65d783da503399588d5479a1e"
+    },
+    {
+      "path": "SupplyCrate/exports/SupplyCrate_LOD2.fbx",
+      "bytes": 34204,
+      "sha256": "4feb682e8e1e0d473fb967b57401a9b72781f92f6e0e3d4eab46aa235dd64071"
+    },
+    {
+      "path": "SupplyCrate/packed_textures/textures/SupplyCrate__M_SupplyCrate_Body__albedo.png",
+      "bytes": 3125068,
+      "sha256": "05cbaccbe7234c5d16935e7673b25ba0f660c8f72ce58964ee9b1b274c3a63ae"
+    },
+    {
+      "path": "SupplyCrate/packed_textures/textures/SupplyCrate__M_SupplyCrate_Body__ao.png",
+      "bytes": 686945,
+      "sha256": "a2ab2c7163fb03d326f5bb43c34d96944dbeafb53da714af9d7c8e231469203a"
+    },
+    {
+      "path": "SupplyCrate/packed_textures/textures/SupplyCrate__M_SupplyCrate_Body__metallic_smoothness.png",
+      "bytes": 1864093,
+      "sha256": "38a517b1505f7912769b6a4a39611878da66006163c71174b46d66e055c23c55"
+    },
+    {
+      "path": "SupplyCrate/packed_textures/textures/SupplyCrate__M_SupplyCrate_Body__normal.png",
+      "bytes": 19281530,
+      "sha256": "94e8ba63d9457f669742650504431a232886a842632d64dc972bbd5e7eb4f03f"
+    },
+    {
+      "path": "SupplyCrate/raw_textures/ao.png",
+      "bytes": 607461,
+      "sha256": "16b0cc071db4120d205d82bd55730ee5952eec3eea99ff8858c6925103957f6c"
+    },
+    {
+      "path": "SupplyCrate/raw_textures/atlas_meta.json",
+      "bytes": 1108,
+      "sha256": "1a7c3aaaed82da7d7b9f454f0277ee89b581e4a7827d1c731bd8759e85622bcc"
+    },
+    {
+      "path": "SupplyCrate/raw_textures/base_color.png",
+      "bytes": 2317414,
+      "sha256": "d7edb00121860f8babe704b1ab8b91fc20fc148245e5ce4c7d930c3040e48933"
+    },
+    {
+      "path": "SupplyCrate/raw_textures/metallic.png",
+      "bytes": 193990,
+      "sha256": "72963efef3ef404c73ee96bc69893990baa5f93a7ae22c3221ee31db6d82a026"
+    },
+    {
+      "path": "SupplyCrate/raw_textures/normal.png",
+      "bytes": 19281530,
+      "sha256": "94e8ba63d9457f669742650504431a232886a842632d64dc972bbd5e7eb4f03f"
+    },
+    {
+      "path": "SupplyCrate/raw_textures/roughness.png",
+      "bytes": 813495,
+      "sha256": "8ee1d9bab6300588b679ca2d4c6c73f55d3b2a4255d75fd607fef187fd146be2"
+    },
+    {
+      "path": "SupplyCrate/renders/hd/review_closeup.png",
+      "bytes": 2149917,
+      "sha256": "c45b94db344b9971227c87ea6307eed1359cfdc794a0fc44062959130b63c60c"
+    },
+    {
+      "path": "SupplyCrate/renders/hd/review_collision_outline.png",
+      "bytes": 2113721,
+      "sha256": "71d0a35ca7c4572c3142771ef56df1a0b9b569f8a62fd052c620d31cfe2c9632"
+    },
+    {
+      "path": "SupplyCrate/renders/tiles/review_closeup.png",
+      "bytes": 620373,
+      "sha256": "0a64b7865e8a412eca955b95d2cfeb3ac545805a7e889b10066c8933eda41fb7"
+    },
+    {
+      "path": "SupplyCrate/renders/tiles/review_collision_outline.png",
+      "bytes": 620975,
+      "sha256": "c59b34b13fa22284fbc59b9c6d40cdebc1015284d302f5deb9bd23944ddb0904"
+    },
+    {
+      "path": "SupplyCrate/renders/tiles/review_front.png",
+      "bytes": 446793,
+      "sha256": "76a706cf27ab40b5a42ba16adcd05dce8426e5ab6a236723126738bac63bb853"
+    },
+    {
+      "path": "SupplyCrate/renders/tiles/review_lod0_11m.png",
+      "bytes": 170343,
+      "sha256": "dad4f25eb6b499007eff382c6149513076619760b36100cb4270db42a10c1efb"
+    },
+    {
+      "path": "SupplyCrate/renders/tiles/review_lod0_12m.png",
+      "bytes": 162968,
+      "sha256": "612bfbfa1dfc33faf90f8dce29aad0ce2c0c48012cc45f7c14a6081908df65eb"
+    },
+    {
+      "path": "SupplyCrate/renders/tiles/review_lod0_2m.png",
+      "bytes": 634100,
+      "sha256": "3a5082ba20aef7111a0b472528525ab57ef56fc9e2f868f6e6433e9806d1bbbe"
+    },
+    {
+      "path": "SupplyCrate/renders/tiles/review_lod0_5m.png",
+      "bytes": 276198,
+      "sha256": "ec2a8371ba197cb34b7480441bb2adca2288b62bd1e2982e251bb6ccdf989f31"
+    },
+    {
+      "path": "SupplyCrate/renders/tiles/review_lod1_11m.png",
+      "bytes": 169577,
+      "sha256": "51f5fb7b350afc40ac47559d87e2ede4798b5a16d532a2655b8191a1422a7ae2"
+    },
+    {
+      "path": "SupplyCrate/renders/tiles/review_lod1_12m.png",
+      "bytes": 162602,
+      "sha256": "d9dbb56ba9719ab90cbba82e16162243eef9688492ebed91a7a8ac01f3a20968"
+    },
+    {
+      "path": "SupplyCrate/renders/tiles/review_lod1_2m.png",
+      "bytes": 624126,
+      "sha256": "2ea3b1ad8ca5006e90b4bd3054cdd6d13dbf3e1b159d21c557a364080e8dba6a"
+    },
+    {
+      "path": "SupplyCrate/renders/tiles/review_lod1_5m.png",
+      "bytes": 273570,
+      "sha256": "1a1bc476b8b3948e8f61fc07725ac88f8c8be99a466e2b3b52aa272dfa1c47cc"
+    },
+    {
+      "path": "SupplyCrate/renders/tiles/review_lod2_11m.png",
+      "bytes": 171434,
+      "sha256": "29b73ca8dbdcfe1b5afc372d4d342b4bef2bb2a5e6acdabe0dc344008d09bd8c"
+    },
+    {
+      "path": "SupplyCrate/renders/tiles/review_lod2_12m.png",
+      "bytes": 163988,
+      "sha256": "6ea7fd6fb343dcbfa122a92df3d7cfcb0a46c23addba75ac223e299a751ed335"
+    },
+    {
+      "path": "SupplyCrate/renders/tiles/review_lod2_2m.png",
+      "bytes": 617224,
+      "sha256": "f9c92eccd1c7addd16818d679c47a7828063e745ec8fcdb767ff4b146b127872"
+    },
+    {
+      "path": "SupplyCrate/renders/tiles/review_lod2_5m.png",
+      "bytes": 274401,
+      "sha256": "4489b1df1ae1f04297e023feae4545437feb91d353f579473ee8f37afb6bf2cc"
+    },
+    {
+      "path": "SupplyCrate/renders/tiles/review_rear.png",
+      "bytes": 452223,
+      "sha256": "05836a9aad837bd85437e5d319002540d29ead8dc43615fa48d1a134e2ac174f"
+    },
+    {
+      "path": "SupplyCrate/renders/tiles/review_side.png",
+      "bytes": 349160,
+      "sha256": "3f5b7fe771a6b6ea16fc92b0b59327fcbcdb2ba3a07ea5b2d2584c2e58e65f1e"
+    },
+    {
+      "path": "SupplyCrate/renders/tiles/review_top.png",
+      "bytes": 492363,
+      "sha256": "c4ec698903cee6b36c7461f53450af7eb976c91d9a53076bc1e570adcdb9e18d"
+    },
+    {
+      "path": "SupplyCrate/scenes/SupplyCrate.blend",
+      "bytes": 201918,
+      "sha256": "4dd9ac84ae735d26e818b8ea1f1211a93539652759e879f58aa82d56ec8fbf4a"
+    },
+    {
+      "path": "SupplyCrate/scenes/SupplyCrate.blend1",
+      "bytes": 201761,
+      "sha256": "fe70a5cae677d4909bac083223bd49d9a8263cc9de97dce6828b57ea0abebeba"
+    },
+    {
+      "path": "SupplyCrate/showcase/01_hero.png",
+      "bytes": 1504115,
+      "sha256": "08cb0bb1317441ebe15dc86c4c44e97dc7318d15bd8a2124ace7c4200830578a"
+    },
+    {
+      "path": "SupplyCrate/showcase/01_hero.webp",
+      "bytes": 94950,
+      "sha256": "b94a1fb51fd1f099b5c84079e8b6d0faae71079204082f4b9a30f7165f8c6f19"
+    },
+    {
+      "path": "SupplyCrate/showcase/02_orthographic_multiview.png",
+      "bytes": 1141298,
+      "sha256": "23ded67225b9385d336d62b5976c171e05611ed51cc92058e1d54262d1bc86f9"
+    },
+    {
+      "path": "SupplyCrate/showcase/02_orthographic_multiview.webp",
+      "bytes": 84626,
+      "sha256": "ec0d6a909889030ca7816e066c166fedb148bdb5370977e4adcbc6968fd70535"
+    },
+    {
+      "path": "SupplyCrate/showcase/03_lod_comparison.png",
+      "bytes": 732761,
+      "sha256": "df8693c911adf5af9a9ed2031498ea8577fa544d02f589b5fe2b01255b275f37"
+    },
+    {
+      "path": "SupplyCrate/showcase/03_lod_comparison.webp",
+      "bytes": 80264,
+      "sha256": "83859a0e7c37d05096f565e7d56c03feb4d3dde0d8beec88cd343cc57fe21f98"
+    },
+    {
+      "path": "SupplyCrate/showcase/04_lod_distance_grid.png",
+      "bytes": 1146994,
+      "sha256": "fb5d15cbd391d8ca0408bc449e93d06e7ca14881b2273dd490795ef98bdbc234"
+    },
+    {
+      "path": "SupplyCrate/showcase/04_lod_distance_grid.webp",
+      "bytes": 107074,
+      "sha256": "0f260cb5ba94df49cc8d2a04d927664e06570ad2b93b3f6d20dd069a41d04a76"
+    },
+    {
+      "path": "SupplyCrate/showcase/05_collision_overlay.png",
+      "bytes": 1496331,
+      "sha256": "5bf95d1f812f6b214598f05074cc3b12fab451517505c1deaae24d9ffabfc42c"
+    },
+    {
+      "path": "SupplyCrate/showcase/05_collision_overlay.webp",
+      "bytes": 99326,
+      "sha256": "865c58bd9a2d7bee60eee69e82448889e6753d7fff48e9d1ef9bbdced7023eaf"
+    },
+    {
+      "path": "SupplyCrate/showcase/06_pbr_to_urp_textures.png",
+      "bytes": 2272399,
+      "sha256": "28978fab1b98cf45b258b69d4bc9e9ebd3ea115459044eb773bfc0284f8a6eb5"
+    },
+    {
+      "path": "SupplyCrate/showcase/06_pbr_to_urp_textures.webp",
+      "bytes": 232344,
+      "sha256": "38037761f2ca160fdf211ac85f4b816d983e490db2769bdc519a24d0d0599b70"
+    },
+    {
+      "path": "SupplyCrate/source/build_supplycrate.py",
+      "bytes": 24238,
+      "sha256": "6a762cc803de1c7f4bebc6b772273cc9b1e0431d13386145a210648899f09f53"
+    },
+    {
+      "path": "SupplyCrate/source/bundle-spec.json",
+      "bytes": 663,
+      "sha256": "364dc02b725222f8b0cd08409748c02aef05828b9db74f04158e3486cb8dcb9d"
+    },
+    {
+      "path": "SupplyCrate/source/compose_showcase.py",
+      "bytes": 14841,
+      "sha256": "1799e936d75855ba284ad57559b7dcb9f472484bc5811fde59db74b57de9f018"
+    },
+    {
+      "path": "SupplyCrate/source/generate_pbr_atlas.py",
+      "bytes": 16523,
+      "sha256": "9ec5306eaabdb04924e1cc24a30a6e7c348baf1fab98cbb958e7b4298c73cea6"
+    },
+    {
+      "path": "SupplyCrate/source/supplycrate.profile.json",
+      "bytes": 971,
+      "sha256": "1eae899089cae6f91bc35defb2025ec356522e223410fa8e308defdbfcabb9a7"
+    },
+    {
+      "path": "environment.json",
+      "bytes": 4917,
+      "sha256": "9566e0c5ab485eac355a4ba1982b76db814e4aec87eb892230a3df2c770177aa"
+    }
+  ]
+}
