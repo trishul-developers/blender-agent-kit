@@ -245,21 +245,21 @@ def run() -> dict:
             }]
         }), encoding="utf-8")
 
-        stripped = run_bundle(
+        restored = run_bundle(
             str(spec_path),
             target="unity",
             project_profile=str(profile_path),
-            out_dir=str(root_dir / "out"),
-            verify_roundtrip=True,
+            out_dir=str(root_dir / "out_restore"),
+            verify_roundtrip=False,
         )
-        assert stripped["status"] == "ok", stripped
-        part = stripped["parts"][0]
-        exported_names = {o["name"] for o in part["inventory"]["objects"]}
-        assert {"Vehicle_Station", "Turret_Pivot", "Gun_Elevation_Pivot", "Socket_Sight", "Hull"} <= exported_names, part
-        assert part["export_root"] == "Vehicle_Station", part
-        assert part["roundtrip"]["passed"], part["roundtrip"]
+        assert restored["status"] == "ok", restored
+        restored_part = restored["parts"][0]
+        exported_names = {o["name"] for o in restored_part["inventory"]["objects"]}
+        assert {"Vehicle_Station", "Turret_Pivot", "Gun_Elevation_Pivot", "Socket_Sight", "Hull"} <= exported_names, restored_part
+        assert restored_part["export_root"] == "Vehicle_Station", restored_part
 
-        # Original authoring names and the unselected colliding base names survive.
+        # Original authoring names and the unselected colliding base names survive
+        # the temporary rename context before any fresh-scene round-trip reset.
         assert lod_root.name == "Vehicle_Station_LOD1"
         assert lod_turret.name == "Turret_Pivot_LOD1"
         assert lod_gun.name == "Gun_Elevation_Pivot_LOD1"
@@ -268,6 +268,18 @@ def run() -> dict:
         assert base_turret.name == "Turret_Pivot"
         assert base_gun.name == "Gun_Elevation_Pivot"
         assert base_socket.name == "Socket_Sight"
+
+        stripped = run_bundle(
+            str(spec_path),
+            target="unity",
+            project_profile=str(profile_path),
+            out_dir=str(root_dir / "out_roundtrip"),
+            verify_roundtrip=True,
+        )
+        assert stripped["status"] == "ok", stripped
+        part = stripped["parts"][0]
+        assert part["export_root"] == "Vehicle_Station", part
+        assert part["roundtrip"]["passed"], part["roundtrip"]
     passed += 1
 
     # Hierarchy-safe FBX prebake + station root zeroing must survive a fresh Blender import.
