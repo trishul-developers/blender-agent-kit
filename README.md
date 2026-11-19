@@ -28,56 +28,76 @@ The emphasis is not only on generating geometry. The goal is to let an agent pro
 
 > Blender Agent Kit is not a neural text-to-3D or text-to-image model. Asset creation is skill-driven: an agent authors deterministic Blender/Python build logic, executes Blender headlessly, and uses the kit to validate and deliver the result.
 
-## Showcase — SupplyCrate
+## Independently tested — two real 3D asset workflows
 
-> **Task:** Create a weathered supply crate with procedural PBR textures, three LODs, a collision proxy, QA evidence, automated review renders, and Unity-target export.
+A separate agent installed **Blender 5.2.4 LTS** and the **unmodified Blender Agent Kit v0.2.1** release, then authored two new assets from scratch. It recorded installation friction, actual QA failures, output files, real Blender FBX round trips, and an estimated with-kit versus no-kit effort comparison. This is an **agent-authored field trial**, not a controlled benchmark or Unity Editor test.
 
-![SupplyCrate procedural hero](demos/SupplyCrate/showcase/demo_hero_closeup.webp)
+### SupplyCrate — procedural prop, PBR, QA, LOD and collision
 
-This is a **real, reproducible demo produced through Blender Agent Kit**, not a mockup.
+![Independently authored SupplyCrate hero render](demo/SupplyCrate/showcase/01_hero.webp)
 
-- Procedural geometry plus a 2048² PBR atlas
-- LOD0 **3,136 tris** → LOD1 **1,600** → LOD2 **240**
-- **12-triangle** collision proxy
-- QA: **PASS**, 0 errors
-- 4 FBX parts: Blender fresh-import / round-trip **PASS**, no embedded images
-- Unity URP texture packing
-- Rebuild locally with `python demos/SupplyCrate/run_demo.py`
+An independently authored weathered wood-and-steel prop with a **2,048² PBR atlas** and LODs of **4,204 → 1,084 → 136 triangles**. The kit's QA caught **two actual production defects** in earlier iterations: a missing common root and a **2.5 mm pivot offset**. The corrected scene reports **0 QA errors**, and all **4/4 FBX exports** passed Blender fresh-import checks.
 
-[Demo source + instructions](demos/SupplyCrate/README.md) · [Compact evidence](demos/SupplyCrate/evidence/summary.json)
-
-| LOD + collision output | PBR source → Unity URP packing |
-| --- | --- |
-| ![SupplyCrate LOD and collision sheet](demos/SupplyCrate/showcase/demo_lod_collision.webp) | ![Original SupplyCrate six-tile PBR evidence, compressed preview](demos/SupplyCrate/showcase/demo_textures_historical.webp) **Historical six-tile evidence**, provided from the source ZIP. A newly regenerated nine-map image remains pending. The original reportedly blank WebP is no longer embedded. |
+![Actual collision wireframe overlay over the SupplyCrate](demo/SupplyCrate/showcase/05_collision_overlay.webp)
 
 <details>
-<summary><strong>Automated review evidence</strong></summary>
+<summary><strong>View SupplyCrate technical proof: PBR → URP, LODs, orthographics, distance grid</strong></summary>
 
-![SupplyCrate LOD range grid](demos/SupplyCrate/showcase/demo_lod_range_grid.webp)
+![Five raw PBR maps and four Unity URP packed maps](demo/SupplyCrate/showcase/06_pbr_to_urp_textures.webp)
 
-![SupplyCrate orthographic views](demos/SupplyCrate/showcase/demo_orthographic.webp)
+![Three SupplyCrate LODs](demo/SupplyCrate/showcase/03_lod_comparison.webp)
+
+![SupplyCrate orthographic review](demo/SupplyCrate/showcase/02_orthographic_multiview.webp)
+
+![SupplyCrate LOD versus distance](demo/SupplyCrate/showcase/04_lod_distance_grid.webp)
 
 </details>
 
-The checked-in SupplyCrate rendering contact sheets record the demonstrated source run. The original six-tile texture proof image was supplied separately; the broken texture WebP is excluded from this README pending an evidence-grounded rebuild. The generic collision-review renderer has since been upgraded to overlay collision wireframes over the primary LOD, so fresh reruns use the clearer overlay view.
+[Independent SupplyCrate source, evidence, and reproduction instructions](demo/SupplyCrate/README.md)
 
-## Showcase 2 — Sci-Fi modular kit (independent agent trial)
+### Helios Conduit — modular Sci-Fi environment and hierarchy-safe export
 
-![Sci-Fi Aegis Station modular kit original agent hero, compact preview](demos/SciFiKit/showcase/01_hero_preview.webp)
+![Independently authored Helios Conduit modular corridor](demo/SciFiKit/showcase/01_hero_assembly.webp)
 
-![Sci-Fi modular kit original LOD evidence, compact preview](demos/SciFiKit/showcase/03_lod_preview.webp)
+The agent created **six modular piece types** and an assembled corridor of **21 module instances, 109 objects, and 13,308 triangles**. The representative bulkhead has four LODs (**2,392 / 904 / 336 / 60 triangles**), six directional sockets, a nested hierarchy, and three walkable collision hulls. All **6/6 FBX exports** passed Blender fresh-import parity, including hierarchy and transform checks.
 
-*These deliberately compact preview WebPs were resized from the independent agent's actual proof images, not rendered or painted anew. The original full-resolution images are retained in the supplied archive, not committed to Git.*
+![Sci-Fi bulkhead LOD comparison](demo/SciFiKit/showcase/03_lod_comparison.webp)
 
+<details>
+<summary><strong>View Sci-Fi technical proof: modules, collision/sockets and materials</strong></summary>
 
-The **Aegis Station** modular environment kit is a second, materially different trial of the Blender Agent Kit workflow. An independent agent supplied editable Blender scenes, a deterministic builder script, a 60-object modular assembly, QA/export/packing JSON, a bulkhead FBX, raw and packed textures, and five rendered proof images. We inspected the supplied archive and machine reports; this is not a newly rerun build.
+![Six-piece Sci-Fi module catalog and technical multiview](demo/SciFiKit/showcase/02_technical_multiview.webp)
 
-The bulkhead's four visible LOD meshes have **3,628 / 1,260 / 372 / 72 triangles**. Its QA report records **zero errors** (plus four explicit UV1 overlap-unverified warnings), while its **5,380-triangle** complete FBX hierarchy passed Blender fresh-import parity with no embedded images. The 1024² URP packing report records all four standard slots, including a **16-bit normal map**.
+![Bulkhead collision, sockets, hierarchy and round-trip evidence](demo/SciFiKit/showcase/04_collision_hierarchy_sockets.webp)
 
-[Read the archive-based Sci-Fi evidence assessment](demos/SciFiKit/README.md) · [Structured summary](demos/SciFiKit/evidence/summary.json)
+![Trim sheet, emissive and Unity URP texture evidence](demo/SciFiKit/showcase/05_textures_materials.webp)
 
-The agent also reported that LOD manifold checks, material budgets, and pivot checks helped catch earlier authoring errors. Its productivity-savings numbers are **subjective feedback, not measured benchmarks**. The submitted source archive and five original proof sheets were inspected independently; their original reports remain attributed to the agent. **A clean public rerun and committed lightweight visual gallery are planned for a later showcase improvement**, not claimed by this patch.
+</details>
 
+[Independent Sci-Fi source, evidence, and reproduction instructions](demo/SciFiKit/README.md)
+
+### What the independent agent found valuable
+
+| Real-world result | Evidence from the v0.2.1 trial |
+| --- | --- |
+| **Asset correctness** | QA caught an unrooted scene and 2.5 mm pivot drift; both failures and final passing reports are retained |
+| **Hierarchy-safe FBX** | **10/10 exported FBXs** passed Blender fresh-import triangle parity; the bulkhead also passed parent/local-transform verification |
+| **Unity URP texture preparation** | 16-bit OpenGL normal preservation and verified smoothness-from-roughness alpha packing; the SupplyCrate comparison contains all **5 source + 4 packed** maps |
+| **Agent-readable automation** | Structured `inspect`, `qa`, `pack`, `bundle`, and `review` results fed the agent's technical proof sheets |
+| **Review evidence** | Headless orthographic, LOD/range, and wireframe collision views reduced custom rendering work |
+
+### Agent-reported effort savings — estimates, not benchmarks
+
+| Scope | Estimated effort with kit | Estimated without kit | Estimated saving |
+| --- | ---: | ---: | ---: |
+| Pipeline engineering (setup, packing, QA, review, sheets, export) | 62 min | 238–308 min | **74–80%** |
+| Combined end-to-end work (both new demos) | 148 min | 329–399 min | **55–63%** |
+
+The agent estimated the with-kit minutes from its implementation record and estimated the no-kit baseline from required custom Blender/Python work. **These are retrospective estimates, not independently timed measurements, an A/B benchmark, or guaranteed savings.** Geometry authoring remained custom; the agent's strongest benefits were **QA, texture packing, automated rendering, and hierarchy-safe export/round-trip validation**. Its contact-sheet presentation work still required custom scripts and even added some overhead.
+
+Read the [complete independent report](demo/REPORT.md), [capability evaluation](demo/KIT_EVALUATION.md), [effort methodology](demo/EFFORT_ANALYSIS.md), and [improvement backlog](demo/IMPROVEMENT_BACKLOG.md). No Unity Editor import was performed; the proof is based on Blender validation and documented texture checks.
+
+---
 ## What can an agent do?
 
 | Agent task | Support |
@@ -141,7 +161,9 @@ python skills/core/blender-core/scripts/run.py qa --blend asset.blend --target u
 python skills/core/blender-core/scripts/run.py pack --target unity --profile urp --asset-id Prop01 --material Body --input-dir raw/ --out build/
 python skills/core/blender-core/scripts/run.py export --blend asset.blend --target unity --profile urp --out build/
 python skills/core/blender-core/scripts/run.py bundle --blend asset.blend --spec bundle.json --target unity --out build/
-python skills/core/blender-core/scripts/run.py review --blend asset.blend --device auto --out review/\n# Optional public JSON report on any subcommand:\npython skills/core/blender-core/scripts/run.py pack --target unity --profile urp --asset-id Prop01 --material Body --input-dir raw/ --out build/ --result-json build/pack.report.json
+python skills/core/blender-core/scripts/run.py review --blend asset.blend --device auto --out review/ 
+# Optional public JSON report on any subcommand:
+python skills/core/blender-core/scripts/run.py pack --target unity --profile urp --asset-id Prop01 --material Body --input-dir raw/ --out build/ --result-json build/pack.report.json
 ```
 
 Asset **creation itself is performed by the agent through Blender/Python**, using the modeling and specialist skills. The commands above provide the stable runtime around creation: discovery, inspection, QA, packing, export, bundle delivery, and review evidence.
