@@ -518,4 +518,18 @@ def run() -> dict:
         assert Path(second["artifacts"]["manifest"]).is_file()
     passed += 1
 
+    # Explicit collision geometry must remain visible in collider evidence but
+    # never inflate the render-LOD triangle count or visible asset bounds.
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    primary = _make_compliant_cube("Prop_LOD0", location=(0, 0, 1), size=2.0)
+    proxy = _make_compliant_cube("Prop_COL_01", location=(0, 0, 1), size=2.5)
+    from shared.scene_inspector import inspect_scene
+    separated = inspect_scene()
+    assert separated["lods"]["0"]["tri_count"] == 12, separated["lods"]
+    assert separated["colliders"] == ["Prop_COL_01"], separated["colliders"]
+    assert any(o["name"] == "Prop_COL_01" and o["excluded_from_lod"] and o["is_collider"]
+               for o in separated["objects"])
+    assert separated["bounds"]["size"] == [2.0, 2.0, 2.0], separated["bounds"]
+    passed += 1
+
     return {"status": "ok", "tests_passed": passed}
