@@ -322,6 +322,45 @@ It demonstrates reusable production conventions:
 
 Exact game-specific dimensions, socket inventories, simulation rules, faction/contact knowledge, content IDs, or prefab logic belong in downstream profile files.
 
+### Minimal external profile example
+
+A project-specific profile overlays a target in memory; it does not modify the generic toolkit or Unity target file. Save this as `project-profile.json` alongside your asset:
+
+```json
+{
+  "name": "example-prop",
+  "version": "1.0.0",
+  "target_overrides": {
+    "unity": {
+      "qa": {
+        "common": {"lod_exclude_patterns": ["*_COL_*"]},
+        "asset_classes": {
+          "example_prop": {
+            "pivot_rule": "bottom_center_z0",
+            "max_material_slots": 2,
+            "required_parent_pairs": [
+              {"child": "Socket_Front", "parent": "AssetRoot"}
+            ]
+          }
+        }
+      }
+    }
+  },
+  "review_presets": {
+    "hero": {
+      "resolution": [1280, 720],
+      "orthographic_views": ["front", "side", "top"],
+      "primary_lod": 0,
+      "collision_view": true
+    }
+  }
+}
+```
+
+Use `--project-profile project-profile.json --asset-class example_prop` for QA, or `--preset hero` for review. Parent relationships use **objects with `child` and `parent` strings**, not positional arrays. The common collider exclusion is now automatic for recognized collision meshes; retaining the explicit example is supported for portability to older toolkit releases.
+
+For Linux/macOS, use `python3` if `python` is not on `PATH`. If Blender was extracted to a nonstandard directory, set `BLENDER_EXECUTABLE=/absolute/path/to/blender` before invoking doctor or a subcommand. Run `run.py qa --help`, `run.py pack --help`, and similar commands to discover the exact accepted flags without starting Blender.
+
 ## Semantic bundle export
 
 A bundle represents one logical asset that produces multiple engine files.
