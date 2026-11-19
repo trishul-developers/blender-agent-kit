@@ -52,7 +52,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if test -d demo; then
+          if test -f demo/SupplyCrate/scenes/SupplyCrate.blend && \
+             test -f demo/SciFiKit/scenes/SF_Bulkhead_Arch.blend; then
             tar --sort=name --mtime='@0' --owner=0 --group=0 --numeric-owner \
               -czf "$RUNNER_TEMP/blender-agent-kit-independent-trial.tar.gz" demo/
             (cd "$RUNNER_TEMP" && sha256sum blender-agent-kit-independent-trial.tar.gz \
