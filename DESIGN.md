@@ -1,389 +1,365 @@
 # blender-agent-kit — Architecture and Design
 
-**Status:** v0.2 candidate architecture, implemented on `feat/generic-production-pipeline-v0.2`
+**Status:** v0.2 candidate architecture on `feat/generic-production-pipeline-v0.2`
 
 **Runtime:** Blender 5.2+; Python 3.10+ host tooling.
 
-**Core rule:** reusable Blender behavior remains generic. Engine behavior belongs in target plugins. Reusable downstream conventions belong in optional project profiles. Exact game/simulation contracts remain in downstream repositories.
+**Core rule:** Blender mechanics stay generic; engine semantics live in targets; reusable downstream conventions live in optional profiles; exact game/simulation truth remains downstream.
 
-## 1. Architectural layers
+## 1. Layering
 
 ```text
 AI agent / developer
-        │
-        ▼
+        ↓
 blender-core run.py
-        │
-        ▼
+        ↓
 generic runtime
-  runner / inspector / QA
-  packer / exporter / bundle
-  round-trip / review renderer
-        │
-        ├─────────────► engine target
-        │                Unity: FBX/GLB, axes,
-        │                standard URP/HDRP layouts
-        │
-        └─────────────► optional project profile
-                         budgets, naming, texture layouts,
-                         hierarchy conventions
+  runner
+  scene inspector
+  QA primitives
+  channel packer
+  exporter
+  semantic bundle exporter
+  round-trip evidence
+  review renderer
+        ↓
+engine target
+  Unity today
+        ↓
+optional project profile
+        ↓
+downstream repo builder / exact contract
 ```
 
-The separation is deliberate. A tactical-vehicle project may require a chassis/station split, aggressive LOD ratios, ground contact, and a packed mask. Those are useful reusable conventions, but they are not universal Unity requirements. They therefore live in a profile overlay rather than `blender-target-unity`.
+A reusable tactical profile may know that a tracked vehicle uses multiple LODs, damage siblings, ground contact, or a packed mask. It must not know a game's hidden simulation state, faction logic, exact content IDs, or per-vehicle truth.
 
-Likewise, exact TTE socket names, simulation sample heights, faction/contact disclosure rules, or damage-state semantics do not belong in this repository's generic core.
+## 2. Generic scene inventory
 
-## 2. Repository structure
+`shared.scene_inspector` is the single measurement layer consumed by QA and exporters.
 
-```text
-schemas/
-  target.schema.json
-  asset-manifest.schema.json
-  project-profile.schema.json
-  bundle-spec.schema.json
-  bundle-manifest.schema.json
+For every object it records:
 
-skills/core/
-  blender-core/
-  blender-modeling/
-  blender-uv-baking/
-  blender-lod-collision/
-  blender-rigging-animation/
-  blender-asset-qa/
-  blender-bundle/
-  blender-batch/
+- name, type, parent;
+- local and world location;
+- local rotation and scale;
+- local 4×4 matrix;
+- world +Y and +Z basis vectors;
+- inferred LOD index from object, ancestor, or collection names.
 
-plugins/
-  targets/
-    blender-target-unity/
-  profiles/
-    blender-profile-tactical-vehicle/
+For meshes it additionally records:
 
-shared/
-  paths.py
-  runner.py
-  bootstrap.py
-  target_loader.py
-  profile_loader.py
-  scene_inspector.py
-  qa_checks.py
-  channel_pack.py
-  exporter.py
-  bundle_exporter.py
-  review_shots.py
-  version.py
-
-tools/
-  doctor.py
-  doctor_blender.py
-  install.py
-  new_target.py
-  run_tests.py
-  validate_skills.py
-```
-
-## 3. Execution contract
-
-Every Blender operation runs through:
-
-```text
-skills/core/blender-core/scripts/run.py
-        ↓
-shared.runner.run_blender_module()
-        ↓
-Blender --factory-startup -b [blend]
-        ↓
-shared/bootstrap.py
-        ↓
-requested module
-        ↓
-structured result JSON
-```
-
-Startup-affecting flags precede the optional input blend file. Blender failures preserve stdout/stderr in an error log. The doctor fails when Blender is older than 5.2 rather than returning a misleading successful status.
-
-Public subcommands are:
-
-- `doctor`
-- `inspect`
-- `qa`
-- `pack`
-- `export`
-- `bundle`
-- `review`
-
-## 4. Target plugins
-
-A target answers engine-level questions:
-
-- supported export format;
-- forward/up axes;
-- static versus rigged transform handling;
-- animation exporter flags;
-- standard texture packing;
-- target naming defaults;
-- generic QA defaults.
-
-Unity is the first target. Its standard profiles remain `urp` and `hdrp`.
-
-Adding a project profile must not mutate the stored base target. `shared.profile_loader` loads an optional overlay, recursively merges it into an in-memory target copy, then validates the resulting target.
-
-Currently supported export formats are FBX, GLB, and glTF. USD is intentionally not advertised until an exporter implementation exists.
-
-## 5. Project-profile contract
-
-Project profiles can be installed as optional skill packs or supplied as external JSON files.
-
-A profile may provide `target_overrides.<engine>` with partial configuration. After merge, the complete target must still satisfy normal target validation.
-
-The built-in `tactical-vehicle` profile exists as an integration example and reusable production profile. It demonstrates generic requirements derived from military-assets/TTE experience:
-
-| Requirement | Generic implementation |
-|---|---|
-| Multiple files per logical asset | semantic bundle spec |
-| Chassis/station/collision/wreck/kit roles | free-form bundle roles |
-| LOD0-3 production budgets | profile-added asset classes |
-| At least 50% reduction per LOD | `max_lod_ratio: 0.5` |
-| Ground-plane agreement | axis/target/tolerance QA rule |
-| Turret/gun pivot hierarchy | optional required-node/parent rules |
-| BaseColor + Normal + packed Mask | `tactical_urp` texture profile |
-| Deterministic evidence | bundle manifest + build hash + round-trip |
-| Review images | automatically framed multiview renderer |
-
-The profile deliberately does not encode exact TTE socket inventories, per-vehicle dimensions, contact-knowledge rules, factions, content IDs, or simulation fields.
-
-## 6. Scene inventory
-
-`shared.scene_inspector` is the common measurement layer. QA and exporters consume the same inventory instead of reimplementing mesh traversal.
-
-For each object it records:
-
-- name/type/parent;
-- location/rotation/scale;
-- inferred LOD index from object, ancestor, or collection names;
 - triangle count;
-- UV-layer names;
-- material names;
+- material names/slots;
+- UV layer names;
+- per-layer U/V min, max, and span;
 - non-manifold and boundary-edge counts;
 - signed volume for closed meshes;
 - maximum vertex-group influences;
-- world bounds.
+- world bounds;
+- configurable damage classification.
 
-The scene inventory also records:
+LOD aggregates record:
 
-- roots;
-- aggregate world bounds;
-- aggregate LOD triangle/material counts;
-- recognized collider-like object names.
+- total triangles;
+- intact triangles;
+- damage triangles;
+- mesh/damage-mesh counts;
+- unique materials;
+- damage object names.
 
-This inventory is machine-readable and returned by the `inspect` command.
+This machine-readable inventory is returned by `inspect`, embedded in bundle evidence, and reused by QA.
 
-## 7. QA behavior
+## 3. Target plugin contract
 
-QA is designed to fail closed for conditions it actually measures.
+An engine target answers only engine-level questions:
 
-Implemented checks include:
+- export format;
+- axes;
+- FBX/glTF options;
+- texture conventions;
+- generic naming;
+- baseline QA classes.
 
-- at least one mesh exists;
-- negative/unapplied scale;
-- >2-face non-manifold edges;
-- boundary edges where forbidden;
-- inward winding on closed meshes via signed volume;
-- UV0 presence;
-- UV1 presence when requested;
-- aggregate per-LOD triangle budgets;
-- aggregate per-LOD unique-material budgets;
-- monotonic LOD triangle counts;
-- optional maximum LOD reduction ratio;
-- optional required node/pattern presence;
-- optional required parent relationships;
-- optional ground-axis contact tolerance;
-- maximum vertex-group influences;
-- basic bottom-center pivot validation for simple props.
+Unity is the first target, with standard URP/HDRP profiles.
 
-### Known QA limitations
+Supported export formats are FBX, GLB, and glTF. USD remains unadvertised until implemented.
 
-Geometric UV-island overlap detection is not yet implemented. If a class requests a non-overlapping UV1, the runtime enforces that UV1 exists and emits `uv1_overlap_unverified` rather than silently claiming overlap verification.
+## 4. Project profiles
 
-Texel-density measurement is not yet implemented.
+`shared.profile_loader` deep-merges an optional profile overlay into an in-memory copy of the target, validates the merged target, and leaves the stored base target unchanged.
 
-Collision convexity/volume decomposition is not yet automatically proven. Collider nodes are inventoried and can be constrained by downstream profiles/bundle specs.
+Profiles may add:
 
-These limitations are intentionally explicit so documentation does not claim checks the code does not perform.
+- target texture profiles;
+- QA classes;
+- damage policy;
+- symmetry rules;
+- semantic dimension boxes;
+- UV rules;
+- bundle defaults;
+- review presets.
 
-## 8. Texture packing
+External profile JSON files are supported, allowing an exact downstream project contract to remain in that project's repository.
 
-`shared.channel_pack` uses an allowlisted expression grammar such as:
+## 5. Static Unity hierarchy conversion
 
-```text
-base_color.r
-metallic
-1-roughness
-normal.g
-```
+### Problem
 
-No `eval()` is used.
+Blender FBX `bake_space_transform=True` is unsuitable for deeply nested static pivot/socket hierarchies because it can alter local transforms. Simply disabling it can leave a root axis rotation for engines that expect an identity authoring root.
 
-Output PNGs are written directly from float arrays with `struct` + `zlib`, preserving 8/16-bit data and RGB values even when alpha is zero.
+### Implemented approach
 
-The public `pack` subcommand reads canonical raw PNG names from an input directory and applies either the base target profile or an optional project overlay.
-
-The tactical profile demonstrates:
-
-```text
-BaseColor = RGB base color + alpha
-Normal    = tangent normal
-Mask      = R metallic, G AO, B detail/reserved, A smoothness
-```
-
-That layout is a downstream profile, not a change to standard URP.
-
-## 9. Single-file export and round-trip
-
-`shared.exporter`:
-
-1. inventories the selected scene objects;
-2. exports FBX/GLB/glTF using target translation;
-3. writes an asset manifest from aggregate inventory;
-4. calculates a build hash over source/build/profile inputs plus canonical tool/target metadata;
-5. imports the result into a fresh Blender scene;
-6. compares expected object names, parent relationships, triangle totals, and unit scale.
-
-This is stronger than simply checking that "something imported".
-
-The single-file manifest remains suitable for normal props/characters. Compound assets should use semantic bundles.
-
-## 10. Semantic bundle export
-
-A bundle is one logical asset composed of multiple exported files.
-
-A bundle spec selects each part by exactly one Blender collection or root hierarchy. Roles are intentionally free-form.
-
-Example:
+The Unity target declares:
 
 ```json
 {
-  "schema_version": "1.0",
-  "asset_id": "Vehicle01",
-  "parts": [
-    {
-      "id": "chassis_lod0",
-      "role": "chassis",
-      "lod": 0,
-      "collection": "Chassis_LOD0",
-      "file": "Vehicle01_Chassis_LOD0.fbx"
-    },
-    {
-      "id": "collision",
-      "role": "collision",
-      "collection": "Collision",
-      "file": "Vehicle01_Collision.fbx"
-    }
-  ]
+  "forward_axis": "-Z",
+  "up_axis": "Y",
+  "use_space_transform": false,
+  "prebake_yup_hierarchy": true,
+  "prebake_directional_patterns": ["Socket_*"],
+  "apply_transform_static": false
 }
 ```
 
-Every part gets:
+For static MESH/EMPTY exports, `shared.exporter` temporarily applies a coordinate-basis conversion with `C = Rx(-90°)`.
 
-- independent export;
-- source inventory;
-- triangle/material totals;
-- fresh Blender re-import;
-- missing-object comparison;
-- parent comparison;
-- scale check;
-- triangle-count comparison.
+For every selected object it captures the authored world matrix.
 
-The resulting `*.bundle.manifest.json` becomes reusable evidence for delivery tooling.
+It then computes:
 
-This abstraction directly supports production patterns learned from military-assets without making the core know what a tank, wreck, or weapon station is.
+- world position: `C · p`;
+- ordinary transform-frame rotation: `C · R · C⁻¹`;
+- directional EMPTY rotation when its name matches a configured pattern: `C · R`;
+- mesh-local vertices: `C · v`.
 
-## 11. Review rendering
+Converted world matrices are turned back into locals using:
 
-`shared.review_shots` computes scene bounds, frames the asset automatically, creates lighting only when needed, and renders deterministic views:
+```text
+local' = inverse(parent_world') · world'
+```
 
-- hero;
-- front;
-- side;
-- top;
-- optional rear.
+This parent-world reconstruction is what preserves depth ≥ 2 chains.
 
-Project-specific distance/readability render presets are intentionally not hard-coded. A downstream project can call the same renderer with its own camera/delivery policy.
+The authoring scene's mesh data, parent inverse, and local matrices are restored after the export context exits.
 
-## 12. Unity postprocessor boundary
+### Static-only boundary
 
-The optional Unity `BlenderAssetPostprocessor.cs`:
+This prebake is disabled when the export is rigged or contains an armature. Rigged assets stay on their configured rigged FBX path. Extending basis prebaking to armatures is a separate future feature because bind/rest matrices require a different proof contract.
 
-- deterministically chooses a manifest only when it references the importing asset;
-- configures model import settings;
-- configures texture import settings;
-- creates/updates standard URP/HDRP materials from recognized standard-profile filenames;
-- prevents standard smoothness multiplier mistakes.
+### Blender round-trip interpretation
 
-It does not currently:
+A Y-up FBX imported back into Blender is displayed through Blender's Z-up convention, producing a +90° X root wrapper. The generic verifier therefore:
 
-- build complete project prefabs;
-- construct project-specific LODGroups;
-- generate project-specific colliders;
-- implement ViewBinding/content registration;
-- understand custom tactical `Mask` semantics.
+- validates object presence and parents;
+- validates scale;
+- compares non-root exported child local matrices;
+- validates the expected Blender root-axis wrapper when a zero-root Y-up FBX is re-imported;
+- validates triangle totals;
+- scans the binary FBX for embedded PNG/JPEG headers.
 
-Those responsibilities belong to a downstream Unity import pipeline or a future explicitly scoped generic feature.
+A downstream Unity verifier can then prove identity roots and exact forward/up axes using Unity's default ModelImporter.
 
-For TTE specifically, FBX/PNG plus manifests/evidence should cross the boundary; TTE remains responsible for production prefabs, materials, LODGroups, and bindings.
+## 6. Semantic bundle export
 
-## 13. Deterministic build identity
+A bundle is a logical asset composed of multiple exported files.
 
-Build hashes include file content plus canonical metadata such as:
+A part selects exactly one:
+
+- Blender collection; or
+- object root and its descendant hierarchy.
+
+A part may declare:
+
+```json
+{
+  "id": "station_lod0",
+  "role": "station",
+  "lod": 0,
+  "root": "Vehicle_Station",
+  "file": "Vehicle_Station_LOD0.fbx",
+  "zero_root_location": true
+}
+```
+
+`zero_root_location` temporarily zeroes that part root for export and restores its assembled authoring location immediately afterward.
+
+The bundle manifest records:
+
+- `assembly_inventory` — authored assembled state;
+- `inventory` — actual export-coordinate state;
+- role/LOD/file/root;
+- total/intact/damage triangles;
+- material counts;
+- round-trip evidence;
+- no-embedded-image result.
+
+Role names remain free-form. The generic core does not hardcode `station` or `kit`; a profile can declare:
+
+```json
+{
+  "bundle_defaults": {
+    "zero_root_location_roles": ["station", "kit"]
+  }
+}
+```
+
+## 7. QA contract
+
+QA fails closed for checks it claims to perform.
+
+Implemented:
+
+- non-empty mesh scene;
+- negative/unapplied scale;
+- non-manifold/boundary edges;
+- inward closed-mesh winding via signed volume;
+- UV0/UV1 presence;
+- per-LOD aggregate triangle budgets;
+- per-LOD unique material budgets;
+- monotonic LOD counts;
+- maximum LOD ratios;
+- intact and damage triangle evidence;
+- damage allowed-LOD policy;
+- required nodes/patterns;
+- required child/parent relations;
+- ground-axis contact;
+- maximum vertex-group influences;
+- simple bottom-center pivot rule;
+- mirror-pair triangle/bounds/absolute-volume checks;
+- semantic dimension-box checks;
+- configurable U/V bounds and V-span checks.
+
+Optional checks return structured evidence:
+
+```text
+evidence.symmetry
+evidence.dimensions
+evidence.uv
+```
+
+### Known limits
+
+Not yet implemented:
+
+- geometric UV-island overlap;
+- texel-density measurement;
+- generic collision convexity/decomposition proof.
+
+When non-overlapping UV1 is requested, QA enforces UV1 presence and reports `uv1_overlap_unverified`.
+
+## 8. PBR channel packing
+
+Expressions are parsed by an allowlist grammar; no `eval()` is used.
+
+The direct PNG writer preserves 8/16-bit output and RGB values at alpha zero.
+
+`--size` enables deterministic Lanczos3 resampling before packing, including normalizing differently sized source maps.
+
+`--detect-normal-y` produces a statistical green-channel bias report. The report always marks itself `heuristic_only` because pixels cannot prove tangent-space convention in the general case.
+
+## 9. Review evidence
+
+`shared.review_shots` supports ordinary automatically framed views and profile-defined presets.
+
+Preset fields include:
+
+- output resolution;
+- orthographic view list;
+- primary LOD;
+- `closeup_distance_m`;
+- `range_shots_m`;
+- LOD list;
+- azimuth/elevation/lens;
+- damage prefix and damage LODs;
+- collision view;
+- optional reference FBX.
+
+The built-in tactical profile demonstrates:
+
+- 1280×720;
+- 12m close-up;
+- 50m, 150m, 400m;
+- 45° azimuth/elevation;
+- LOD0–3;
+- damage views;
+- collision outline.
+
+Reference FBXs can be imported temporarily for a side-by-side silhouette render and then removed from the scene.
+
+## 10. Deterministic build identity
+
+Build hashes include file bytes plus canonical metadata such as:
 
 - kit version;
 - Blender version;
-- effective merged target configuration;
-- selected texture profile;
-- project-profile identity;
-- bundle spec where relevant.
+- effective merged target;
+- texture profile;
+- project profile;
+- bundle spec.
 
-Callers can additionally list deterministic build scripts and source inputs.
+Callers can list additional build scripts and source inputs.
 
-This makes cache/evidence identity sensitive to configuration and tooling changes, not only to a generated `.blend`.
+## 11. Unity helper boundary
 
-## 14. Testing and CI
+The generic Unity postprocessor:
 
-Tier 1 runs on Ubuntu and Windows and checks:
+- deterministically chooses only a manifest that references the importing asset;
+- configures model import;
+- configures texture import;
+- creates/updates standard URP/HDRP materials.
+
+It does not own:
+
+- game-specific prefabs;
+- LODGroups;
+- collision construction;
+- custom tactical shader semantics;
+- content IDs;
+- simulation bindings.
+
+A downstream scratch-Unity verifier may consume bundle evidence to prove project-specific root/pivot/socket contracts without changing the generic target.
+
+## 12. Tests and CI
+
+Tier 1 on Ubuntu + Windows covers:
 
 - skill metadata;
-- every JSON Schema document;
-- target instances;
-- project profiles and their merged target validity;
-- channel packing and PNG bytes;
-- installer behavior;
-- project-profile isolation;
+- JSON Schema documents/instances;
+- target/profile merge validity;
+- channel expressions and PNG bytes;
+- Lanczos resizing;
+- normal-Y heuristic semantics;
 - bundle-spec validation;
-- build-hash metadata sensitivity.
+- installer behavior;
+- export-option translation.
 
-CI installs `jsonschema` for strict Draft 2020-12 validation; runtime remains usable without it.
+Tier 2 on Blender 5.2 covers:
 
-Tier 2 runs Blender 5.2 headlessly and covers:
+- solid/open-sheet QA;
+- empty fail-closed behavior;
+- inward normals;
+- LOD monotonicity;
+- damage LOD leakage;
+- mirror-bounds failure;
+- nested station → turret → gun → barrel/socket FBX export;
+- authoring-root restoration;
+- zero-root semantic export;
+- Blender fresh-import hierarchy/local-transform proof;
+- no embedded images.
 
-- compliant solid-prop QA;
-- solid/open-sheet distinction;
-- empty-scene fail-closed behavior;
-- inward-normal detection;
-- monotonic LOD failure;
-- semantic bundle FBX export + fresh re-import.
+Tier 3 auto-discovers targets and runs target export contracts.
 
-Tier 3 auto-discovers target plugins and runs their single-file exporter round-trip.
+## 13. Remaining work
 
-## 15. Remaining work
+The highest-value remaining generic work is:
 
-The next useful improvements are:
+1. geometric UV-overlap detection;
+2. texel-density measurement;
+3. collision convexity/hull-count/proxy QA;
+4. generic scratch-engine bundle verification beyond project-specific downstream adapters;
+5. executable incremental folder batch scheduling;
+6. richer manifest material semantics that remove filename inference from engine helpers;
+7. proven armature/rigged coordinate-prebake support if a target requires it.
 
-1. geometric UV-overlap and texel-density measurement;
-2. a generic collision QA module for convexity, hull counts, and target-specific proxy naming;
-3. optional engine-side bundle verification in a scratch Unity project;
-4. configurable review-camera presets for tactical-distance/silhouette testing;
-5. a real executable folder batch scheduler around the existing build hashes;
-6. richer manifest material semantics so the Unity helper never relies on filename inference;
-7. downstream TTE/military-assets profile files containing their exact contracts, maintained in those repositories rather than the generic core.
-
-The design goal is not to absorb downstream projects. It is to make their repeated technical asset requirements declarative, testable, and reusable while keeping project-specific truth where it belongs.
+The design goal is not to absorb downstream projects. It is to turn repeated technical asset requirements into reusable, declarative, testable primitives while leaving exact project truth where it belongs.

@@ -1,28 +1,54 @@
 ---
 name: blender-target-unity
-description: Use this skill when preparing, packing standard URP/HDRP PBR maps for, validating, or exporting Blender 5.2+ assets into Unity (FBX or static GLB), or when using the optional deterministic manifest-driven Unity import helper.
+description: Use this skill when preparing, packing standard URP/HDRP PBR maps for, validating, or exporting Blender 5.2+ assets into Unity through FBX/GLB, including hierarchy-safe static Y-up export and optional manifest-driven import settings.
 ---
 
 # Blender Target: Unity
 
-The Unity target owns **engine-level** conventions only. Project-specific budgets, hierarchy, socket rules, or custom texture layouts should be supplied through a project profile.
+The Unity target owns engine-level behavior only. Project budgets, exact pivots/sockets, vehicle dimensions, custom packed masks, prefab logic, and simulation semantics belong in project profiles or downstream repositories.
 
-```bash
-python <blender-core>/scripts/run.py qa --blend in.blend --target unity --asset-class solid_prop
-python <blender-core>/scripts/run.py export --blend in.blend --target unity --profile urp --out build/
-```
+## Static FBX contract
 
-## Implemented Unity rules
+The target uses:
 
-1. FBX uses `Forward -Z`, `Up Y`, `FBX_SCALE_ALL`, triangulation, and tangent export.
-2. Static meshes use the configured static transform handling; rigged meshes preserve the rig transform policy.
-3. NLA strips are authoritative by default and duplicate all-actions export is blocked.
-4. Standard URP and HDRP packing remains in `target.json`.
-5. The optional C# postprocessor deterministically binds a manifest to the exact model/texture it references before changing import settings.
-6. Unity 6.2+ automatic mesh LOD generation can be disabled when an asset manifest declares authored LODs.
+- `Forward -Z`, `Up Y`;
+- `FBX_SCALE_ALL`;
+- `use_space_transform = false`;
+- `bake_space_transform = false` for the static prebake path;
+- triangulation and tangent export;
+- no embedded textures.
 
-## Postprocessor boundary
+For static MESH/EMPTY hierarchies, `prebake_yup_hierarchy` converts the hierarchy into Unity's Y-up/+Z-forward basis before export. Ordinary nodes use a basis change; directional empties matching `Socket_*` preserve their authored +Z/+Y directions. Local transforms are rebuilt from converted world matrices so nested pivot chains remain stable.
 
-`editor/BlenderAssetPostprocessor.cs` is a generic helper, especially useful in scratch verification projects. It configures model/texture import and standard URP/HDRP material textures.
+This temporary conversion is restored after export.
 
-It does **not** currently construct complete LODGroups, project-specific colliders, prefabs, content registrations, or custom project shaders. Downstream projects that own those systems should consume FBX/PNG + manifest evidence and keep their own Unity import pipeline authoritative.
+Rigged/armature exports do **not** use the static hierarchy prebake.
+
+## Standard profiles
+
+`target.json` retains normal Unity profiles:
+
+- `urp`
+- `hdrp`
+
+Custom project texture layouts should be added by a project profile rather than changing these defaults.
+
+## Verification
+
+Generic FBX round-trip checks include:
+
+- object names;
+- parent hierarchy;
+- mesh/armature scale;
+- child local transforms for pre-baked static hierarchies;
+- triangle count;
+- expected Blender root-axis wrapper for re-imported Y-up FBX;
+- zero PNG/JPEG magic headers in FBX.
+
+Unity identity-root proof itself belongs in an engine-side/downstream verifier using Unity's ModelImporter.
+
+## Optional postprocessor
+
+`editor/BlenderAssetPostprocessor.cs` can configure standard model/texture/material imports.
+
+It does not construct project prefabs, project LODGroups/colliders, content registrations, ViewBinding, or custom project shaders.

@@ -1,59 +1,61 @@
 # blender-skills (`blender-agent-kit`)
 
-Headless-first Blender 5.2+ skills and executable pipeline primitives for AI agents and game-asset production.
+Headless-first Blender 5.2+ skills and executable asset-pipeline primitives for AI agents and game production.
 
-The repository is intentionally layered:
+The architecture is deliberately layered:
 
 ```text
 generic Blender core
         ↓
 engine target (Unity today)
         ↓
-optional project profile / external profile JSON
+optional reusable project profile / external profile JSON
         ↓
-downstream asset-specific build scripts and game contracts
+downstream asset-specific builders and game contracts
 ```
 
-The core is not a tank generator, Unity game framework, or TTE-specific package. It provides reusable execution, inspection, QA, texture packing, export, semantic bundle export, round-trip verification, and review rendering that downstream projects can compose.
+The core is not a vehicle generator, a Unity game framework, or a TTE-specific package. It supplies reusable execution, inspection, QA, texture packing, export, compound-bundle export, round-trip evidence, and review rendering.
 
-## Current status
+## v0.2 candidate capabilities
 
-The v0.2 development branch adds production-pipeline foundations on top of the v0.1 release:
+Compared with v0.1, PR #1 adds:
 
-- strict Blender 5.2+ doctor;
-- strict JSON Schema checks in CI while runtime remains dependency-light;
-- generic scene inventory;
-- aggregate LOD/material/ground/hierarchy QA;
-- stronger FBX/GLB round-trip checks;
-- semantic multi-file bundle export;
-- deterministic build hashes that include config/tool identity;
-- multiview automatic review renders;
-- optional project-profile overlays;
-- optional `tactical-vehicle` profile demonstrating reusable requirements distilled from military-asset/TTE production without changing the base Unity target.
+- strict Blender 5.2+ discovery and doctor behavior;
+- strict Draft 2020-12 JSON Schema checks in CI;
+- generic scene inventory shared by QA/export/evidence;
+- fail-closed QA for empty scenes and malformed geometry;
+- aggregate LOD/material budgets and LOD reduction ratios;
+- intact-vs-`Damage_*` triangle accounting with configurable allowed LODs;
+- configurable L/R mirror checks using triangle counts, mirrored bounds, and signed-volume magnitudes;
+- configurable semantic dimension boxes;
+- configurable UV-range/V-scroll checks;
+- safe 8/16-bit channel packing plus Lanczos resizing via `--size`;
+- optional normal-Y convention reporting, explicitly marked heuristic;
+- hierarchy-safe static FBX Y-up prebaking for nested pivots and directional socket empties;
+- zero-root export for selected compound parts;
+- FBX embedded-image magic-header checks;
+- semantic multi-file bundle export with authoring and export-coordinate inventories;
+- stronger Blender fresh-import comparison;
+- deterministic build hashes including tool/config identity;
+- profile-driven review presets with close-up, 50/150/400m shots, per-LOD views, damage views, collision outline, and reference-FBX silhouette comparison;
+- optional `tactical-vehicle` profile demonstrating reusable tracked-vehicle conventions without modifying the base Unity target.
 
 ## Quick start
 
 ```bash
-# Install generic core + Unity target
+# Generic core + Unity target
 python tools/install.py --agent all --targets unity
 
-# Optional: also install project-profile skills
+# Optional project-profile skills
 python tools/install.py --agent all --targets unity --packs profiles
 
-# Verify Blender
 python tools/doctor.py --device auto
-
-# Host/schema tests
 python tools/run_tests.py --suite host
-
-# Blender tests
 python tools/run_tests.py --suite core
 python tools/run_tests.py --suite targets
 ```
 
 ## Single agent entrypoint
-
-Agents call one shim rather than assembling Blender flags:
 
 ```bash
 python skills/core/blender-core/scripts/run.py doctor --device auto
@@ -66,7 +68,9 @@ python skills/core/blender-core/scripts/run.py qa \
 
 python skills/core/blender-core/scripts/run.py pack \
   --target unity --profile urp \
-  --asset-id Prop01 --material Body --input-dir raw/ --out build/
+  --asset-id Prop01 --material Body \
+  --input-dir raw/ --size 2048 --detect-normal-y \
+  --out build/
 
 python skills/core/blender-core/scripts/run.py export \
   --blend asset.blend --target unity --profile urp --out build/
@@ -78,47 +82,77 @@ python skills/core/blender-core/scripts/run.py review \
   --blend asset.blend --device auto --out review/
 ```
 
+## Unity static hierarchy export
+
+For static MESH/EMPTY hierarchies, the Unity target uses:
+
+```json
+{
+  "use_space_transform": false,
+  "prebake_yup_hierarchy": true,
+  "prebake_directional_patterns": ["Socket_*"],
+  "apply_transform_static": false
+}
+```
+
+This avoids Blender FBX `bake_space_transform` on nested hierarchies.
+
+The exporter converts the authored Blender Z-up basis into a Unity-friendly Y-up/+Z-forward basis before FBX export:
+
+- positions are transformed by `Rx(-90°)`;
+- ordinary transform frames use a basis change `C · R · C⁻¹`;
+- directional empties matching `prebake_directional_patterns` use `C · R`, preserving their authored forward/up vectors;
+- mesh-local vertices are transformed by `C`;
+- local matrices are reconstructed from converted world matrices, preserving depth ≥ 2 parent chains.
+
+The authoring scene is restored immediately after export.
+
+Blender's FBX importer shows a +90° X root wrapper when re-importing a Y-up FBX back into Blender's Z-up viewport. The generic round-trip verifier accounts for that importer presentation while verifying child local transforms, hierarchy, scale, triangle count, and embedded-image absence.
+
+The prebake is intentionally **static-only**. Rigged/armature exports remain on the configured rigged FBX path and are not mutated by the static hierarchy conversion.
+
 ## Project profiles
 
-A project profile is an overlay on an engine target. It can add or override texture profiles, QA asset classes, budgets, naming rules, and other downstream conventions without changing the reusable target.
+A project profile is an in-memory overlay over an engine target. It can add:
 
-The built-in optional example is:
+- QA asset classes and budgets;
+- naming rules;
+- custom texture packing profiles;
+- damage conventions;
+- mirror/dimension/UV rules;
+- bundle defaults;
+- review presets.
+
+The stored base target is never mutated.
+
+The optional built-in profile is:
 
 ```text
 plugins/profiles/blender-profile-tactical-vehicle/
 ```
 
-It demonstrates:
+It demonstrates reusable production conventions:
 
-- heavy/light tracked-vehicle LOD budgets;
-- <= 0.50 LOD reduction ratio;
+- heavy/light tracked vehicle LOD budgets;
+- ≤ 0.50 reduction per LOD step;
+- `Damage_*` permitted only in LOD0/LOD1;
 - ground-contact checks;
 - optional turret/gun hierarchy checks;
-- BaseColor + Normal + Mask output;
-- semantic bundle roles such as chassis, station, collision, wreck, and kit.
+- BaseColor + Normal + Mask packing;
+- profile-driven `station`/`kit` zero-root defaults;
+- tactical review preset:
+  - 1280×720;
+  - 12m close-up;
+  - 50m, 150m, 400m;
+  - LOD0–3;
+  - damage views;
+  - collision outline.
 
-Use it explicitly:
-
-```bash
-python skills/core/blender-core/scripts/run.py qa \
-  --blend vehicle.blend \
-  --target unity \
-  --project-profile tactical-vehicle \
-  --asset-class heavy_tracked_vehicle
-
-python skills/core/blender-core/scripts/run.py pack \
-  --target unity \
-  --project-profile tactical-vehicle \
-  --profile tactical_urp \
-  --asset-id Vehicle01 --material Body \
-  --input-dir raw/ --out build/
-```
-
-Exact game-specific socket inventories, simulation measurements, faction rules, damage contracts, or content IDs should live in the downstream project's own profile JSON.
+Exact game-specific dimensions, socket inventories, simulation rules, faction/contact knowledge, content IDs, or prefab logic belong in downstream profile files.
 
 ## Semantic bundle export
 
-Compound assets can be exported through a declarative spec instead of pretending that every mesh is an LOD:
+A bundle represents one logical asset that produces multiple engine files.
 
 ```json
 {
@@ -133,50 +167,145 @@ Compound assets can be exported through a declarative spec instead of pretending
       "file": "Vehicle01_Chassis_LOD0.fbx"
     },
     {
-      "id": "collision",
-      "role": "collision",
-      "collection": "Collision",
-      "file": "Vehicle01_Collision.fbx"
+      "id": "station_lod0",
+      "role": "station",
+      "lod": 0,
+      "root": "Vehicle01_Station",
+      "file": "Vehicle01_Station_LOD0.fbx",
+      "zero_root_location": true
     }
   ]
 }
 ```
 
-Each part is inventoried and fresh-reimported. The bundle manifest records object hierarchy, triangle/material counts, build hash, and round-trip evidence.
+Each part can be selected by exactly one collection or root hierarchy.
 
-## Target plugins
+The exporter records both:
 
-Targets remain engine-level only:
+- `assembly_inventory` — the authored assembled position;
+- `inventory` — the actual export-coordinate state, including zeroed part roots when requested.
+
+For every part it also records:
+
+- total/intact/damage triangles;
+- material counts;
+- hierarchy and roots;
+- Blender fresh-import result;
+- child transform comparison;
+- zero-root result;
+- FBX PNG/JPEG magic-header scan.
+
+`zero_root_location` is explicit and generic. Optional project profiles can declare `bundle_defaults.zero_root_location_roles` such as `station` and `kit`; the generic core itself does not assign meanings to role strings.
+
+## QA
+
+Implemented generic checks include:
+
+- at least one mesh;
+- applied/negative scale;
+- non-manifold and boundary edges;
+- inward closed-mesh winding using signed volume;
+- UV0 and requested UV1 presence;
+- aggregate per-LOD triangle/material budgets;
+- monotonic LOD counts and maximum ratios;
+- separate intact/damage triangle evidence;
+- configurable damage-prefix and allowed-damage-LOD policy;
+- required nodes and parent relationships;
+- ground-axis contact tolerance;
+- maximum vertex-group influences;
+- simple bottom-center pivots;
+- configurable mirror-pair checks;
+- configurable semantic dimension boxes;
+- configurable per-object/per-LOD UV bounds and V-span checks.
+
+QA returns structured `evidence.symmetry`, `evidence.dimensions`, and `evidence.uv` data so downstream delivery tools do not need to parse prose.
+
+### Explicit limitations
+
+The pipeline does **not** yet prove:
+
+- geometric UV-island non-overlap;
+- texel density;
+- collider convexity/decomposition quality;
+- complete engine-side prefab/LODGroup construction.
+
+When non-overlapping UV1 is requested, UV1 presence is enforced and the limitation is emitted as `uv1_overlap_unverified`.
+
+## Texture packing
+
+`shared/channel_pack` accepts allowlisted channel expressions such as:
 
 ```text
-plugins/targets/blender-target-unity/
-  target.json
-  SKILL.md
-  editor/BlenderAssetPostprocessor.cs
+base_color.r
+metallic
+1-roughness
+normal.g
 ```
 
-A new target can be scaffolded with:
+No `eval()` is used.
+
+`--size N` Lanczos-resamples every loaded raw map to `N×N` before packing, so different source resolutions can feed deterministic material outputs. Without `--size`, mismatched raw-map dimensions fail explicitly.
+
+`--detect-normal-y` reports a green-channel directional-bias heuristic:
+
+```json
+{
+  "convention": "opengl",
+  "heuristic_only": true,
+  "mean_green": 0.63,
+  "confidence": 0.52
+}
+```
+
+Pixel statistics cannot mathematically prove a tangent-space normal convention, so downstream pipelines should retain source/build evidence when available.
+
+## Review rendering
+
+A profile can define `review_presets` with:
+
+- output resolution;
+- orthographic views;
+- primary LOD;
+- close-up distance;
+- range shots;
+- azimuth/elevation/lens;
+- LOD list;
+- damage prefix and damage LODs;
+- collision view;
+- optional reference FBX.
+
+Example:
 
 ```bash
-python tools/new_target.py godot --format glb --normal opengl
-python tools/new_target.py unreal --format fbx --normal directx
+python skills/core/blender-core/scripts/run.py review \
+  --blend vehicle.blend \
+  --project-profile tactical-vehicle \
+  --preset tactical \
+  --reference-fbx reference.fbx \
+  --out review/
 ```
 
-Currently implemented export formats are FBX, GLB, and glTF.
+## Unity helper boundary
 
-## Important implementation boundaries
+The optional `BlenderAssetPostprocessor.cs` remains a generic import helper for standard URP/HDRP assets. It deterministically binds manifests to importing assets and configures model/texture/material settings.
 
-The pipeline now enforces mesh presence, transforms/scale, manifold/boundary rules, inward normals for closed meshes, UV presence, aggregate LOD triangle/material budgets, monotonic LOD counts, optional LOD reduction ratios, optional required-node/parent relationships, ground contact, bone-weight count, and basic pivot rules.
+It does **not** own project-specific:
 
-UV1 **presence** is enforced when requested, but geometric UV1-overlap detection is not yet implemented; QA reports that limitation explicitly. Texel-density measurement and automatic collider construction remain future work.
+- prefab construction;
+- LODGroup construction;
+- collision policy;
+- custom packed-mask shaders;
+- content registration;
+- ViewBinding or simulation state.
 
-The Unity postprocessor configures import settings and material textures for standard URP/HDRP profiles. It does **not** currently build complete LODGroups/colliders/prefabs. Projects such as TTE that own their own prefab/material/import pipeline should use the Blender outputs and manifests as evidence rather than installing the generic postprocessor into production.
+A downstream project may use a separate scratch-Unity verifier against bundle evidence without contaminating the generic Unity target.
 
 ## Documentation
 
-- [DESIGN.md](DESIGN.md) — architecture, implemented contracts, QA boundaries, and downstream-profile strategy.
+- [DESIGN.md](DESIGN.md)
 - [Unity target](plugins/targets/blender-target-unity/SKILL.md)
-- [Semantic bundle skill](skills/core/blender-bundle/SKILL.md)
+- [Asset QA](skills/core/blender-asset-qa/SKILL.md)
+- [Semantic bundle export](skills/core/blender-bundle/SKILL.md)
 - [Tactical vehicle profile](plugins/profiles/blender-profile-tactical-vehicle/SKILL.md)
 
 ## License
