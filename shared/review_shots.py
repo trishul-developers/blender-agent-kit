@@ -400,7 +400,17 @@ def run(
     out_path = Path(out_dir).resolve()
     out_path.mkdir(parents=True, exist_ok=True)
     scene = bpy.context.scene
-    inventory = inspect_scene(damage_prefix=preset_cfg.get("damage_prefix"))
+    # Inventory must use the same generic LOD exclusions as target/profile QA.
+    # A review stage has no target argument; union configured target exclusions
+    # rather than hardcoding a game or engine target.
+    exclusions = set(preset_cfg.get("lod_exclude_patterns", []))
+    if project_data:
+        for target_override in project_data.get("target_overrides", {}).values():
+            exclusions.update(target_override.get("qa", {}).get("common", {}).get("lod_exclude_patterns", []))
+    inventory = inspect_scene(
+        damage_prefix=preset_cfg.get("damage_prefix"),
+        lod_exclude_patterns=sorted(exclusions),
+    )
     if not inventory["bounds"]:
         raise ValueError("Cannot render review sheet: scene has no mesh bounds")
 
