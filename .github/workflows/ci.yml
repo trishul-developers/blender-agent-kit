@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install host test dependencies
-        run: python -m pip install numpy jsonschema
+        run: python -m pip install numpy jsonschema pillow
       - name: Run Tier 1 Validator & Host Tests
         run: python tools/run_tests.py --suite host
 
