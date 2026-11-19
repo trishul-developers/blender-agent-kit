@@ -189,6 +189,10 @@ def write_packed_profile(
 
     written: list[dict] = []
     for map_key, map_spec in profile_cfg["maps"].items():
+        if map_spec.get("optional"):
+            dependencies = {parse_channel_expr(expr)[1] for expr in map_spec["channels"]}
+            if not dependencies.issubset(raw_maps.keys()):
+                continue
         packed = pack_map(map_spec["channels"], raw_maps, shape_hw, fallbacks, normal_conv)
         rel_path = pattern.format(asset_id=asset_id, material_name=material_name, map=map_key)
         dest = out_dir / rel_path
