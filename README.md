@@ -46,9 +46,9 @@ This is a **real, reproducible demo produced through Blender Agent Kit**, not a 
 
 [Demo source + instructions](demos/SupplyCrate/README.md) · [Compact evidence](demos/SupplyCrate/evidence/summary.json)
 
-| LOD + collision output | PBR source maps → Unity URP |
+| LOD + collision output | PBR source → Unity URP packing |
 | --- | --- |
-| ![SupplyCrate LOD and collision sheet](demos/SupplyCrate/showcase/demo_lod_collision.webp) | ![SupplyCrate PBR texture workflow](demos/SupplyCrate/showcase/demo_textures.webp) |
+| ![SupplyCrate LOD and collision sheet](demos/SupplyCrate/showcase/demo_lod_collision.webp) | **Historical six-tile texture proof:** five source maps (BaseColor, Roughness, Metallic, AO, Normal) plus the packed BaseMap. The previously displayed WebP was reported blank and is intentionally omitted until it can be regenerated and verified from the original raw and packed maps. The **new nine-tile generator** includes all four Unity URP outputs; its implementation and synthetic regression test are part of v0.2.1, but a fresh source-run sheet is still pending. |
 
 <details>
 <summary><strong>Automated review evidence</strong></summary>
@@ -59,9 +59,9 @@ This is a **real, reproducible demo produced through Blender Agent Kit**, not a 
 
 </details>
 
-The checked-in contact sheets record the demonstrated source run. The generic collision-review renderer has since been upgraded to overlay collision wireframes over the primary LOD, so fresh reruns use the clearer overlay view.
+The checked-in SupplyCrate rendering contact sheets record the demonstrated source run. The original six-tile texture proof image was supplied separately; the broken texture WebP is excluded from this README pending an evidence-grounded rebuild. The generic collision-review renderer has since been upgraded to overlay collision wireframes over the primary LOD, so fresh reruns use the clearer overlay view.
 
-## Sci-Fi modular kit — independent agent trial
+## Showcase 2 — Sci-Fi modular kit (independent agent trial)
 
 The **Aegis Station** modular environment kit is a second, materially different trial of the Blender Agent Kit workflow. An independent agent supplied editable Blender scenes, a deterministic builder script, a 60-object modular assembly, QA/export/packing JSON, a bulkhead FBX, raw and packed textures, and five rendered proof images. We inspected the supplied archive and machine reports; this is not a newly rerun build.
 
@@ -69,7 +69,7 @@ The bulkhead's four visible LOD meshes have **3,628 / 1,260 / 372 / 72 triangles
 
 [Read the archive-based Sci-Fi evidence assessment](demos/SciFiKit/README.md) · [Structured summary](demos/SciFiKit/evidence/summary.json)
 
-The agent also reported that LOD manifold checks, material budgets, and pivot checks helped catch earlier authoring errors. Its productivity-savings numbers are **subjective feedback, not measured benchmarks**. Full standalone source/showcase publication remains a release prerequisite; the evidence assessment alone is not a complete reproducible demo.
+The agent also reported that LOD manifold checks, material budgets, and pivot checks helped catch earlier authoring errors. Its productivity-savings numbers are **subjective feedback, not measured benchmarks**. The submitted source archive and five original proof sheets were inspected independently; their original reports remain attributed to the agent. **A clean public rerun and committed lightweight visual gallery are planned for a later showcase improvement**, not claimed by this patch.
 
 ## What can an agent do?
 
