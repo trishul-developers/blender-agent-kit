@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Tier 1 validator: agentskills.io frontmatter, token budgets, and target.json schemas."""
+"""Tier 1 validator: skill metadata plus optional full Draft 2020-12 JSON Schema validation."""
 from __future__ import annotations
 
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -67,33 +68,86 @@ def validate_skill_md(skill_md: Path) -> list[str]:
     word_count = len(body.split())
     if word_count > MAX_WORDS_APPROX_5K_TOKENS:
         errors.append(f"{skill_md}: body ~{word_count} words exceeds ~5,000-token budget")
-
     return errors
 
 
-def validate_repo(kit_root: Path | None = None) -> list[str]:
+def _load_json(path: Path) -> dict:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def validate_json_instance(instance: dict, schema: dict, label: str, require_jsonschema: bool = False) -> list[str]:
+    """Validate with jsonschema when available; runtime remains dependency-free."""
+    try:
+        import jsonschema
+    except ImportError:
+        if require_jsonschema:
+            return [f"{label}: jsonschema is required for strict schema validation"]
+        return []
+
+    errors: list[str] = []
+    try:
+        validator_cls = jsonschema.validators.validator_for(schema)
+        validator_cls.check_schema(schema)
+        validator = validator_cls(schema)
+        for err in sorted(validator.iter_errors(instance), key=lambda e: list(e.path)):
+            where = ".".join(map(str, err.path)) or "<root>"
+            errors.append(f"{label}: schema violation at {where}: {err.message}")
+    except Exception as exc:  # schema errors should fail validation, not crash CI
+        errors.append(f"{label}: schema validation failed: {exc}")
+    return errors
+
+
+def validate_repo(kit_root: Path | None = None, require_jsonschema: bool | None = None) -> list[str]:
     root = (kit_root or KIT_ROOT).resolve()
+    strict = (
+        os.environ.get("BLENDER_AGENT_KIT_STRICT_SCHEMA") == "1"
+        if require_jsonschema is None
+        else require_jsonschema
+    )
     errors: list[str] = []
 
     skill_files = sorted(root.glob("skills/**/SKILL.md")) + sorted(root.glob("plugins/**/SKILL.md"))
     if not skill_files:
         errors.append("No SKILL.md files found under skills/ or plugins/")
-
     for smd in skill_files:
         errors.extend(validate_skill_md(smd))
 
+    schema_paths = {
+        "target": root / "schemas" / "target.schema.json",
+        "asset-manifest": root / "schemas" / "asset-manifest.schema.json",
+    }
+    schemas: dict[str, dict] = {}
+    for name, sp in schema_paths.items():
+        if not sp.is_file():
+            errors.append(f"Missing required schema file: {sp.relative_to(root)}")
+            continue
+        try:
+            schemas[name] = _load_json(sp)
+            errors.extend(validate_json_instance({}, schemas[name], f"{name} schema", require_jsonschema=strict)[:0])
+            # check_schema happens during real instance validation below; parsing here still catches malformed JSON.
+        except Exception as exc:
+            errors.append(f"{sp}: failed to parse schema JSON: {exc}")
+
     for tjson in sorted(root.glob("plugins/targets/*/target.json")):
-        data = json.loads(tjson.read_text(encoding="utf-8"))
+        data = _load_json(tjson)
         for err in validate_target_dict(data, folder_name=tjson.parent.name):
             errors.append(f"{tjson}: {err}")
+        if "target" in schemas:
+            errors.extend(
+                validate_json_instance(data, schemas["target"], str(tjson), require_jsonschema=strict)
+            )
 
-    for sfile in ("schemas/target.schema.json", "schemas/asset-manifest.schema.json"):
-        sp = root / sfile
-        if not sp.is_file():
-            errors.append(f"Missing required schema file: {sfile}")
-        else:
-            json.loads(sp.read_text(encoding="utf-8"))
-
+    # Validate committed example/manifests if project packs add any later.
+    if "asset-manifest" in schemas:
+        for manifest in sorted(root.glob("**/*.asset.manifest.json")):
+            errors.extend(
+                validate_json_instance(
+                    _load_json(manifest),
+                    schemas["asset-manifest"],
+                    str(manifest),
+                    require_jsonschema=strict,
+                )
+            )
     return errors
 
 
@@ -104,7 +158,7 @@ def main() -> int:
         for e in errs:
             print(f"  - {e}")
         return 1
-    print("ALL SKILL SPECS, TOKEN BUDGETS, AND TARGET SCHEMAS VALID.")
+    print("ALL SKILL SPECS, TARGETS, AND AVAILABLE JSON-SCHEMA CHECKS VALID.")
     return 0
 
 

@@ -77,13 +77,12 @@ def build_blender_command(
 ) -> list[str]:
     """Build a strictly ordered headless Blender CLI invocation.
 
-    Order guarantee: -b -> [blend_file] -> --factory-startup -> [--addons ...] ->
-    --python-exit-code 1 -> -P bootstrap.py -> -- -> bootstrap & module args.
+    Startup-affecting flags are placed before the optional .blend path so command
+    parsing cannot reset or replace an explicitly supplied input scene.
     """
-    cmd: list[str] = [blender_exe, "-b"]
+    cmd: list[str] = [blender_exe, "--factory-startup", "-b"]
     if blend_file:
         cmd.append(str(Path(blend_file).resolve()))
-    cmd.append("--factory-startup")
     if addons:
         cmd.extend(["--addons", ",".join(addons)])
     cmd.extend([

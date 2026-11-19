@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/tosumitdhaka/blender-skills/schemas/target.schema.json",
+  "$id": "https://github.com/trishul-developers/blender-skills/schemas/target.schema.json",
   "title": "Blender Agent Kit Target Plugin Schema",
   "type": "object",
   "required": ["name", "skill_name", "version", "default_profile", "units", "export", "naming", "textures", "qa"],
@@ -32,8 +32,8 @@
       "type": "object",
       "required": ["format", "use_selection", "object_types"],
       "properties": {
-        "format": { "type": "string", "enum": ["fbx", "glb", "gltf", "usd"] },
-        "alt_static_format": { "type": "string", "enum": ["fbx", "glb", "gltf", "usd"] },
+        "format": { "type": "string", "enum": ["fbx", "glb", "gltf"] },
+        "alt_static_format": { "type": "string", "enum": ["fbx", "glb", "gltf"] },
         "use_selection": { "type": "boolean" },
         "object_types": {
           "type": "array",

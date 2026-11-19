@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/tosumitdhaka/blender-skills/schemas/asset-manifest.schema.json",
+  "$id": "https://github.com/trishul-developers/blender-skills/schemas/asset-manifest.schema.json",
   "title": "Blender Agent Kit Asset Manifest Schema (v1.0)",
   "type": "object",
   "required": [

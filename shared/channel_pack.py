@@ -1,10 +1,12 @@
-"""Safe-grammar PBR channel packer with pure-stdlib 8-bit/16-bit unpremultiplied PNG writer.
+"""Safe-grammar PBR channel packer with exact 8/16-bit unpremultiplied PNG output.
 
-Avoids bpy.types.Image.save_render() (View Transform corruption) and Image.save()
-(bit-depth and alpha-zero RGB premultiplication quirks). Uses only Python stdlib + numpy.
+The module is usable both as a Python API and through blender-core's `pack`
+subcommand. The CLI accepts canonical raw maps named after their logical inputs,
+for example base_color.png, metallic.png, roughness.png, normal.png and ao.png.
 """
 from __future__ import annotations
 
+import argparse
 import re
 import struct
 import zlib
@@ -13,12 +15,8 @@ from typing import Mapping
 
 import numpy as np
 
-# Allowlisted channel expression grammar:
-#   <map_name>[.<r|g|b|a>]   or   1-<map_name>[.<r|g|b|a>]
 _EXPR_RE = re.compile(r"^(1-)?([a-z][a-z0-9_]*)(?:\.([rgba]))?$")
 _CHANNEL_IDX = {"r": 0, "g": 1, "b": 2, "a": 3}
-
-# PNG color types by channel count: 1=Grayscale(0), 3=RGB(2), 4=RGBA(6)
 _PNG_COLOR_TYPE = {1: 0, 3: 2, 4: 6}
 
 
@@ -58,13 +56,10 @@ def _extract_channel(
         default_val = float(fallbacks.get(map_name, 0.0))
         chan = np.full(shape_hw, default_val, dtype=np.float32)
 
-    # Automatic DirectX (-Y) normal green-channel flip when target requires DirectX normals
     if map_name == "normal" and ch_idx == 1 and normal_convention == "directx":
         chan = 1.0 - chan
-
     if invert:
         chan = 1.0 - chan
-
     return np.clip(chan, 0.0, 1.0)
 
 
@@ -94,7 +89,7 @@ def _png_chunk(chunk_type: bytes, data: bytes) -> bytes:
 
 
 def encode_png(array_float: np.ndarray, bit_depth: int = 8) -> bytes:
-    """Encode a float32 [0..1] HxW or HxWxC array into exact unpremultiplied 8/16-bit PNG bytes."""
+    """Encode a float32 [0..1] HxW or HxWxC array into exact unpremultiplied PNG bytes."""
     if bit_depth not in (8, 16):
         raise ValueError(f"bit_depth must be 8 or 16, got {bit_depth}")
     arr = np.clip(np.asarray(array_float, dtype=np.float32), 0.0, 1.0)
@@ -112,11 +107,9 @@ def encode_png(array_float: np.ndarray, bit_depth: int = 8) -> bytes:
     if bit_depth == 8:
         quant = np.rint(arr * 255.0).astype(np.uint8)
     else:
-        # PNG stores 16-bit samples in big-endian byte order
         quant = np.rint(arr * 65535.0).astype(">u2")
 
     row_bytes = quant.reshape(height, -1).view(np.uint8)
-    # Prepend filter byte 0 (None) to each scanline
     filter_col = np.zeros((height, 1), dtype=np.uint8)
     raw_scanlines = np.concatenate([filter_col, row_bytes], axis=1).tobytes()
 
@@ -139,7 +132,7 @@ def write_packed_profile(
     shape_hw: tuple[int, int],
     out_dir: Path,
 ) -> list[dict]:
-    """Pack and write all maps defined by target_cfg['textures']['profiles'][profile_name]."""
+    """Pack and write all maps defined by a target texture profile."""
     tex_cfg = target_cfg["textures"]
     profile_cfg = tex_cfg["profiles"][profile_name]
     fallbacks = tex_cfg.get("fallback_constants", {})
@@ -174,3 +167,89 @@ def write_packed_profile(
             "max_size": int(max(shape_hw)),
         })
     return written
+
+
+def required_raw_map_names(target_cfg: dict, profile_name: str) -> set[str]:
+    """Return logical raw-map names referenced by a packed profile."""
+    result: set[str] = set()
+    for spec in target_cfg["textures"]["profiles"][profile_name]["maps"].values():
+        for expr in spec["channels"]:
+            _, map_name, _ = parse_channel_expr(expr)
+            result.add(map_name)
+    return result
+
+
+def _load_raw_map(path: Path) -> np.ndarray:
+    """Read image pixels inside Blender without applying display/view transforms."""
+    import bpy
+
+    image = bpy.data.images.load(str(path.resolve()), check_existing=False)
+    try:
+        try:
+            image.colorspace_settings.name = "Non-Color"
+        except TypeError:
+            pass
+        width, height = map(int, image.size)
+        channels = int(image.channels)
+        pixels = np.empty(width * height * channels, dtype=np.float32)
+        image.pixels.foreach_get(pixels)
+        # Blender exposes rows bottom-up; canonical arrays and our PNG writer are top-down.
+        return np.flipud(pixels.reshape((height, width, channels)))
+    finally:
+        bpy.data.images.remove(image)
+
+
+def cli_main(argv: list[str]) -> dict:
+    """Pack canonical raw PNG maps using a target's declarative texture profile."""
+    from shared.target_loader import load_target
+
+    p = argparse.ArgumentParser()
+    p.add_argument("--target", default="unity")
+    p.add_argument("--profile", default=None)
+    p.add_argument("--asset-id", required=True)
+    p.add_argument("--material", required=True)
+    p.add_argument("--input-dir", required=True)
+    p.add_argument("--out", default="build")
+    p.add_argument("--size", type=int, default=None, help="Fallback square size when every input uses constants")
+    ns = p.parse_args(argv)
+
+    target_cfg, profile_name, _ = load_target(ns.target, ns.profile)
+    input_dir = Path(ns.input_dir)
+    raw_maps: dict[str, np.ndarray] = {}
+    shape_hw: tuple[int, int] | None = None
+
+    for map_name in sorted(required_raw_map_names(target_cfg, profile_name)):
+        candidate = input_dir / f"{map_name}.png"
+        if not candidate.is_file():
+            continue
+        arr = _load_raw_map(candidate)
+        current_shape = tuple(arr.shape[:2])
+        if shape_hw is None:
+            shape_hw = current_shape
+        elif current_shape != shape_hw:
+            raise ValueError(
+                f"Raw map '{candidate}' shape {current_shape} does not match expected {shape_hw}"
+            )
+        raw_maps[map_name] = arr
+
+    if shape_hw is None:
+        if ns.size is None or ns.size < 1:
+            raise ValueError("No canonical raw PNGs found; provide --size when packing fallback constants only")
+        shape_hw = (ns.size, ns.size)
+
+    written = write_packed_profile(
+        target_cfg=target_cfg,
+        profile_name=profile_name,
+        asset_id=ns.asset_id,
+        material_name=ns.material,
+        raw_maps=raw_maps,
+        shape_hw=shape_hw,
+        out_dir=Path(ns.out).resolve(),
+    )
+    return {
+        "status": "ok",
+        "target": target_cfg["name"],
+        "profile": profile_name,
+        "raw_maps": sorted(raw_maps.keys()),
+        "artifacts": {"textures": written},
+    }

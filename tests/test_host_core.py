@@ -1,4 +1,4 @@
-"""Tier 1 host-side unit tests (no Blender required): schemas, installer, PNG encoder, RNA translator."""
+"""Tier 1 host-side unit tests: schemas, installer, PNG encoder, translators, runner ordering."""
 from __future__ import annotations
 
 import json
@@ -10,19 +10,25 @@ from pathlib import Path
 
 import numpy as np
 
-from shared.channel_pack import encode_png, pack_map, parse_channel_expr, write_packed_profile
+from shared.channel_pack import (
+    cli_main as channel_pack_cli_main,
+    encode_png,
+    pack_map,
+    parse_channel_expr,
+    required_raw_map_names,
+    write_packed_profile,
+)
 from shared.exporter import translate_fbx_kwargs, translate_gltf_kwargs
 from shared.paths import resolve_kit_root, write_pointer_manifest
 from shared.runner import build_blender_command
 from shared.target_loader import list_targets, load_target, validate_target_dict
 from tools.install import install_skills
-from tools.validate_skills import validate_repo
+from tools.validate_skills import validate_json_instance, validate_repo
 
 KIT_ROOT = Path(__file__).resolve().parent.parent
 
 
 def _decode_png_raw(png_bytes: bytes) -> tuple[int, int, int, int, bytes]:
-    """Minimal stdlib PNG reader to verify bit depth, color type, and exact unpremultiplied bytes."""
     assert png_bytes[:8] == b"\x89PNG\r\n\x1a\n"
     pos = 8
     width = height = bit_depth = color_type = 0
@@ -36,8 +42,7 @@ def _decode_png_raw(png_bytes: bytes) -> tuple[int, int, int, int, bytes]:
             width, height, bit_depth, color_type = struct.unpack(">IIBB", data[:10])
         elif ctype == b"IDAT":
             idat_parts.append(data)
-    raw = zlib.decompress(b"".join(idat_parts))
-    return width, height, bit_depth, color_type, raw
+    return width, height, bit_depth, color_type, zlib.decompress(b"".join(idat_parts))
 
 
 class TestRepoSpecsAndSchemas(unittest.TestCase):
@@ -65,16 +70,35 @@ class TestRepoSpecsAndSchemas(unittest.TestCase):
         errs = validate_target_dict(bad, folder_name="blender-target-unity")
         self.assertTrue(any("duplicate clips" in e for e in errs))
 
+    def test_full_json_schema_rejects_unsupported_export_format_when_available(self) -> None:
+        try:
+            import jsonschema  # noqa: F401
+        except ImportError:
+            self.skipTest("jsonschema optional outside strict CI")
+        cfg, _, _ = load_target("unity", kit_root=KIT_ROOT)
+        bad = json.loads(json.dumps(cfg))
+        bad["export"]["format"] = "usd"
+        schema = json.loads((KIT_ROOT / "schemas" / "target.schema.json").read_text(encoding="utf-8"))
+        errs = validate_json_instance(bad, schema, "bad-target", require_jsonschema=True)
+        self.assertTrue(any("usd" in e for e in errs))
+
 
 class TestChannelPackAndPngEncoder(unittest.TestCase):
+    def test_pack_subcommand_has_callable_entrypoint(self) -> None:
+        self.assertTrue(callable(channel_pack_cli_main))
+
     def test_allowlisted_grammar_blocks_eval_injection(self) -> None:
         self.assertEqual(parse_channel_expr("1-roughness"), (True, "roughness", None))
         self.assertEqual(parse_channel_expr("base_color.r"), (False, "base_color", 0))
         with self.assertRaises(ValueError):
             parse_channel_expr("__import__('os').system('echo pwn')")
 
+    def test_profile_raw_map_discovery(self) -> None:
+        cfg, _, _ = load_target("unity", kit_root=KIT_ROOT)
+        names = required_raw_map_names(cfg, "urp")
+        self.assertTrue({"base_color", "metallic", "roughness", "normal", "ao"}.issubset(names))
+
     def test_unpremultiplied_rgba_preserves_metallic_when_alpha_zero(self) -> None:
-        """Critical URP test: (metallic=1.0, roughness=1.0) -> A=0 must NOT zero out RGB!"""
         raw = {
             "metallic": np.ones((4, 4), dtype=np.float32),
             "roughness": np.ones((4, 4), dtype=np.float32),
@@ -83,7 +107,6 @@ class TestChannelPackAndPngEncoder(unittest.TestCase):
         png_bytes = encode_png(packed, bit_depth=8)
         w, h, depth, ctype, scanlines = _decode_png_raw(png_bytes)
         self.assertEqual((w, h, depth, ctype), (4, 4, 8, 6))
-        # First scanline: filter byte 0 + pixel 0 RGBA = (255, 255, 255, 0)
         self.assertEqual(list(scanlines[1:5]), [255, 255, 255, 0])
 
     def test_16bit_normal_png_and_directx_y_flip(self) -> None:
@@ -115,10 +138,8 @@ class TestExporterRnaAndRunner(unittest.TestCase):
         self.assertTrue(fbx_static["use_triangles"])
         self.assertTrue(fbx_static["use_tspace"])
         self.assertEqual(fbx_static["object_types"], {"MESH", "EMPTY", "ARMATURE"})
-
         fbx_rigged = translate_fbx_kwargs(cfg["export"], "rig.fbx", is_rigged=True)
         self.assertFalse(fbx_rigged["bake_space_transform"])
-
         glb = translate_gltf_kwargs(cfg["export"], "out.glb")
         self.assertEqual(glb["export_format"], "GLB")
         self.assertTrue(glb["export_yup"])
@@ -133,7 +154,9 @@ class TestExporterRnaAndRunner(unittest.TestCase):
             blend_file="/tmp/a.blend",
             addons=["rigify"],
         )
-        self.assertEqual(cmd[1], "-b")
+        self.assertEqual(cmd[1], "--factory-startup")
+        self.assertEqual(cmd[2], "-b")
+        self.assertLess(cmd.index("--factory-startup"), cmd.index(str(Path("/tmp/a.blend").resolve())))
         self.assertLess(cmd.index("--factory-startup"), cmd.index("--addons"))
         self.assertLess(cmd.index("--python-exit-code"), cmd.index("-P"))
         self.assertLess(cmd.index("-P"), cmd.index("--"))

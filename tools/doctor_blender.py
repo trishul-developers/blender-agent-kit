@@ -7,14 +7,28 @@ from pathlib import Path
 
 from shared.review_shots import configure_cycles_device
 
+MIN_BLENDER_VERSION = (5, 2, 0)
+
 
 def run(device: str = "auto") -> dict:
     import bpy
 
     version_tuple = tuple(bpy.app.version)
-    version_ok = version_tuple >= (5, 2, 0)
+    version_ok = version_tuple >= MIN_BLENDER_VERSION
 
-    # Dynamically verify built-in/extension add-on availability without hardcoding legacy flags
+    if not version_ok:
+        return {
+            "status": "error",
+            "error": (
+                f"Blender {bpy.app.version_string} is unsupported; "
+                f"minimum supported version is {'.'.join(map(str, MIN_BLENDER_VERSION))}."
+            ),
+            "blender_version": bpy.app.version_string,
+            "version_tuple": list(version_tuple),
+            "meets_5_2_lts": False,
+            "smoke_save_reopen": False,
+        }
+
     verified_addons = sorted(
         a.module for a in bpy.context.preferences.addons
         if any(k in a.module for k in ("fbx", "gltf", "rigify", "cycles"))
@@ -22,7 +36,6 @@ def run(device: str = "auto") -> dict:
 
     cycles_device = configure_cycles_device(bpy.context.scene, device=device)
 
-    # Save & reopen tiny smoke test
     with tempfile.TemporaryDirectory(prefix="bak_doctor_") as tmp:
         blend_path = Path(tmp) / "smoke.blend"
         bpy.ops.wm.save_as_mainfile(filepath=str(blend_path), copy=True)
@@ -33,7 +46,7 @@ def run(device: str = "auto") -> dict:
         "status": "ok" if smoke_ok else "error",
         "blender_version": bpy.app.version_string,
         "version_tuple": list(version_tuple),
-        "meets_5_2_lts": version_ok,
+        "meets_5_2_lts": True,
         "build_hash": bpy.app.build_hash.decode("utf-8", errors="ignore")
         if isinstance(bpy.app.build_hash, bytes) else str(bpy.app.build_hash),
         "cycles_device": cycles_device,
