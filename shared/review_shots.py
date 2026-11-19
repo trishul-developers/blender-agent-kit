@@ -306,6 +306,31 @@ def run(
     finally:
         _restore_visibility(scene, saved)
 
+    closeup_distance = preset_cfg.get("closeup_distance_m")
+    if closeup_distance is not None:
+        primary_lod = int(preset_cfg.get("primary_lod", 0))
+        saved = _set_mesh_visibility(scene, lod=primary_lod, damage_mode="intact", damage_prefix=damage_prefix)
+        try:
+            bounds = _bounds_from_visible(scene)
+            if bounds:
+                _configure_range(
+                    camera,
+                    bounds["center"],
+                    float(closeup_distance),
+                    float(preset_cfg.get("azimuth_deg", 45.0)),
+                    float(preset_cfg.get("elevation_deg", 45.0)),
+                    float(preset_cfg.get("lens_mm", 50.0)),
+                )
+                out_file = out_path / "review_closeup.png"
+                _render(scene, out_file)
+                artifacts["closeup"] = {
+                    "lod": primary_lod,
+                    "distance_m": float(closeup_distance),
+                    "path": str(out_file),
+                }
+        finally:
+            _restore_visibility(scene, saved)
+
     ranges = [float(v) for v in preset_cfg.get("range_shots_m", [])]
     lods = [int(v) for v in preset_cfg.get("lods", [0])]
     if ranges:

@@ -97,6 +97,7 @@
       "resolution": [1280, 720],
       "orthographic_views": ["front", "side", "top"],
       "range_shots_m": [50, 150, 400],
+      "closeup_distance_m": 12,
       "lods": [0, 1, 2, 3],
       "primary_lod": 0,
       "azimuth_deg": 45,

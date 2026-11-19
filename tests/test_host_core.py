@@ -103,6 +103,7 @@ class TestProjectProfiles(unittest.TestCase):
         preset = data["review_presets"]["tactical"]
         self.assertEqual(preset["resolution"], [1280, 720])
         self.assertEqual(preset["range_shots_m"], [50, 150, 400])
+        self.assertEqual(preset["closeup_distance_m"], 12)
 
 
 class TestBundleSpec(unittest.TestCase):

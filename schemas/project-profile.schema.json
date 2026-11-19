@@ -27,6 +27,7 @@
           },
           "orthographic_views": { "type": "array", "items": { "type": "string" } },
           "range_shots_m": { "type": "array", "items": { "type": "number", "exclusiveMinimum": 0 } },
+          "closeup_distance_m": { "type": "number", "exclusiveMinimum": 0 },
           "lods": { "type": "array", "items": { "type": "integer", "minimum": 0 } },
           "primary_lod": { "type": "integer", "minimum": 0 },
           "azimuth_deg": { "type": "number" },
