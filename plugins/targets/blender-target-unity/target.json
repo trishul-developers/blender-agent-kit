@@ -104,6 +104,18 @@
             "srgb": false,
             "bit_depth": 8,
             "unity_type": "Default"
+          },
+          "emission": {
+            "unity_slot": "_EmissionMap",
+            "channels": [
+              "emission.r",
+              "emission.g",
+              "emission.b"
+            ],
+            "srgb": true,
+            "bit_depth": 8,
+            "unity_type": "Default",
+            "optional": true
           }
         }
       },
@@ -145,6 +157,18 @@
             "srgb": false,
             "bit_depth": 16,
             "unity_type": "NormalMap"
+          },
+          "emission": {
+            "unity_slot": "_EmissionMap",
+            "channels": [
+              "emission.r",
+              "emission.g",
+              "emission.b"
+            ],
+            "srgb": true,
+            "bit_depth": 8,
+            "unity_type": "Default",
+            "optional": true
           }
         }
       }
