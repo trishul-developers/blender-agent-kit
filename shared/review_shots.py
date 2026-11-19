@@ -57,21 +57,28 @@ def _ensure_camera(scene):
     return scene.camera
 
 
+def _review_light_scale(radius: float, reference_radius: float = 2.5) -> float:
+    """Scale light power with squared subject radius to preserve approximate illuminance."""
+    safe_radius = max(float(radius), 0.5)
+    return (safe_radius / reference_radius) ** 2
+
+
 def _ensure_lighting(scene, center, radius: float) -> None:
     import bpy
 
     if any(o.type == "LIGHT" for o in scene.objects):
         return
+    scale = _review_light_scale(radius)
     placements = [
         ("QA_Key", (1.5, -1.5, 1.8), 900.0),
         ("QA_Fill", (-1.5, -0.7, 1.0), 500.0),
         ("QA_Rim", (0.3, 1.8, 1.4), 700.0),
     ]
-    for name, direction, energy in placements:
+    for name, direction, base_energy in placements:
         data = bpy.data.lights.new(name, type="AREA")
-        data.energy = energy
+        data.energy = base_energy * scale
         data.shape = "DISK"
-        data.size = max(1.0, radius)
+        data.size = max(0.25, radius * 0.8)
         obj = bpy.data.objects.new(name, data)
         scene.collection.objects.link(obj)
         obj.location = tuple(center[i] + direction[i] * radius for i in range(3))
@@ -236,6 +243,67 @@ def _collision_material():
         emission.inputs["Strength"].default_value = 1.0
         mat.node_tree.links.new(emission.outputs["Emission"], output.inputs["Surface"])
     return mat
+
+
+def _set_collision_overlay_visibility(
+    scene,
+    lod: int | None,
+    damage_prefix: str = "Damage_",
+    exclude_patterns: list[str] | None = None,
+) -> dict:
+    """Show collision meshes together with the intact primary LOD for review."""
+    saved = {o.name: bool(o.hide_render) for o in scene.objects if o.type == "MESH"}
+    for obj in scene.objects:
+        if obj.type != "MESH":
+            continue
+        if _is_collision_name(obj.name):
+            visible = True
+        else:
+            visible = not _matches_hierarchy_patterns(obj, exclude_patterns)
+            if lod is not None:
+                visible = visible and lod_index(obj) == lod
+            if damage_prefix and obj.name.startswith(damage_prefix):
+                visible = False
+        obj.hide_render = not visible
+    return saved
+
+
+def _prepare_collision_wireframe(scene, radius: float) -> list[dict]:
+    """Temporarily render visible collision meshes as emissive wireframe overlays."""
+    material = _collision_material()
+    state: list[dict] = []
+    for obj in scene.objects:
+        if obj.type != "MESH" or obj.hide_render or not _is_collision_name(obj.name):
+            continue
+        original_materials = [m for m in obj.data.materials]
+        obj.data.materials.clear()
+        obj.data.materials.append(material)
+        modifier = obj.modifiers.new(name="QA_Collision_Wireframe", type="WIREFRAME")
+        modifier.thickness = max(0.001, float(radius) * 0.004)
+        modifier.use_even_offset = True
+        modifier.use_replace = True
+        state.append({
+            "object": obj,
+            "modifier": modifier,
+            "materials": original_materials,
+        })
+    return state
+
+
+def _restore_collision_wireframe(state: list[dict]) -> None:
+    for item in state:
+        obj = item["object"]
+        modifier = item["modifier"]
+        if obj is None:
+            continue
+        try:
+            obj.modifiers.remove(modifier)
+        except (ReferenceError, RuntimeError):
+            pass
+        obj.data.materials.clear()
+        for material in item["materials"]:
+            if material is not None:
+                obj.data.materials.append(material)
 
 
 def _remove_imported_objects(imported: list) -> None:
@@ -503,24 +571,25 @@ def run(
         artifacts["variants"] = variant_artifacts
 
     if preset_cfg.get("collision_view", False):
-        saved = _set_mesh_visibility(scene, collision_only=True)
-        old_override = scene.view_layers[0].material_override
-        old_freestyle = getattr(scene.render, "use_freestyle", False)
+        saved = _set_collision_overlay_visibility(
+            scene,
+            lod=int(preset_cfg.get("primary_lod", 0)),
+            damage_prefix=damage_prefix,
+            exclude_patterns=exclude_patterns,
+        )
+        wireframe_state: list[dict] = []
         try:
             bounds = _bounds_from_visible(scene)
             if bounds:
-                scene.view_layers[0].material_override = _collision_material()
-                if hasattr(scene.render, "use_freestyle"):
-                    scene.render.use_freestyle = True
                 r = max(max(bounds["size"]) * 0.6, 0.5)
-                _configure_view(camera, "hero", bounds["center"], r)
-                out_file = out_path / "review_collision_outline.png"
-                _render(scene, out_file)
-                artifacts["collision"] = str(out_file)
+                wireframe_state = _prepare_collision_wireframe(scene, r)
+                if wireframe_state:
+                    _configure_view(camera, "hero", bounds["center"], r)
+                    out_file = out_path / "review_collision_outline.png"
+                    _render(scene, out_file)
+                    artifacts["collision"] = str(out_file)
         finally:
-            scene.view_layers[0].material_override = old_override
-            if hasattr(scene.render, "use_freestyle"):
-                scene.render.use_freestyle = old_freestyle
+            _restore_collision_wireframe(wireframe_state)
             _restore_visibility(scene, saved)
 
     effective_reference = reference_fbx or preset_cfg.get("reference_fbx")

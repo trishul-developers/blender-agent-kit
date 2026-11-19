@@ -1,0 +1,105 @@
+{
+  "schema_version": "1.0",
+  "demo": "SupplyCrate",
+  "source_run": {
+    "blender_version": "5.2.2 LTS",
+    "kit_version": "0.2.0-dev",
+    "target": "unity",
+    "profile": "urp",
+    "build_hash": "sha256:b579654adb4297fd7ad5a5af788e526f"
+  },
+  "qa": {
+    "passed": true,
+    "errors": 0,
+    "warnings": 3,
+    "note": "UV1 overlap is reported as unverified because geometric overlap proof is not implemented."
+  },
+  "bundle_parts": [
+    {
+      "id": "crate_lod0",
+      "file": "SupplyCrate_LOD0.fbx",
+      "tri_count": 3136,
+      "material_count": 1,
+      "roundtrip_passed": true,
+      "embedded_images_passed": true
+    },
+    {
+      "id": "crate_lod1",
+      "file": "SupplyCrate_LOD1.fbx",
+      "tri_count": 1600,
+      "material_count": 1,
+      "roundtrip_passed": true,
+      "embedded_images_passed": true
+    },
+    {
+      "id": "crate_lod2",
+      "file": "SupplyCrate_LOD2.fbx",
+      "tri_count": 240,
+      "material_count": 1,
+      "roundtrip_passed": true,
+      "embedded_images_passed": true
+    },
+    {
+      "id": "collision",
+      "file": "SupplyCrate_COL_01.fbx",
+      "tri_count": 12,
+      "material_count": 0,
+      "roundtrip_passed": true,
+      "embedded_images_passed": true
+    }
+  ],
+  "texture_pack": {
+    "raw_maps": [
+      "ao",
+      "base_color",
+      "metallic",
+      "normal",
+      "roughness"
+    ],
+    "target_size": [
+      2048,
+      2048
+    ],
+    "outputs": [
+      {
+        "map_key": "albedo",
+        "slot": "_BaseMap",
+        "bit_depth": 8,
+        "normal_map": false
+      },
+      {
+        "map_key": "metallic_smoothness",
+        "slot": "_MetallicGlossMap",
+        "bit_depth": 8,
+        "normal_map": false
+      },
+      {
+        "map_key": "normal",
+        "slot": "_BumpMap",
+        "bit_depth": 16,
+        "normal_map": true
+      },
+      {
+        "map_key": "ao",
+        "slot": "_OcclusionMap",
+        "bit_depth": 8,
+        "normal_map": false
+      }
+    ]
+  },
+  "review": {
+    "device": "GPU:OPTIX",
+    "resolution": [
+      1280,
+      720
+    ],
+    "views": [
+      "front",
+      "side",
+      "top",
+      "closeup",
+      "LOD0/1/2 @ 3/8/20m",
+      "collision"
+    ]
+  }
+}
