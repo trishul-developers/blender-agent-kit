@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  tier1-host-and-schemas:
+    name: Tier 1 · Spec, Schema, PNG & Installer Tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install numpy for PNG unit tests
+        run: python -m pip install numpy
+      - name: Run Tier 1 Validator & Host Tests
+        run: python tools/run_tests.py --suite host
+
+  tier2-tier3-headless-blender:
+    name: Tier 2 & 3 · Headless Blender 5.2 LTS Tests
+    runs-on: ubuntu-latest
+    env:
+      BLENDER_VERSION: "5.2.3"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Cache Blender 5.2 LTS Linux Tarball
+        id: blender-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/blender-5.2
+          key: blender-linux-${{ env.BLENDER_VERSION }}
+      - name: Download Blender 5.2 LTS
+        if: steps.blender-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/blender-5.2
+          curl -fsSL "https://download.blender.org/release/Blender5.2/blender-${BLENDER_VERSION}-linux-x64.tar.xz" \
+            | tar -xJ --strip-components=1 -C ~/blender-5.2
+      - name: Run Doctor Smoke Test
+        run: python tools/doctor.py --blender ~/blender-5.2/blender --device cpu --json
+      - name: Run Tier 2 Core Headless bpy Tests
+        run: python tools/run_tests.py --suite core --blender ~/blender-5.2/blender
+      - name: Run Tier 3 Auto-Discovered Target Contract Tests
+        run: python tools/run_tests.py --suite targets --blender ~/blender-5.2/blender

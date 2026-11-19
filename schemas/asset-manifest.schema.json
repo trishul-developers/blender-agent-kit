@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/tosumitdhaka/blender-skills/schemas/asset-manifest.schema.json",
+  "title": "Blender Agent Kit Asset Manifest Schema (v1.0)",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "asset_id",
+    "category",
+    "source_blend",
+    "build_hash",
+    "blender_version",
+    "target",
+    "profile",
+    "rig_type",
+    "uv1_source",
+    "export_file",
+    "lods",
+    "colliders",
+    "materials",
+    "textures"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "asset_id": { "type": "string", "minLength": 1 },
+    "category": { "type": "string", "enum": ["solid_prop", "open_sheet", "skinned_character"] },
+    "source_blend": { "type": "string" },
+    "build_script": { "type": ["string", "null"] },
+    "build_hash": { "type": "string", "pattern": "^sha256:[a-f0-9]{16,64}$" },
+    "blender_version": { "type": "string" },
+    "target": { "type": "string" },
+    "profile": { "type": "string" },
+    "rig_type": { "type": "string", "enum": ["none", "generic", "humanoid"] },
+    "uv1_source": { "type": "string", "enum": ["blender", "unity_generate", "none"] },
+    "export_file": { "type": "string" },
+    "disable_unity_auto_mesh_lod": { "type": "boolean" },
+    "lods": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "tri_count", "screen_relative_transition_height"],
+        "properties": {
+          "name": { "type": "string" },
+          "tri_count": { "type": "integer", "minimum": 0 },
+          "screen_relative_transition_height": { "type": "number", "minimum": 0, "maximum": 1 }
+        }
+      }
+    },
+    "colliders": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["node_name", "shape", "strip_renderer"],
+        "properties": {
+          "node_name": { "type": "string" },
+          "shape": { "type": "string", "enum": ["box", "capsule", "convex_mesh"] },
+          "strip_renderer": { "type": "boolean" }
+        }
+      }
+    },
+    "materials": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["material_name", "shader", "textures"],
+        "properties": {
+          "material_name": { "type": "string" },
+          "shader": { "type": "string" },
+          "textures": {
+            "type": "object",
+            "additionalProperties": { "type": "string" }
+          }
+        }
+      }
+    },
+    "textures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["material_name", "path", "srgb", "bit_depth", "normal_map", "max_size"],
+        "properties": {
+          "material_name": { "type": "string" },
+          "path": { "type": "string" },
+          "srgb": { "type": "boolean" },
+          "bit_depth": { "type": "integer", "enum": [8, 16] },
+          "normal_map": { "type": "boolean" },
+          "max_size": { "type": "integer", "minimum": 32 }
+        }
+      }
+    }
+  }
+}

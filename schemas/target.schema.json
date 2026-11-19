@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/tosumitdhaka/blender-skills/schemas/target.schema.json",
+  "title": "Blender Agent Kit Target Plugin Schema",
+  "type": "object",
+  "required": ["name", "skill_name", "version", "default_profile", "units", "export", "naming", "textures", "qa"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "skill_name": {
+      "type": "string",
+      "pattern": "^blender-target-[a-z0-9]+(-[a-z0-9]+)*$",
+      "maxLength": 64
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "default_profile": { "type": "string", "minLength": 1 },
+    "units": {
+      "type": "object",
+      "required": ["system", "scale"],
+      "properties": {
+        "system": { "type": "string", "enum": ["METRIC", "IMPERIAL", "NONE"] },
+        "scale": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
+    "export": {
+      "type": "object",
+      "required": ["format", "use_selection", "object_types"],
+      "properties": {
+        "format": { "type": "string", "enum": ["fbx", "glb", "gltf", "usd"] },
+        "alt_static_format": { "type": "string", "enum": ["fbx", "glb", "gltf", "usd"] },
+        "use_selection": { "type": "boolean" },
+        "object_types": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["EMPTY", "CAMERA", "LIGHT", "ARMATURE", "MESH", "OTHER"] },
+          "minItems": 1
+        },
+        "forward_axis": { "type": "string", "enum": ["X", "Y", "Z", "-X", "-Y", "-Z"] },
+        "up_axis": { "type": "string", "enum": ["X", "Y", "Z", "-X", "-Y", "-Z"] },
+        "apply_scalings": {
+          "type": "string",
+          "enum": ["FBX_SCALE_NONE", "FBX_SCALE_UNITS", "FBX_SCALE_CUSTOM", "FBX_SCALE_ALL"]
+        },
+        "apply_unit_scale": { "type": "boolean" },
+        "apply_transform_static": { "type": "boolean" },
+        "apply_transform_rigged": { "type": "boolean" },
+        "apply_modifiers": { "type": "boolean" },
+        "use_triangles": { "type": "boolean" },
+        "use_tspace": { "type": "boolean" },
+        "mesh_smooth_type": { "type": "string", "enum": ["OFF", "FACE", "EDGE"] },
+        "only_deform_bones": { "type": "boolean" },
+        "add_leaf_bones": { "type": "boolean" },
+        "bake_anim": { "type": "boolean" },
+        "bake_anim_use_nla_strips": { "type": "boolean" },
+        "bake_anim_use_all_actions": { "type": "boolean" },
+        "bake_anim_simplify_factor": { "type": "number", "minimum": 0 },
+        "embed_textures": { "type": "boolean" }
+      }
+    },
+    "naming": {
+      "type": "object",
+      "required": ["lod_pattern", "collider_pattern", "texture_pattern", "manifest_file"],
+      "properties": {
+        "lod_pattern": { "type": "string" },
+        "collider_pattern": { "type": "string" },
+        "texture_pattern": { "type": "string" },
+        "manifest_file": { "type": "string" }
+      }
+    },
+    "textures": {
+      "type": "object",
+      "required": ["normal_convention", "fallback_constants", "profiles"],
+      "properties": {
+        "normal_convention": { "type": "string", "enum": ["opengl", "directx"] },
+        "fallback_constants": {
+          "type": "object",
+          "additionalProperties": { "type": "number", "minimum": 0, "maximum": 1 }
+        },
+        "profiles": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "object",
+            "required": ["shader", "maps"],
+            "properties": {
+              "shader": { "type": "string" },
+              "maps": {
+                "type": "object",
+                "minProperties": 1,
+                "additionalProperties": {
+                  "type": "object",
+                  "required": ["channels", "srgb", "bit_depth"],
+                  "properties": {
+                    "unity_slot": { "type": "string" },
+                    "slot": { "type": "string" },
+                    "channels": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "minItems": 1,
+                      "maxItems": 4
+                    },
+                    "srgb": { "type": "boolean" },
+                    "bit_depth": { "type": "integer", "enum": [8, 16] },
+                    "unity_type": { "type": "string", "enum": ["Default", "NormalMap"] },
+                    "unpremultiplied_rgba": { "type": "boolean" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "qa": {
+      "type": "object",
+      "required": ["common", "asset_classes"],
+      "properties": {
+        "common": { "type": "object" },
+        "asset_classes": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": { "type": "object" }
+        }
+      }
+    }
+  }
+}
