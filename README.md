@@ -1,10 +1,137 @@
-# blender-skills (`blender-agent-kit`)
+# Blender Agent Kit
 
-Headless-first Blender 5.2+ skills and production asset-pipeline primitives for AI agents, automation, and game development.
+**Give AI agents production-grade Blender capabilities.**
 
-The architecture is deliberately layered:
+Blender Agent Kit is a headless-first Blender 5.2+ toolkit for AI agents that need to **create, modify, validate, render, and export 3D assets** through deterministic, automatable workflows.
+
+Instead of treating Blender as a manual GUI-only tool, the kit gives an agent a structured production path:
 
 ```text
+task / prompt
+    ↓
+create or modify geometry
+    ↓
+UVs · materials · textures
+    ↓
+LODs · collision · rigging / animation
+    ↓
+QA + machine-readable evidence
+    ↓
+review renders
+    ↓
+FBX / GLB / glTF / semantic bundles
+    ↓
+game-engine pipeline
+```
+
+The emphasis is not only on generating geometry. The goal is to let an agent produce **repeatable, inspectable, testable assets** that can survive a real production pipeline.
+
+> Blender Agent Kit is not a neural text-to-3D or text-to-image model. Asset creation is skill-driven: an agent authors deterministic Blender/Python build logic, executes Blender headlessly, and uses the kit to validate and deliver the result.
+
+## What can an agent do?
+
+| Agent task | Support |
+| --- | --- |
+| Create procedural 3D props and modular assets from a brief | **Yes** — deterministic Blender/Python modeling workflow |
+| Refine or modify an existing `.blend` scene | **Yes** |
+| Create and validate LOD chains | **Yes** |
+| Generate simplified collision proxies | **Yes** |
+| Build pivots, hierarchies, sockets, and compound assets | **Yes** |
+| Unwrap UV0 / UV1 and prepare baking workflows | **Yes** |
+| Bake canonical PBR maps | **Yes** |
+| Pack texture channels and resize maps deterministically | **Yes** |
+| Rig articulated assets or characters | **Yes** — skill-guided workflow |
+| Stage animation clips for export | **Yes** — skill-guided workflow |
+| Render review / orthographic / range views | **Yes** |
+| Validate geometry, LOD, UV, hierarchy, symmetry, dimensions, and budgets | **Yes** |
+| Export FBX, GLB, or glTF using target-specific rules | **Yes** |
+| Export one logical asset as multiple engine files | **Yes** — semantic bundles |
+| Produce machine-readable QA / manifest evidence | **Yes** |
+| Run repeatable headless / CI workflows | **Yes** |
+| Generate arbitrary concept art from text | **No** — use an image-generation system upstream |
+| Neural one-shot text-to-3D generation | **No** — this kit operates Blender deterministically |
+
+## Example: from task to engine-ready asset
+
+An agent can be given a task such as:
+
+> Create a 2 m industrial cargo crate with beveled hard-surface geometry, a separate door, collision proxy, three LODs, packed PBR textures, and Unity-ready export.
+
+A typical Blender Agent Kit workflow can produce:
+
+```text
+CargoCrate_build.py       deterministic authoring script
+CargoCrate.blend          editable Blender source
+CargoCrate_LOD0.fbx
+CargoCrate_LOD1.fbx
+CargoCrate_LOD2.fbx
+CargoCrate_Collision.fbx
+textures/
+  CargoCrate_BaseColor.png
+  CargoCrate_Normal.png
+  CargoCrate_Mask.png
+review/
+  hero.png
+  front.png
+  side.png
+qa.json
+bundle-manifest.json
+```
+
+The exact asset-specific geometry remains the agent's job. The kit supplies the reusable production mechanics and verification around it.
+
+## 3D and 2D scope
+
+**3D asset creation is the primary product.** The modeling, LOD/collision, UV/baking, rigging/animation, review, QA, and export skills are designed to let agents operate on real Blender scenes and assets.
+
+The kit also produces useful **2D production outputs** through Blender:
+
+- BaseColor, Normal, Metallic, Roughness, AO, and packed texture maps;
+- masks and channel-packed images;
+- baked maps;
+- review renders and orthographic views;
+- deterministic resized/converted texture outputs.
+
+General-purpose illustration, concept-art generation, or arbitrary text-to-image creation is intentionally outside the current scope.
+
+## Core skill set
+
+| Skill | Purpose |
+| --- | --- |
+| `blender-core` | Single entrypoint and routing for agent workflows |
+| `blender-modeling` | Create/refine meshes, props, and modular kits |
+| `blender-uv-baking` | UV0/UV1 workflows and canonical raw PBR baking |
+| `blender-lod-collision` | LOD generation and collision proxies |
+| `blender-rigging-animation` | Rigging, weights, and animation staging |
+| `blender-asset-qa` | Production QA and structured evidence |
+| `blender-bundle` | Compound multi-file asset delivery |
+| `blender-batch` | Folder-scale headless processing and build caching |
+| `blender-target-unity` | Unity-specific axes, export, and texture conventions |
+| project profiles | Optional reusable production policies layered over a target |
+
+## Command surface
+
+The host-facing command surface is intentionally small:
+
+```bash
+python skills/core/blender-core/scripts/run.py doctor --device auto
+python skills/core/blender-core/scripts/run.py inspect --blend asset.blend
+python skills/core/blender-core/scripts/run.py qa --blend asset.blend --target unity --asset-class solid_prop
+python skills/core/blender-core/scripts/run.py pack --target unity --profile urp --asset-id Prop01 --material Body --input-dir raw/ --out build/
+python skills/core/blender-core/scripts/run.py export --blend asset.blend --target unity --profile urp --out build/
+python skills/core/blender-core/scripts/run.py bundle --blend asset.blend --spec bundle.json --target unity --out build/
+python skills/core/blender-core/scripts/run.py review --blend asset.blend --device auto --out review/
+```
+
+Asset **creation itself is performed by the agent through Blender/Python**, using the modeling and specialist skills. The commands above provide the stable runtime around creation: discovery, inspection, QA, packing, export, bundle delivery, and review evidence.
+
+## Architecture
+
+```text
+AI agent / developer
+        ↓
+Blender Agent Kit
+        ↓
 generic Blender core
         ↓
 engine target (Unity today)
@@ -14,33 +141,7 @@ optional reusable project profile / external profile JSON
 downstream asset-specific builders and game contracts
 ```
 
-The core is not an asset generator or game framework. It supplies reusable execution, inspection, QA, texture packing, export, compound-bundle export, round-trip evidence, and review rendering.
-
-## v0.2 capabilities
-
-Compared with v0.1, v0.2 adds:
-
-- strict Blender 5.2+ discovery and doctor behavior;
-- strict Draft 2020-12 JSON Schema checks in CI;
-- generic scene inventory shared by QA/export/evidence;
-- fail-closed QA for empty scenes and malformed geometry;
-- aggregate LOD/material budgets and LOD reduction ratios;
-- intact-vs-`Damage_*` triangle accounting with configurable allowed LODs;
-- configurable L/R mirror checks using triangle counts, mirrored bounds, and signed-volume magnitudes;
-- configurable semantic dimension boxes, including optional LOD scoping and exclude patterns;
-- profile-driven LOD aggregation exclusions for variant/collision hierarchies in multi-LOD authoring scenes;
-- configurable UV-range/V-scroll checks, including per-face U-band selection for merged atlases;
-- safe 8/16-bit channel packing plus Lanczos resizing via `--size`;
-- optional normal-Y convention reporting, explicitly marked heuristic;
-- hierarchy-safe static FBX Y-up prebaking for nested pivots and directional socket empties;
-- optional temporary LOD-suffix stripping for multi-LOD authoring scenes, with collision-safe name stashing/restoration;
-- zero-root export for selected compound parts;
-- FBX embedded-image magic-header checks;
-- semantic multi-file bundle export with authoring and export-coordinate inventories;
-- stronger Blender fresh-import comparison;
-- deterministic build hashes including tool/config identity;
-- profile-driven review presets with close-up, 50/150/400m shots, per-LOD views, damage views, collision outline, and reference-FBX silhouette comparison;
-- optional `tactical-vehicle` profile demonstrating reusable tracked-vehicle conventions without modifying the base Unity target.
+Core mechanics stay reusable. Engine semantics belong in target plugins. Project-specific dimensions, socket inventories, content IDs, and simulation rules stay downstream.
 
 ## Quick start
 
@@ -83,6 +184,32 @@ python skills/core/blender-core/scripts/run.py bundle \
 python skills/core/blender-core/scripts/run.py review \
   --blend asset.blend --device auto --out review/
 ```
+
+## Production capabilities in v0.2
+
+Compared with v0.1, v0.2 adds:
+
+- strict Blender 5.2+ discovery and doctor behavior;
+- strict Draft 2020-12 JSON Schema checks in CI;
+- generic scene inventory shared by QA/export/evidence;
+- fail-closed QA for empty scenes and malformed geometry;
+- aggregate LOD/material budgets and LOD reduction ratios;
+- intact-vs-`Damage_*` triangle accounting with configurable allowed LODs;
+- configurable L/R mirror checks using triangle counts, mirrored bounds, and signed-volume magnitudes;
+- configurable semantic dimension boxes, including optional LOD scoping and exclude patterns;
+- profile-driven LOD aggregation exclusions for variant/collision hierarchies in multi-LOD authoring scenes;
+- configurable UV-range/V-scroll checks, including per-face U-band selection for merged atlases;
+- safe 8/16-bit channel packing plus Lanczos resizing via `--size`;
+- optional normal-Y convention reporting, explicitly marked heuristic;
+- hierarchy-safe static FBX Y-up prebaking for nested pivots and directional socket empties;
+- optional temporary LOD-suffix stripping for multi-LOD authoring scenes, with collision-safe name stashing/restoration;
+- zero-root export for selected compound parts;
+- FBX embedded-image magic-header checks;
+- semantic multi-file bundle export with authoring and export-coordinate inventories;
+- stronger Blender fresh-import comparison;
+- deterministic build hashes including tool/config identity;
+- profile-driven review presets with close-up, 50/150/400m shots, per-LOD views, damage views, collision outline, and reference-FBX silhouette comparison;
+- optional `tactical-vehicle` profile demonstrating reusable tracked-vehicle conventions without modifying the base Unity target.
 
 ## Unity static hierarchy export
 
