@@ -61,6 +61,16 @@ This is a **real, reproducible demo produced through Blender Agent Kit**, not a 
 
 The checked-in contact sheets record the demonstrated source run. The generic collision-review renderer has since been upgraded to overlay collision wireframes over the primary LOD, so fresh reruns use the clearer overlay view.
 
+## Sci-Fi modular kit — independent agent trial
+
+The **Aegis Station** modular environment kit is a second, materially different trial of the Blender Agent Kit workflow. An independent agent supplied editable Blender scenes, a deterministic builder script, a 60-object modular assembly, QA/export/packing JSON, a bulkhead FBX, raw and packed textures, and five rendered proof images. We inspected the supplied archive and machine reports; this is not a newly rerun build.
+
+The bulkhead's four visible LOD meshes have **3,628 / 1,260 / 372 / 72 triangles**. Its QA report records **zero errors** (plus four explicit UV1 overlap-unverified warnings), while its **5,380-triangle** complete FBX hierarchy passed Blender fresh-import parity with no embedded images. The 1024² URP packing report records all four standard slots, including a **16-bit normal map**.
+
+[Read the archive-based Sci-Fi evidence assessment](demos/SciFiKit/README.md) · [Structured summary](demos/SciFiKit/evidence/summary.json)
+
+The agent also reported that LOD manifold checks, material budgets, and pivot checks helped catch earlier authoring errors. Its productivity-savings numbers are **subjective feedback, not measured benchmarks**. Full standalone source/showcase publication remains a release prerequisite; the evidence assessment alone is not a complete reproducible demo.
+
 ## What can an agent do?
 
 | Agent task | Support |
@@ -124,7 +134,7 @@ python skills/core/blender-core/scripts/run.py qa --blend asset.blend --target u
 python skills/core/blender-core/scripts/run.py pack --target unity --profile urp --asset-id Prop01 --material Body --input-dir raw/ --out build/
 python skills/core/blender-core/scripts/run.py export --blend asset.blend --target unity --profile urp --out build/
 python skills/core/blender-core/scripts/run.py bundle --blend asset.blend --spec bundle.json --target unity --out build/
-python skills/core/blender-core/scripts/run.py review --blend asset.blend --device auto --out review/
+python skills/core/blender-core/scripts/run.py review --blend asset.blend --device auto --out review/\n# Optional public JSON report on any subcommand:\npython skills/core/blender-core/scripts/run.py pack --target unity --profile urp --asset-id Prop01 --material Body --input-dir raw/ --out build/ --result-json build/pack.report.json
 ```
 
 Asset **creation itself is performed by the agent through Blender/Python**, using the modeling and specialist skills. The commands above provide the stable runtime around creation: discovery, inspection, QA, packing, export, bundle delivery, and review evidence.
@@ -435,6 +445,30 @@ python skills/core/blender-core/scripts/run.py review \
   --reference-fbx reference.fbx \
   --out review/
 ```
+
+## Generic review contact sheets
+
+Use the separate, host-side `tools/review_compose.py` after rendering; this stage uses Pillow and does **not** require starting Blender. A data-driven specification can compose a multi-view sheet, LOD strip, distance grid, or collision comparison without hardcoded prop/vehicle/game assumptions.
+
+```json
+{
+  "schema_version": "1.0",
+  "columns": 2,
+  "tile_size": [480, 270],
+  "tiles": [
+    {"path": "review_hero.png", "label": "Hero"},
+    {"path": "review_front.png", "label": "Front"},
+    {"path": "review_lod0_3m.png", "label": "LOD0", "evidence": "Triangles: supply from QA"},
+    {"path": "review_collision_outline.png", "label": "Collision overlay"}
+  ]
+}
+```
+
+```bash
+python tools/review_compose.py --spec review/sheet.json --out review/contact.webp
+```
+
+Labels and counts are supplied by the caller; the compositor never invents geometry or QA metrics. Missing or completely flat input images fail by default. Pillow is an optional host dependency for this step.
 
 ## Unity helper boundary
 
