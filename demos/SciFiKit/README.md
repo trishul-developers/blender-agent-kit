@@ -1,5 +1,11 @@
 # Sci-Fi modular kit — independent agent trial
 
+![Original agent Sci-Fi hero (compact preview)](showcase/01_hero_preview.webp)
+
+![Original agent LOD comparison (compact preview)](showcase/03_lod_preview.webp)
+
+*Both previews were downscaled from the supplied agent-created images. Original PNGs and machine reports remain in the independent agent archive.*
+
 **Status:** externally authored demonstration, archive inspected; canonical source/showcase import pending.
 
 An independent agent authored the **Aegis Station** modular environment kit with Blender 5.2.4 and Blender Agent Kit. Unlike the single-asset SupplyCrate, this exercise covers a multi-piece assembly, sockets, nested transform hierarchy, trim-sheet plus emissive material, four LODs, collision proxies, FBX export, and Unity URP packing.
@@ -8,7 +14,7 @@ An independent agent authored the **Aegis Station** modular environment kit with
 
 The author supplied `blender_agent_kit_scifi_demo_evidence.zip` containing two editable Blender scenes, `source/build_scifi_kit.py`, raw 1024² textures, a bulkhead FBX, four packed URP textures, JSON reports (`doctor`, `inspect`, `qa`, `pack`, `export`, LOD metrics), and five rendered proof sheets.
 
-This README records the independent agent's original output. **Do not interpret it as a fresh rebuild or Unity Editor verification.** The full binary archive is not stored in this Git repository yet. A canonical demo must include a reproducible source script and lightweight verified showcase images before the README can advertise a fully reproducible second demonstration.
+This README records the independent agent's original output. **Do not interpret it as a fresh rebuild or Unity Editor verification.** The full binary archive is not stored in this Git repository yet. This patch includes two original-image-derived lightweight visual previews; a **reproducible public builder rerun and complete image gallery** remain subsequent work.
 
 ## Verified from supplied JSON and image files
 
