@@ -57,6 +57,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--addons", default=None, help="Comma-separated add-on IDs to enable")
     parser.add_argument("--result-json", default=None, help="Optional public JSON output path (owned by this entrypoint)")
     raw_args = list(argv if argv is not None else sys.argv[1:])
+    if raw_args and raw_args[0] in SUBCOMMAND_TO_MODULE and any(
+        arg in ("--help", "-h") for arg in raw_args[1:]
+    ):
+        from shared.cli_help import render_subcommand_help
+        print(render_subcommand_help(
+            kit_root, raw_args[0], SUBCOMMAND_TO_MODULE[raw_args[0]],
+        ))
+        return 0
     if sum(arg == "--result-json" or arg.startswith("--result-json=") for arg in raw_args) > 1:
         parser.error("--result-json may only be supplied once")
     known, remainder = parser.parse_known_args(raw_args)

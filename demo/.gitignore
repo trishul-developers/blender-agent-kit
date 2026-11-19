@@ -1,0 +1,12 @@
+# New independent trials: keep source, JSON evidence and optimized WebP
+# showcases in normal Git. Historical v0.2.1-trial binaries committed in
+# b0e8042 remain tracked (gitignore never removes tracked data).
+# Generated raw/build binaries are distributed through release archives.
+**/scenes/
+**/exports/
+**/raw_textures/
+**/packed_textures/
+**/renders/
+**/showcase/*.png
+**/evidence/*_sample.png
+**/evidence/*_sample.webp

@@ -58,6 +58,22 @@ def validate_target_dict(data: dict, folder_name: str | None = None) -> list[str
     if exp.get("bake_anim_use_nla_strips") and exp.get("bake_anim_use_all_actions"):
         errors.append("export cannot set both bake_anim_use_nla_strips and bake_anim_use_all_actions to true (causes duplicate clips)")
 
+    # Fail at configuration load time, not deep inside Blender QA, on malformed
+    # required_parent_pairs from merged project-profile overrides.
+    for classname, contract in data.get("qa", {}).get("asset_classes", {}).items():
+        relations = contract.get("required_parent_pairs", [])
+        if not isinstance(relations, list):
+            errors.append(f"qa.asset_classes.{classname}.required_parent_pairs must be an array")
+            continue
+        for index, relation in enumerate(relations):
+            if (not isinstance(relation, dict)
+                    or not all(isinstance(relation.get(key), str) and relation[key].strip()
+                               for key in ("child", "parent"))):
+                errors.append(
+                    f"qa.asset_classes.{classname}.required_parent_pairs[{index}] "
+                    "must contain non-empty string 'child' and 'parent'"
+                )
+
     profiles = data["textures"].get("profiles", {})
     if data["default_profile"] not in profiles:
         errors.append(f"default_profile '{data['default_profile']}' not found in textures.profiles")

@@ -4,6 +4,7 @@ on:
   push:
     branches: [main, "feat/**"]
   pull_request:
+  workflow_call:
 
 jobs:
   tier1-host-and-schemas:
@@ -52,3 +53,103 @@ jobs:
         run: python tools/run_tests.py --suite core --blender ~/blender-5.2/blender
       - name: Run Tier 3 Auto-Discovered Target Contract Tests
         run: python tools/run_tests.py --suite targets --blender ~/blender-5.2/blender
+
+
+  tier4-independent-demo-smoke:
+    name: Tier 4 · Independent demo source rebuild and round-trip smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      BLENDER_VERSION: "5.2.4"
+      BLENDER_AGENT_KIT_STRICT_SCHEMA: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install procedural source dependencies
+        run: python -m pip install numpy pillow scipy jsonschema
+      - name: Cache Blender 5.2.4 LTS
+        id: blender-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/blender-5.2.4
+          key: blender-linux-${{ env.BLENDER_VERSION }}
+      - name: Download Blender 5.2.4 LTS
+        if: steps.blender-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ~/blender-5.2.4
+          curl -fsSL "https://download.blender.org/release/Blender5.2/blender-${BLENDER_VERSION}-linux-x64.tar.xz" |
+            tar -xJ --strip-components=1 -C ~/blender-5.2.4
+      - name: Generate fresh PBR source maps
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/independent/SupplyCrate/raw_textures"
+          mkdir -p "$RUNNER_TEMP/independent/SciFiKit/raw_textures"
+          python demo/SupplyCrate/source/generate_pbr_atlas.py \
+            --out "$RUNNER_TEMP/independent/SupplyCrate/raw_textures" --size 2048 --seed 42
+          python demo/SciFiKit/source/generate_scifi_textures.py \
+            --out "$RUNNER_TEMP/independent/SciFiKit/raw_textures"
+      - name: Rebuild both independent-source representative assets in Blender
+        shell: bash
+        run: |
+          set -euo pipefail
+          export BLENDER_EXECUTABLE="$HOME/blender-5.2.4/blender"
+          "$BLENDER_EXECUTABLE" --factory-startup -b --python-exit-code 1 \
+            -P demo/SupplyCrate/source/build_supplycrate.py -- \
+            --raw-textures "$RUNNER_TEMP/independent/SupplyCrate/raw_textures" \
+            --out-blend "$RUNNER_TEMP/independent/SupplyCrate/scenes/SupplyCrate.blend"
+          "$BLENDER_EXECUTABLE" --factory-startup -b --python-exit-code 1 \
+            -P tools/ci_build_scifi_bulkhead.py -- \
+            --raw-textures "$RUNNER_TEMP/independent/SciFiKit/raw_textures" \
+            --out-blend "$RUNNER_TEMP/independent/SciFiKit/scenes/SF_Bulkhead_Arch.blend"
+      - name: Re-run QA, URP packing and verified FBX bundles
+        shell: bash
+        run: |
+          set -euo pipefail
+          export BLENDER_EXECUTABLE="$HOME/blender-5.2.4/blender"
+          S="$RUNNER_TEMP/independent/SupplyCrate"
+          F="$RUNNER_TEMP/independent/SciFiKit"
+          RUN="skills/core/blender-core/scripts/run.py"
+          python "$RUN" qa --blend "$S/scenes/SupplyCrate.blend" \
+            --target unity --project-profile demo/SupplyCrate/source/supplycrate.profile.json \
+            --asset-class solid_prop --result-json "$S/qa.json"
+          python "$RUN" pack --target unity --profile urp --asset-id SupplyCrate \
+            --material M_SupplyCrate_Body --input-dir "$S/raw_textures" \
+            --size 2048 --out "$S/packed_textures" --result-json "$S/pack.json"
+          python "$RUN" bundle --blend "$S/scenes/SupplyCrate.blend" \
+            --spec demo/SupplyCrate/source/bundle-spec.json \
+            --target unity --profile urp --out "$S/exports" --result-json "$S/bundle.json"
+          python "$RUN" qa --blend "$F/scenes/SF_Bulkhead_Arch.blend" \
+            --target unity --project-profile demo/SciFiKit/source/scifikit.profile.json \
+            --asset-class modular_bulkhead --result-json "$F/qa.json"
+          python "$RUN" pack --target unity --profile urp --asset-id SciFiKit \
+            --material M_SciFi_TrimSheet --input-dir "$F/raw_textures/trim_sheet" \
+            --size 2048 --out "$F/packed_textures" --result-json "$F/pack_trim.json"
+          python "$RUN" pack --target unity --profile urp --asset-id SciFiKit \
+            --material M_SciFi_Emissive --input-dir "$F/raw_textures/emissive" \
+            --size 1024 --out "$F/packed_textures" --result-json "$F/pack_emissive.json"
+          python "$RUN" bundle --blend "$F/scenes/SF_Bulkhead_Arch.blend" \
+            --spec demo/SciFiKit/source/bundle-spec.json \
+            --target unity --profile urp --out "$F/exports" --result-json "$F/bundle.json"
+      - name: Assert expected source-bound evidence
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          base = Path(os.environ["RUNNER_TEMP"]) / "independent"
+          for category, count in (("SupplyCrate", 4), ("SciFiKit", 6)):
+              root = base / category
+              qa = json.loads((root / "qa.json").read_text())
+              bundle = json.loads((root / "bundle.json").read_text())
+              assert qa["status"] == "ok" and qa["passed"], (category, qa.get("errors"))
+              assert bundle["status"] == "ok" and len(bundle["parts"]) == count
+              assert all(part["roundtrip"]["passed"] for part in bundle["parts"])
+          emissive = json.loads((base / "SciFiKit/pack_emissive.json").read_text())
+          assert "_EmissionMap" in {t["slot"] for t in emissive["artifacts"]["textures"]}
+          print("PASS: two fresh source-bound QA/packing/FBX bundle smoke runs")
+          PY

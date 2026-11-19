@@ -154,4 +154,10 @@ def run_blender_module(
                 encoding="utf-8",
             )
             payload["log_file"] = str(log_file)
+            # Keep headless-agent failures actionable without requiring a
+            # second filesystem lookup. Bound the output to avoid huge logs.
+            if proc.stderr.strip():
+                payload["stderr_tail"] = "\n".join(
+                    line for line in proc.stderr.splitlines() if line.strip()
+                )[-2000:]
         return payload

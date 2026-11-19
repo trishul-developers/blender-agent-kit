@@ -122,7 +122,9 @@ def inspect_objects(
 
     for obj in sorted(selected, key=lambda o: o.name):
         plus_y, plus_z = _basis_vectors(obj)
-        excluded_from_lod = _is_excluded_from_lod(obj, lod_exclude_patterns)
+        upper_name = obj.name.upper()
+        is_collider = "_COL_" in upper_name or upper_name.endswith("_COL") or upper_name.startswith("COLLISION_")
+        excluded_from_lod = is_collider or _is_excluded_from_lod(obj, lod_exclude_patterns)
         entry = {
             "name": obj.name,
             "type": obj.type,
@@ -137,6 +139,7 @@ def inspect_objects(
             "lod": lod_index(obj),
             "is_damage": _is_damage_object(obj, damage_prefix),
             "excluded_from_lod": excluded_from_lod,
+            "is_collider": is_collider,
         }
 
         if obj.type == "MESH":
@@ -191,8 +194,7 @@ def inspect_objects(
                 lod["materials"].update(material_names)
                 lod["objects"].append(obj.name)
 
-            upper_name = obj.name.upper()
-            if "_COL_" in upper_name or upper_name.endswith("_COL") or upper_name.startswith("COLLISION_"):
+            if is_collider:
                 collider_names.append(obj.name)
 
         object_entries.append(entry)
