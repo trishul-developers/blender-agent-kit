@@ -100,9 +100,9 @@ Read the [complete independent report](demo/REPORT.md), [capability evaluation](
 
 ---
 
-## Independent A/B workflow comparison — 58-part quadcopter
+## Exploratory same-agent workflow comparison — 58-part quadcopter
 
-An additional independent agent ran a **plain Blender Python (`bpy`) baseline versus a Blender Agent Kit-guided workflow**, both constructing the same *58-component quadcopter concept* using Blender 5.2.4 LTS and CPU Cycles. Unlike the SupplyCrate/Sci-Fi retrospective effort estimates above, this comparison preserves **both implementation scripts, Blender scenes, renders, CLI reports and QA results**. The two implementations were independently authored, so this is a **real-world workflow comparison, not a controlled same-output speed benchmark**.
+An agent ran a **plain Blender Python (`bpy`) baseline followed by a Blender Agent Kit-guided workflow** in **the same conversation/session**, both constructing the same *58-component quadcopter concept* using Blender 5.2.4 LTS and CPU Cycles. Unlike the SupplyCrate/Sci-Fi retrospective effort estimates above, this comparison preserves **both implementation scripts, Blender scenes, renders, CLI reports and QA results**. **This is a sequential, non-blinded exploratory workflow comparison—not an independent, context-isolated controlled A/B study or same-output speed benchmark.**
 
 | Observed metric | Plain `bpy` | With Blender Agent Kit |
 | --- | ---: | ---: |
@@ -114,7 +114,11 @@ An additional independent agent ran a **plain Blender Python (`bpy`) baseline ve
 | Scene mesh count / triangles | 58 meshes / **2,776 tris** | 58 meshes / **5,528 tris** |
 | Materials | **10** | **2** |
 | FBX fresh-import parity | Not checked | **PASS: 5,528 → 5,528 tris**, no reported parent/transform mismatches |
-| Skill-document reading | None | **~1,234 tokens estimated** from characters, *not API token telemetry* |
+| Explicit SKILL.md reads during run | **None recorded** | **~1,234 tokens estimated** from characters, *not API token telemetry* |
+
+### Important limitation: shared context and possible information leakage
+
+The agent explicitly disclosed after the experiment that the **plain-`bpy` run did not open any `SKILL.md` files or call `run.py`**, and that the three skill documents were read **only after** that baseline run finished. However, **Blender Agent Kit had already been installed**, the agent knew the upcoming comparison, and earlier conversation context included high-level knowledge of the toolkit architecture, Blender 5.2, Unity URP, and `--result-json`. Both runs were authored by **the same agent within the same session**. This introduces potential contextual contamination, order effects, and experimenter bias—including either unconsciously improving the baseline or under-engineering it. The observed data therefore **cannot establish a blind/no-exposure baseline or isolate the causal effect of reading skills**. The differences describe **the two delivered workflows**, not a proven magnitude of toolkit benefit.
 
 ### What the benchmark demonstrated
 
@@ -123,7 +127,7 @@ An additional independent agent ran a **plain Blender Python (`bpy`) baseline ve
 - **Execution-time observation:** The recorded Blender compute totals were **36.3% lower** for the kit-guided runs (30.63 s versus 48.07 s). **These are not equivalent workloads**: the baseline performed three custom renders and an unchecked default FBX export; the kit runs included four-view review, QA, and fresh-import verification. The kit run also recorded **149.39 s elapsed including agent edits**, without a comparable end-to-end baseline elapsed-time measurement. Do not interpret the 36.3% as an isolated toolkit speedup.
 - **Asset difference:** Both builds modeled the same 58-part architecture, but the final kit-guided output had more triangles, different shading/material organization, more hierarchy nodes, and a stronger verification bar. The experiment supports a **workflow-quality and verification** comparison, not a pixel-identical or geometry-identical performance result.
 
-**Bottom line:** The agent using Blender Agent Kit delivered a validated, hierarchy-organized quadcopter with automated FBX parity evidence, while plain `bpy` stopped at a recognizable but QA-failing result. The trade-off was extra agent iterations and upfront documentation reading. The independent trial's earlier **74–80% / 55–63%** figures remain *estimated savings*, separate from these recorded A/B outcomes.
+**Bottom line:** In this non-blinded sequential trial, the kit-guided run delivered a validated, hierarchy-organized quadcopter with automated FBX parity evidence, while the earlier plain-`bpy` run stopped at a recognizable but QA-failing result. These observations are not a blinded causal estimate. The trade-off was extra agent iterations and upfront documentation reading. The independent trial's earlier **74–80% / 55–63%** figures remain *estimated savings*, separate from these recorded A/B outcomes.
 
 *Provenance:* Source: independent `quadcopter_assembly_benchmark_plain_bpy_vs_blender_agent_kit.html` and `quadcopter-blender-assets.zip` submission. The supplied package includes `comparison/benchmark_summary.json`, both build scripts and scenes, QA results for each run, final export verification and original render images. Full benchmark files are not yet published in this repository; the numbers above are from that submitted evidence, not a rerun by the maintainers.
 
