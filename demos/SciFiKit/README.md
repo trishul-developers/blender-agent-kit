@@ -33,6 +33,25 @@ The agent reported that QA exposed non-manifold decimated LODs, an initial mater
 
 The agent estimated 60–70% savings on pipeline/QA/packing/export effort and 35–45% over the entire exercise, but these are subjective retrospective estimates, not measured benchmarks. Do not put the percentages into marketing claims.
 
+## Stage the original archive without inventing evidence
+
+The included importer validates the exact supplied archive SHA256 and machine reports, copies the canonical raw maps and original reports, converts the **actual** five PNG proof sheets into smaller WebPs, and patches only the builder's original hard-coded working directory to use its containing project directory. It records original and published SHA256 values in `evidence/archive_manifest.json`.
+
+```bash
+python -m pip install Pillow
+python demos/SciFiKit/import_evidence.py \
+  --archive /path/to/blender_agent_kit_scifi_demo_evidence.zip \
+  --out demos/SciFiKit
+```
+
+To regenerate the geometry after staging, use Blender 5.2+ with:
+
+```bash
+blender --factory-startup -b -P demos/SciFiKit/source/build_scifi_kit.py
+```
+
+The Blender execution above is an **unverified candidate reproduction command** until it has been run on the ported source. It creates the authoring `.blend` scenes; the supplied JSON reports remain historical evidence, not claims about the new run. Packing, QA, export, and review should be rerun and recorded separately before promoting this to a canonical demonstration.
+
 ## Reproduction and provenance
 
 The supplied archive includes the original `source/build_scifi_kit.py` and `.blend` scenes. **Portability finding:** the supplied builder hardcodes `PROJECT_DIR = Path('/working_dir/c_fa16c8b573ce2f34/demo_project')`. This must be replaced with a script-relative or CLI-provided directory before a reproducible public demo is claimed. A public, self-contained reproduction command must not be published until the source, its inputs and assumptions have been brought into the repository and validated end-to-end.
