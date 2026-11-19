@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "asset_id": "SupplyCrate",
+  "build_inputs": ["build_supplycrate.py", "gen_textures.py", "prop-showcase.profile.json"],
+  "parts": [
+    {"id": "crate_lod0", "role": "primary", "lod": 0, "root": "SupplyCrate_LOD0", "file": "SupplyCrate_LOD0.fbx"},
+    {"id": "crate_lod1", "role": "primary", "lod": 1, "root": "SupplyCrate_LOD1", "file": "SupplyCrate_LOD1.fbx"},
+    {"id": "crate_lod2", "role": "primary", "lod": 2, "root": "SupplyCrate_LOD2", "file": "SupplyCrate_LOD2.fbx"},
+    {"id": "collision", "role": "collision", "root": "SupplyCrate_COL_01", "file": "SupplyCrate_COL_01.fbx"}
+  ]
+}

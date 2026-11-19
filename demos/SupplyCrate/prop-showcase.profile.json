@@ -1,0 +1,38 @@
+{
+  "name": "prop-showcase",
+  "version": "0.1.0",
+  "description": "Demo project profile: LOD'd solid prop with collision proxy and close-range review shots.",
+  "target_overrides": {
+    "unity": {
+      "qa": {
+        "common": {"max_lod_ratio": 0.6},
+        "asset_classes": {
+          "lod_prop": {
+            "reject_boundary_edges": true,
+            "require_non_overlapping_uv1": true,
+            "ground_axis": "Z",
+            "ground_target": 0.0,
+            "ground_tolerance": 0.001,
+            "max_tris": {"lod0": 6000, "lod1": 2500, "lod2": 400},
+            "max_material_slots": 1
+          }
+        }
+      }
+    }
+  },
+  "bundle_defaults": {"roles": ["primary", "collision"]},
+  "review_presets": {
+    "prop": {
+      "resolution": [1280, 720],
+      "orthographic_views": ["front", "side", "top"],
+      "range_shots_m": [3, 8, 20],
+      "closeup_distance_m": 1.4,
+      "lods": [0, 1, 2],
+      "primary_lod": 0,
+      "azimuth_deg": 35,
+      "elevation_deg": 28,
+      "lens_mm": 50,
+      "collision_view": true
+    }
+  }
+}

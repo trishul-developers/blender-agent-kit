@@ -28,6 +28,39 @@ The emphasis is not only on generating geometry. The goal is to let an agent pro
 
 > Blender Agent Kit is not a neural text-to-3D or text-to-image model. Asset creation is skill-driven: an agent authors deterministic Blender/Python build logic, executes Blender headlessly, and uses the kit to validate and deliver the result.
 
+## Showcase — SupplyCrate
+
+> **Task:** Create a weathered supply crate with procedural PBR textures, three LODs, a collision proxy, QA evidence, automated review renders, and Unity-target export.
+
+![SupplyCrate procedural hero](demos/SupplyCrate/showcase/demo_hero_closeup.webp)
+
+This is a **real, reproducible demo produced through Blender Agent Kit**, not a mockup.
+
+- Procedural geometry plus a 2048² PBR atlas
+- LOD0 **3,136 tris** → LOD1 **1,600** → LOD2 **240**
+- **12-triangle** collision proxy
+- QA: **PASS**, 0 errors
+- 4 FBX parts: Blender fresh-import / round-trip **PASS**, no embedded images
+- Unity URP texture packing
+- Rebuild locally with `python demos/SupplyCrate/run_demo.py`
+
+[Demo source + instructions](demos/SupplyCrate/README.md) · [Compact evidence](demos/SupplyCrate/evidence/summary.json)
+
+| LOD + collision output | PBR source maps → Unity URP |
+| --- | --- |
+| ![SupplyCrate LOD and collision sheet](demos/SupplyCrate/showcase/demo_lod_collision.webp) | ![SupplyCrate PBR texture workflow](demos/SupplyCrate/showcase/demo_textures.webp) |
+
+<details>
+<summary><strong>Automated review evidence</strong></summary>
+
+![SupplyCrate LOD range grid](demos/SupplyCrate/showcase/demo_lod_range_grid.webp)
+
+![SupplyCrate orthographic views](demos/SupplyCrate/showcase/demo_orthographic.webp)
+
+</details>
+
+The checked-in contact sheets record the demonstrated source run. The generic collision-review renderer has since been upgraded to overlay collision wireframes over the primary LOD, so fresh reruns use the clearer overlay view.
+
 ## What can an agent do?
 
 | Agent task | Support |
@@ -50,35 +83,6 @@ The emphasis is not only on generating geometry. The goal is to let an agent pro
 | Run repeatable headless / CI workflows | **Yes** |
 | Generate arbitrary concept art from text | **No** — use an image-generation system upstream |
 | Neural one-shot text-to-3D generation | **No** — this kit operates Blender deterministically |
-
-## Example: from task to engine-ready asset
-
-An agent can be given a task such as:
-
-> Create a 2 m industrial cargo crate with beveled hard-surface geometry, a separate door, collision proxy, three LODs, packed PBR textures, and Unity-ready export.
-
-A typical Blender Agent Kit workflow can produce:
-
-```text
-CargoCrate_build.py       deterministic authoring script
-CargoCrate.blend          editable Blender source
-CargoCrate_LOD0.fbx
-CargoCrate_LOD1.fbx
-CargoCrate_LOD2.fbx
-CargoCrate_Collision.fbx
-textures/
-  CargoCrate_BaseColor.png
-  CargoCrate_Normal.png
-  CargoCrate_Mask.png
-review/
-  hero.png
-  front.png
-  side.png
-qa.json
-bundle-manifest.json
-```
-
-The exact asset-specific geometry remains the agent's job. The kit supplies the reusable production mechanics and verification around it.
 
 ## 3D and 2D scope
 
@@ -416,8 +420,10 @@ A profile can define `review_presets` with:
 - generic hierarchy `exclude_patterns` for ordinary review shots;
 - optional `reference_exclude_patterns` for comparison imports;
 - generic `variant_views` selected by hierarchy include/exclude patterns;
-- collision view;
+- collision view with a wireframe proxy over the primary LOD;
 - optional reference FBX.
+
+If the scene has no authored lights, automatic review lighting scales with the subject bounds so small props and larger assets receive comparable illumination instead of assuming a fixed vehicle-scale rig.
 
 Example:
 
