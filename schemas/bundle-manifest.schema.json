@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/trishul-developers/blender-skills/schemas/bundle-manifest.schema.json",
+  "title": "Blender Agent Kit Semantic Bundle Manifest",
+  "type": "object",
+  "required": ["schema_version", "asset_id", "build_hash", "blender_version", "kit_version", "target", "profile", "parts"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "asset_id": { "type": "string", "minLength": 1 },
+    "source_blend": { "type": "string" },
+    "build_hash": { "type": "string", "pattern": "^sha256:[a-f0-9]{16,64}$" },
+    "blender_version": { "type": "string" },
+    "kit_version": { "type": "string" },
+    "target": { "type": "string" },
+    "profile": { "type": "string" },
+    "project_profile": { "type": ["string", "null"] },
+    "parts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "role", "file", "tri_count", "material_count", "object_count", "roundtrip"],
+        "properties": {
+          "id": { "type": "string" },
+          "role": { "type": "string" },
+          "lod": { "type": ["integer", "null"] },
+          "file": { "type": "string" },
+          "tri_count": { "type": "integer", "minimum": 0 },
+          "material_count": { "type": "integer", "minimum": 0 },
+          "materials": { "type": "array", "items": { "type": "string" } },
+          "roots": { "type": "array", "items": { "type": "string" } },
+          "object_count": { "type": "integer", "minimum": 1 },
+          "inventory": { "type": "object" },
+          "roundtrip": { "type": "object" }
+        }
+      }
+    }
+  }
+}

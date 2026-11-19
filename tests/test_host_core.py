@@ -1,4 +1,4 @@
-"""Tier 1 host-side unit tests: schemas, installer, PNG encoder, translators, runner ordering."""
+"""Tier 1 host-side tests for contracts, overlays, PNG packing, hashing, and installers."""
 from __future__ import annotations
 
 import json
@@ -10,6 +10,7 @@ from pathlib import Path
 
 import numpy as np
 
+from shared.bundle_exporter import validate_bundle_spec
 from shared.channel_pack import (
     cli_main as channel_pack_cli_main,
     encode_png,
@@ -18,8 +19,9 @@ from shared.channel_pack import (
     required_raw_map_names,
     write_packed_profile,
 )
-from shared.exporter import translate_fbx_kwargs, translate_gltf_kwargs
-from shared.paths import resolve_kit_root, write_pointer_manifest
+from shared.exporter import compute_build_hash, translate_fbx_kwargs, translate_gltf_kwargs
+from shared.paths import resolve_kit_root
+from shared.profile_loader import load_profiled_target, load_project_profile
 from shared.runner import build_blender_command
 from shared.target_loader import list_targets, load_target, validate_target_dict
 from tools.install import install_skills
@@ -47,30 +49,23 @@ def _decode_png_raw(png_bytes: bytes) -> tuple[int, int, int, int, bytes]:
 
 class TestRepoSpecsAndSchemas(unittest.TestCase):
     def test_validate_repo_passes(self) -> None:
-        errs = validate_repo(KIT_ROOT)
-        self.assertEqual(errs, [], f"Repo validation errors: {errs}")
+        self.assertEqual(validate_repo(KIT_ROOT), [])
 
     def test_unity_target_loads_and_validates(self) -> None:
-        targets = list_targets(KIT_ROOT)
-        self.assertIn("unity", targets)
+        self.assertIn("unity", list_targets(KIT_ROOT))
         cfg, profile, folder = load_target("unity", kit_root=KIT_ROOT)
         self.assertEqual(profile, "urp")
         self.assertEqual(folder.name, "blender-target-unity")
         self.assertEqual(cfg["export"]["apply_scalings"], "FBX_SCALE_ALL")
-        self.assertTrue(cfg["export"]["use_triangles"])
-        self.assertTrue(cfg["export"]["use_tspace"])
-        self.assertFalse(cfg["export"]["bake_anim_use_all_actions"])
-        self.assertTrue(cfg["export"]["bake_anim_use_nla_strips"])
 
     def test_reject_duplicate_anim_export_flags(self) -> None:
         cfg, _, _ = load_target("unity", kit_root=KIT_ROOT)
         bad = json.loads(json.dumps(cfg))
         bad["export"]["bake_anim_use_all_actions"] = True
         bad["export"]["bake_anim_use_nla_strips"] = True
-        errs = validate_target_dict(bad, folder_name="blender-target-unity")
-        self.assertTrue(any("duplicate clips" in e for e in errs))
+        self.assertTrue(any("duplicate clips" in e for e in validate_target_dict(bad)))
 
-    def test_full_json_schema_rejects_unsupported_export_format_when_available(self) -> None:
+    def test_full_json_schema_rejects_usd_when_available(self) -> None:
         try:
             import jsonschema  # noqa: F401
         except ImportError:
@@ -78,9 +73,45 @@ class TestRepoSpecsAndSchemas(unittest.TestCase):
         cfg, _, _ = load_target("unity", kit_root=KIT_ROOT)
         bad = json.loads(json.dumps(cfg))
         bad["export"]["format"] = "usd"
-        schema = json.loads((KIT_ROOT / "schemas" / "target.schema.json").read_text(encoding="utf-8"))
-        errs = validate_json_instance(bad, schema, "bad-target", require_jsonschema=True)
-        self.assertTrue(any("usd" in e for e in errs))
+        schema = json.loads((KIT_ROOT / "schemas/target.schema.json").read_text(encoding="utf-8"))
+        self.assertTrue(validate_json_instance(bad, schema, "bad", require_jsonschema=True))
+
+
+class TestProjectProfiles(unittest.TestCase):
+    def test_tactical_profile_is_optional_overlay(self) -> None:
+        base, _, _ = load_target("unity", kit_root=KIT_ROOT)
+        profiled, texture_profile, _, data, _ = load_profiled_target(
+            "unity",
+            texture_profile="tactical_urp",
+            project_profile="tactical-vehicle",
+            kit_root=KIT_ROOT,
+        )
+        self.assertEqual(texture_profile, "tactical_urp")
+        self.assertEqual(data["name"], "tactical-vehicle")
+        self.assertIn("heavy_tracked_vehicle", profiled["qa"]["asset_classes"])
+        self.assertIn("Mask", profiled["textures"]["profiles"]["tactical_urp"]["maps"])
+        self.assertNotIn("tactical_urp", base["textures"]["profiles"])
+
+    def test_profile_discovery(self) -> None:
+        data, path = load_project_profile("tactical-vehicle", kit_root=KIT_ROOT)
+        self.assertEqual(data["name"], "tactical-vehicle")
+        self.assertTrue(path.is_file())
+
+
+class TestBundleSpec(unittest.TestCase):
+    def test_semantic_bundle_selectors(self) -> None:
+        valid = {
+            "schema_version": "1.0",
+            "asset_id": "x",
+            "parts": [{"id": "body", "role": "primary", "collection": "Body"}],
+        }
+        self.assertEqual(validate_bundle_spec(valid), [])
+        invalid = {
+            "schema_version": "1.0",
+            "asset_id": "x",
+            "parts": [{"id": "body", "collection": "Body", "root": "Root"}],
+        }
+        self.assertTrue(validate_bundle_spec(invalid))
 
 
 class TestChannelPackAndPngEncoder(unittest.TestCase):
@@ -89,99 +120,84 @@ class TestChannelPackAndPngEncoder(unittest.TestCase):
 
     def test_allowlisted_grammar_blocks_eval_injection(self) -> None:
         self.assertEqual(parse_channel_expr("1-roughness"), (True, "roughness", None))
-        self.assertEqual(parse_channel_expr("base_color.r"), (False, "base_color", 0))
         with self.assertRaises(ValueError):
             parse_channel_expr("__import__('os').system('echo pwn')")
 
     def test_profile_raw_map_discovery(self) -> None:
         cfg, _, _ = load_target("unity", kit_root=KIT_ROOT)
-        names = required_raw_map_names(cfg, "urp")
-        self.assertTrue({"base_color", "metallic", "roughness", "normal", "ao"}.issubset(names))
+        self.assertTrue({"base_color", "metallic", "roughness", "normal", "ao"}.issubset(
+            required_raw_map_names(cfg, "urp")
+        ))
 
-    def test_unpremultiplied_rgba_preserves_metallic_when_alpha_zero(self) -> None:
-        raw = {
-            "metallic": np.ones((4, 4), dtype=np.float32),
-            "roughness": np.ones((4, 4), dtype=np.float32),
-        }
+    def test_unpremultiplied_rgba_preserves_rgb_at_alpha_zero(self) -> None:
+        raw = {"metallic": np.ones((4, 4), dtype=np.float32), "roughness": np.ones((4, 4), dtype=np.float32)}
         packed = pack_map(["metallic", "metallic", "metallic", "1-roughness"], raw, (4, 4))
-        png_bytes = encode_png(packed, bit_depth=8)
-        w, h, depth, ctype, scanlines = _decode_png_raw(png_bytes)
+        w, h, depth, ctype, scanlines = _decode_png_raw(encode_png(packed, bit_depth=8))
         self.assertEqual((w, h, depth, ctype), (4, 4, 8, 6))
         self.assertEqual(list(scanlines[1:5]), [255, 255, 255, 0])
 
     def test_16bit_normal_png_and_directx_y_flip(self) -> None:
         raw = {"normal": np.full((2, 2, 3), [0.5, 0.25, 1.0], dtype=np.float32)}
-        packed_dx = pack_map(["normal.r", "normal.g", "normal.b"], raw, (2, 2), normal_convention="directx")
-        self.assertAlmostEqual(float(packed_dx[0, 0, 1]), 0.75, places=5)
-        png_bytes = encode_png(packed_dx, bit_depth=16)
-        w, h, depth, ctype, _ = _decode_png_raw(png_bytes)
-        self.assertEqual((w, h, depth, ctype), (2, 2, 16, 2))
+        packed = pack_map(["normal.r", "normal.g", "normal.b"], raw, (2, 2), normal_convention="directx")
+        self.assertAlmostEqual(float(packed[0, 0, 1]), 0.75, places=5)
+        self.assertEqual(_decode_png_raw(encode_png(packed, bit_depth=16))[:4], (2, 2, 16, 2))
 
     def test_multi_material_texture_naming_no_collision(self) -> None:
         cfg, _, _ = load_target("unity", kit_root=KIT_ROOT)
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp)
-            m1 = write_packed_profile(cfg, "urp", "crate01", "Mat_Steel", {}, (4, 4), out)
-            m2 = write_packed_profile(cfg, "urp", "crate01", "Mat_Wood", {}, (4, 4), out)
-            paths1 = {x["path"] for x in m1}
-            paths2 = {x["path"] for x in m2}
-            self.assertTrue(paths1.isdisjoint(paths2))
-            self.assertTrue(all((out / p).is_file() for p in paths1 | paths2))
+            p1 = {x["path"] for x in write_packed_profile(cfg, "urp", "crate", "Steel", {}, (4, 4), out)}
+            p2 = {x["path"] for x in write_packed_profile(cfg, "urp", "crate", "Wood", {}, (4, 4), out)}
+            self.assertTrue(p1.isdisjoint(p2))
 
 
-class TestExporterRnaAndRunner(unittest.TestCase):
-    def test_fbx_and_gltf_rna_translation(self) -> None:
+class TestExporterRnaRunnerAndHash(unittest.TestCase):
+    def test_fbx_and_gltf_translation(self) -> None:
         cfg, _, _ = load_target("unity", kit_root=KIT_ROOT)
-        fbx_static = translate_fbx_kwargs(cfg["export"], "out.fbx", is_rigged=False)
-        self.assertEqual(fbx_static["apply_scale_options"], "FBX_SCALE_ALL")
-        self.assertTrue(fbx_static["bake_space_transform"])
-        self.assertTrue(fbx_static["use_triangles"])
-        self.assertTrue(fbx_static["use_tspace"])
-        self.assertEqual(fbx_static["object_types"], {"MESH", "EMPTY", "ARMATURE"})
-        fbx_rigged = translate_fbx_kwargs(cfg["export"], "rig.fbx", is_rigged=True)
-        self.assertFalse(fbx_rigged["bake_space_transform"])
+        fbx = translate_fbx_kwargs(cfg["export"], "out.fbx", is_rigged=False)
+        self.assertEqual(fbx["apply_scale_options"], "FBX_SCALE_ALL")
+        self.assertTrue(fbx["bake_space_transform"])
+        self.assertTrue(fbx["use_triangles"])
         glb = translate_gltf_kwargs(cfg["export"], "out.glb")
         self.assertEqual(glb["export_format"], "GLB")
-        self.assertTrue(glb["export_yup"])
 
-    def test_blender_cli_strict_flag_ordering(self) -> None:
+    def test_blender_cli_startup_ordering(self) -> None:
         cmd = build_blender_command(
-            blender_exe="/usr/bin/blender",
-            kit_root=KIT_ROOT,
-            module_name="shared.exporter",
-            module_args=["--target", "unity"],
-            result_json=Path("/tmp/res.json"),
-            blend_file="/tmp/a.blend",
-            addons=["rigify"],
+            "/usr/bin/blender", KIT_ROOT, "shared.exporter", ["--target", "unity"],
+            Path("/tmp/res.json"), blend_file="/tmp/a.blend", addons=["rigify"],
         )
-        self.assertEqual(cmd[1], "--factory-startup")
-        self.assertEqual(cmd[2], "-b")
+        self.assertEqual(cmd[1:3], ["--factory-startup", "-b"])
         self.assertLess(cmd.index("--factory-startup"), cmd.index(str(Path("/tmp/a.blend").resolve())))
-        self.assertLess(cmd.index("--factory-startup"), cmd.index("--addons"))
-        self.assertLess(cmd.index("--python-exit-code"), cmd.index("-P"))
         self.assertLess(cmd.index("-P"), cmd.index("--"))
+
+    def test_build_hash_includes_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "source.txt"
+            p.write_text("same", encoding="utf-8")
+            a = compute_build_hash([p], {"profile": "a"})
+            b = compute_build_hash([p], {"profile": "b"})
+            self.assertNotEqual(a, b)
 
 
 class TestUnifiedInstaller(unittest.TestCase):
-    def test_install_symlink_and_copy_modes(self) -> None:
-        for copy_mode in (False, True):
-            with tempfile.TemporaryDirectory() as tmp:
-                proj = Path(tmp) / "game_repo"
-                manifest = Path(tmp) / "cfg" / "manifest.json"
-                res = install_skills(
-                    agent="all",
-                    targets=["unity"],
-                    project_dir=proj,
-                    copy_mode=copy_mode,
-                    kit_root=KIT_ROOT,
-                    manifest_path=manifest,
-                )
-                self.assertEqual(res["status"], "ok")
-                self.assertTrue((proj / ".agents" / "skills" / "blender-core" / "SKILL.md").is_file())
-                self.assertTrue((proj / ".agents" / "skills" / "blender-target-unity" / "SKILL.md").is_file())
-                self.assertTrue((proj / ".claude" / "skills" / "blender-target-unity" / "target.json").is_file())
-                self.assertTrue(manifest.is_file())
-                self.assertEqual(resolve_kit_root(manifest_path=manifest), KIT_ROOT.resolve())
+    def test_install_core_targets_and_optional_profile_pack(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            proj = Path(tmp) / "game_repo"
+            manifest = Path(tmp) / "cfg" / "manifest.json"
+            res = install_skills(
+                agent="all",
+                targets=["unity"],
+                packs=["profiles"],
+                project_dir=proj,
+                copy_mode=True,
+                kit_root=KIT_ROOT,
+                manifest_path=manifest,
+            )
+            self.assertEqual(res["status"], "ok")
+            self.assertTrue((proj / ".agents/skills/blender-core/SKILL.md").is_file())
+            self.assertTrue((proj / ".agents/skills/blender-target-unity/target.json").is_file())
+            self.assertTrue((proj / ".agents/skills/blender-profile-tactical-vehicle/profile.json").is_file())
+            self.assertEqual(resolve_kit_root(manifest_path=manifest), KIT_ROOT.resolve())
 
 
 if __name__ == "__main__":

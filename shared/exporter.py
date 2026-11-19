@@ -1,4 +1,4 @@
-"""Declarative per-format exporter with strict schema-to-RNA translation and round-trip check."""
+"""Declarative exporter with target/profile overlays, inventory-backed manifests, and round-trip checks."""
 from __future__ import annotations
 
 import argparse
@@ -6,11 +6,12 @@ import hashlib
 import json
 from pathlib import Path
 
-from shared.target_loader import load_target
+from shared.profile_loader import load_profiled_target
+from shared.scene_inspector import inspect_objects, inspect_scene
+from shared.version import KIT_VERSION
 
 
 def translate_fbx_kwargs(export_cfg: dict, filepath: str, is_rigged: bool = False) -> dict:
-    """Translate format-agnostic target.json['export'] keys to bpy.ops.export_scene.fbx kwargs."""
     apply_transform = (
         bool(export_cfg.get("apply_transform_rigged", False))
         if is_rigged
@@ -42,7 +43,6 @@ def translate_fbx_kwargs(export_cfg: dict, filepath: str, is_rigged: bool = Fals
 
 
 def translate_gltf_kwargs(export_cfg: dict, filepath: str) -> dict:
-    """Translate format-agnostic target.json['export'] keys to bpy.ops.export_scene.gltf kwargs."""
     fmt = "GLB" if filepath.lower().endswith(".glb") else "GLTF_SEPARATE"
     return {
         "filepath": filepath,
@@ -56,19 +56,107 @@ def translate_gltf_kwargs(export_cfg: dict, filepath: str) -> dict:
     }
 
 
-def compute_build_hash(paths: list[Path]) -> str:
-    """Compute a deterministic SHA-256 hash over input files for incremental blender-batch rebuilds."""
+def compute_build_hash(paths: list[Path], metadata: dict | None = None) -> str:
+    """Hash content plus canonical configuration/tool metadata, independent of absolute root paths."""
     h = hashlib.sha256()
-    for p in sorted(paths):
+    for p in sorted((Path(x) for x in paths), key=lambda x: x.name):
         if p.is_file():
+            h.update(b"file\0")
             h.update(p.name.encode("utf-8"))
+            h.update(b"\0")
             h.update(p.read_bytes())
+            h.update(b"\0")
+    if metadata is not None:
+        h.update(b"metadata\0")
+        h.update(json.dumps(metadata, sort_keys=True, separators=(",", ":")).encode("utf-8"))
     return "sha256:" + h.hexdigest()[:32]
+
+
+def _select_objects(objects) -> None:
+    import bpy
+
+    bpy.ops.object.select_all(action="DESELECT")
+    first = None
+    for obj in objects:
+        obj.select_set(True)
+        if first is None:
+            first = obj
+    if first is not None:
+        bpy.context.view_layer.objects.active = first
+
+
+def export_selected(export_cfg: dict, export_file: Path, is_rigged: bool) -> None:
+    import bpy
+
+    fmt = export_file.suffix.lower().lstrip(".")
+    if fmt == "fbx":
+        bpy.ops.export_scene.fbx(
+            **translate_fbx_kwargs(export_cfg, str(export_file), is_rigged=is_rigged)
+        )
+    elif fmt in ("glb", "gltf"):
+        bpy.ops.export_scene.gltf(**translate_gltf_kwargs(export_cfg, str(export_file)))
+    else:
+        raise ValueError(f"Unsupported export format: {fmt}")
+
+
+def _roundtrip_compare(export_file: Path, source_inventory: dict, tolerance: float) -> dict:
+    import bpy
+
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    fmt = export_file.suffix.lower().lstrip(".")
+    if fmt == "fbx":
+        bpy.ops.import_scene.fbx(filepath=str(export_file))
+    elif fmt in ("glb", "gltf"):
+        bpy.ops.import_scene.gltf(filepath=str(export_file))
+    else:
+        raise ValueError(f"Unsupported round-trip format: {fmt}")
+
+    imported_inventory = inspect_scene()
+    expected_objects = {o["name"] for o in source_inventory["objects"]}
+    imported_objects = {o["name"] for o in imported_inventory["objects"]}
+    missing = sorted(expected_objects - imported_objects)
+
+    source_parent = {o["name"]: o["parent"] for o in source_inventory["objects"]}
+    imported_parent = {o["name"]: o["parent"] for o in imported_inventory["objects"]}
+    parent_mismatches = [
+        {"object": name, "expected": source_parent[name], "actual": imported_parent.get(name)}
+        for name in sorted(expected_objects & imported_objects)
+        if source_parent[name] != imported_parent.get(name)
+    ]
+
+    scale_errors = []
+    for obj in imported_inventory["objects"]:
+        if obj["type"] in ("MESH", "ARMATURE") and any(abs(s - 1.0) > tolerance for s in obj["scale"]):
+            scale_errors.append({"object": obj["name"], "scale": obj["scale"]})
+
+    source_tris = sum(v["tri_count"] for v in source_inventory["lods"].values())
+    imported_tris = sum(v["tri_count"] for v in imported_inventory["lods"].values())
+    tri_match = source_tris == imported_tris
+
+    passed = (
+        imported_inventory["object_count"] > 0
+        and not missing
+        and not parent_mismatches
+        and not scale_errors
+        and tri_match
+    )
+    return {
+        "checked": True,
+        "passed": passed,
+        "missing_objects": missing,
+        "parent_mismatches": parent_mismatches,
+        "scale_errors": scale_errors,
+        "source_tri_count": source_tris,
+        "imported_tri_count": imported_tris,
+        "tri_count_match": tri_match,
+        "imported_inventory": imported_inventory,
+    }
 
 
 def run(
     target: str = "unity",
     profile: str | None = None,
+    project_profile: str | None = None,
     out_dir: str = "build",
     asset_id: str | None = None,
     category: str = "solid_prop",
@@ -76,11 +164,15 @@ def run(
     uv1_source: str = "blender",
     fmt_override: str | None = None,
     verify_roundtrip: bool = True,
+    build_script: str | None = None,
 ) -> dict:
-    """Export current Blender scene according to target.json and emit *.asset.manifest.json."""
-    import bpy  # Imported inside run() so schema-to-RNA translators are unit-testable without Blender
+    import bpy
 
-    target_cfg, chosen_profile, _ = load_target(target, profile)
+    target_cfg, chosen_profile, _, project_data, project_path = load_profiled_target(
+        target,
+        texture_profile=profile,
+        project_profile=project_profile,
+    )
     export_cfg = target_cfg["export"]
     out_path = Path(out_dir).resolve()
     out_path.mkdir(parents=True, exist_ok=True)
@@ -92,38 +184,50 @@ def run(
 
     allowed_types = set(export_cfg.get("object_types", ["MESH", "EMPTY", "ARMATURE"]))
     objs = [o for o in bpy.context.scene.objects if o.type in allowed_types]
+    if not objs:
+        raise ValueError("No exportable objects found in the active scene")
     is_rigged = rig_type != "none" or any(o.type == "ARMATURE" for o in objs)
+    _select_objects(objs)
+    source_inventory = inspect_objects(objs)
+    export_selected(export_cfg, export_file, is_rigged=is_rigged)
 
-    bpy.ops.object.select_all(action="DESELECT")
-    for o in objs:
-        o.select_set(True)
+    build_inputs = []
+    if source_blend:
+        build_inputs.append(Path(source_blend))
+    if build_script:
+        build_inputs.append(Path(build_script))
+    if project_path:
+        build_inputs.append(project_path)
+    build_metadata = {
+        "kit_version": KIT_VERSION,
+        "blender_version": bpy.app.version_string,
+        "target": target_cfg,
+        "texture_profile": chosen_profile,
+        "project_profile": project_data["name"] if project_data else None,
+    }
+    build_hash = compute_build_hash(build_inputs or [export_file], metadata=build_metadata)
 
-    if fmt == "fbx":
-        kwargs = translate_fbx_kwargs(export_cfg, str(export_file), is_rigged=is_rigged)
-        bpy.ops.export_scene.fbx(**kwargs)
-    elif fmt in ("glb", "gltf"):
-        kwargs = translate_gltf_kwargs(export_cfg, str(export_file))
-        bpy.ops.export_scene.gltf(**kwargs)
-    else:
-        raise ValueError(f"Unsupported export format: {fmt}")
-
-    # Gather LODs and colliders for manifest
     lods = []
-    colliders = []
-    for o in sorted(objs, key=lambda x: x.name):
-        if "_COL_" in o.name or o.name.endswith("_COL"):
-            colliders.append({"node_name": o.name, "shape": "convex_mesh", "strip_renderer": True})
-        elif o.type == "MESH":
-            tri_count = sum(len(p.vertices) - 2 for p in o.data.polygons)
-            lods.append({"name": o.name, "tri_count": int(tri_count), "screen_relative_transition_height": 0.25})
+    default_transitions = {0: 0.50, 1: 0.20, 2: 0.05, 3: 0.01}
+    for index_text, data in source_inventory["lods"].items():
+        index = int(index_text)
+        lods.append({
+            "name": f"{aid}_LOD{index}",
+            "tri_count": int(data["tri_count"]),
+            "screen_relative_transition_height": default_transitions.get(index, 0.01),
+        })
 
+    colliders = [
+        {"node_name": name, "shape": "convex_mesh", "strip_renderer": True}
+        for name in source_inventory["colliders"]
+    ]
     manifest = {
         "schema_version": "1.0",
         "asset_id": aid,
         "category": category,
         "source_blend": source_blend,
-        "build_script": None,
-        "build_hash": compute_build_hash([Path(source_blend)] if source_blend else [export_file]),
+        "build_script": build_script,
+        "build_hash": build_hash,
         "blender_version": bpy.app.version_string,
         "target": target_cfg["name"],
         "profile": chosen_profile,
@@ -142,31 +246,18 @@ def run(
 
     roundtrip = {"checked": False}
     if verify_roundtrip:
-        bpy.ops.wm.read_factory_settings(use_empty=True)
-        if fmt == "fbx":
-            bpy.ops.import_scene.fbx(filepath=str(export_file))
-        else:
-            bpy.ops.import_scene.gltf(filepath=str(export_file))
-        imported = list(bpy.context.scene.objects)
         tol = float(target_cfg["qa"]["common"].get("roundtrip_armature_scale_tolerance", 0.001))
-        scale_errors = []
-        for obj in imported:
-            if obj.type in ("MESH", "ARMATURE"):
-                if any(abs(s - 1.0) > tol for s in obj.scale):
-                    scale_errors.append({"object": obj.name, "scale": list(obj.scale)})
-        roundtrip = {
-            "checked": True,
-            "imported_count": len(imported),
-            "scale_errors": scale_errors,
-            "passed": len(imported) > 0 and len(scale_errors) == 0,
-        }
+        roundtrip = _roundtrip_compare(export_file, source_inventory, tol)
 
     return {
         "status": "ok" if (not verify_roundtrip or roundtrip["passed"]) else "error",
         "blender_version": bpy.app.version_string,
-        "build_hash": manifest["build_hash"],
+        "kit_version": KIT_VERSION,
+        "build_hash": build_hash,
         "target": target_cfg["name"],
         "profile": chosen_profile,
+        "project_profile": project_data["name"] if project_data else None,
+        "inventory": source_inventory,
         "artifacts": {
             "export": str(export_file),
             "manifest": str(manifest_path),
@@ -179,17 +270,20 @@ def cli_main(argv: list[str]) -> dict:
     p = argparse.ArgumentParser()
     p.add_argument("--target", default="unity")
     p.add_argument("--profile", default=None)
+    p.add_argument("--project-profile", default=None)
     p.add_argument("--out", default="build")
     p.add_argument("--asset-id", default=None)
     p.add_argument("--category", default="solid_prop")
     p.add_argument("--rig-type", default="none")
     p.add_argument("--uv1-source", default="blender")
     p.add_argument("--format", default=None)
+    p.add_argument("--build-script", default=None)
     p.add_argument("--no-roundtrip", action="store_true")
     ns = p.parse_args(argv)
     return run(
         target=ns.target,
         profile=ns.profile,
+        project_profile=ns.project_profile,
         out_dir=ns.out,
         asset_id=ns.asset_id,
         category=ns.category,
@@ -197,4 +291,5 @@ def cli_main(argv: list[str]) -> dict:
         uv1_source=ns.uv1_source,
         fmt_override=ns.format,
         verify_roundtrip=not ns.no_roundtrip,
+        build_script=ns.build_script,
     )

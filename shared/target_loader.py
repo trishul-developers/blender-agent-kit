@@ -1,6 +1,7 @@
-"""Target plugin discovery, loading, and lightweight stdlib validation."""
+"""Target plugin discovery, loading, overlay merging, and lightweight stdlib validation."""
 from __future__ import annotations
 
+import copy
 import json
 from pathlib import Path
 
@@ -12,8 +13,18 @@ REQUIRED_TOP_KEYS = (
 )
 
 
+def deep_merge_dict(base: dict, overlay: dict) -> dict:
+    """Return a recursive copy of base with overlay values applied."""
+    result = copy.deepcopy(base)
+    for key, value in overlay.items():
+        if isinstance(value, dict) and isinstance(result.get(key), dict):
+            result[key] = deep_merge_dict(result[key], value)
+        else:
+            result[key] = copy.deepcopy(value)
+    return result
+
+
 def list_targets(kit_root: Path | None = None) -> dict[str, Path]:
-    """Discover all plugins/targets/blender-target-*/target.json files."""
     root = kit_root or resolve_kit_root()
     targets_dir = root / "plugins" / "targets"
     found: dict[str, Path] = {}
@@ -28,7 +39,6 @@ def list_targets(kit_root: Path | None = None) -> dict[str, Path]:
 
 
 def validate_target_dict(data: dict, folder_name: str | None = None) -> list[str]:
-    """Validate a target.json dict using stdlib checks matching schemas/target.schema.json."""
     errors: list[str] = []
     for k in REQUIRED_TOP_KEYS:
         if k not in data:
@@ -43,6 +53,8 @@ def validate_target_dict(data: dict, folder_name: str | None = None) -> list[str
         errors.append(f"Folder name '{folder_name}' must match skill_name '{data['skill_name']}'")
 
     exp = data["export"]
+    if exp.get("format") not in ("fbx", "glb", "gltf"):
+        errors.append(f"Unsupported export format: {exp.get('format')}")
     if exp.get("bake_anim_use_nla_strips") and exp.get("bake_anim_use_all_actions"):
         errors.append("export cannot set both bake_anim_use_nla_strips and bake_anim_use_all_actions to true (causes duplicate clips)")
 
@@ -59,22 +71,28 @@ def validate_target_dict(data: dict, folder_name: str | None = None) -> list[str
             ch = mcfg.get("channels", [])
             if not (1 <= len(ch) <= 4):
                 errors.append(f"Profile '{pname}' map '{mname}' must define 1-4 channels")
-
     return errors
 
 
-def load_target(target_name: str, profile: str | None = None,
-                kit_root: Path | None = None) -> tuple[dict, str, Path]:
-    """Load target.json by short name (e.g. 'unity') or skill name ('blender-target-unity')."""
+def load_target(
+    target_name: str,
+    profile: str | None = None,
+    kit_root: Path | None = None,
+    overlay: dict | None = None,
+) -> tuple[dict, str, Path]:
+    """Load a target and optionally apply a project overlay before profile selection."""
     targets = list_targets(kit_root)
     short = target_name.removeprefix("blender-target-")
     if short not in targets:
         raise KeyError(f"Unknown target '{target_name}'. Available: {sorted(targets.keys())}")
     cfg_path = targets[short]
     data = json.loads(cfg_path.read_text(encoding="utf-8"))
+    if overlay:
+        data = deep_merge_dict(data, overlay)
     errs = validate_target_dict(data, folder_name=cfg_path.parent.name)
     if errs:
-        raise ValueError(f"Invalid target.json at {cfg_path}: " + "; ".join(errs))
+        raise ValueError(f"Invalid target config at {cfg_path}: " + "; ".join(errs))
+
     chosen_profile = profile or data["default_profile"]
     if chosen_profile not in data["textures"]["profiles"]:
         raise KeyError(

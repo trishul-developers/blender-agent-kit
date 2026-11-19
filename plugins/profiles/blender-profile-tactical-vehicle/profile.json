@@ -1,0 +1,92 @@
+{
+  "name": "tactical-vehicle",
+  "version": "0.1.0",
+  "description": "Optional reusable profile for multi-part tactical ground vehicles. It demonstrates requirements distilled from production military-asset pipelines without changing the generic Unity target.",
+  "target_overrides": {
+    "unity": {
+      "naming": {
+        "texture_pattern": "textures/{asset_id}_{material_name}_{map}.png"
+      },
+      "textures": {
+        "fallback_constants": {
+          "detail_mask": 0.0
+        },
+        "profiles": {
+          "tactical_urp": {
+            "shader": "downstream-defined URP material",
+            "maps": {
+              "BaseColor": {
+                "slot": "base_color",
+                "channels": ["base_color.r", "base_color.g", "base_color.b", "alpha"],
+                "srgb": true,
+                "bit_depth": 8
+              },
+              "Normal": {
+                "slot": "normal",
+                "channels": ["normal.r", "normal.g", "normal.b"],
+                "srgb": false,
+                "bit_depth": 16,
+                "unity_type": "NormalMap"
+              },
+              "Mask": {
+                "slot": "mask",
+                "channels": ["metallic", "ao", "detail_mask", "1-roughness"],
+                "srgb": false,
+                "bit_depth": 8,
+                "unpremultiplied_rgba": true
+              }
+            }
+          }
+        }
+      },
+      "qa": {
+        "common": {
+          "max_lod_ratio": 0.5
+        },
+        "asset_classes": {
+          "heavy_tracked_vehicle": {
+            "reject_boundary_edges": false,
+            "require_non_overlapping_uv1": false,
+            "pivot_rule": "none",
+            "max_tris": { "lod0": 20000, "lod1": 8000, "lod2": 3000, "lod3": 800 },
+            "max_material_slots_by_lod": { "lod0": 3, "lod1": 2, "lod2": 1, "lod3": 1 },
+            "max_lod_ratio": 0.5,
+            "ground_axis": "Z",
+            "ground_target": 0.0,
+            "ground_tolerance": 0.02,
+            "required_nodes": ["Turret_Pivot", "Gun_Elevation_Pivot"],
+            "required_parent_pairs": [
+              { "child": "Gun_Elevation_Pivot", "parent": "Turret_Pivot" }
+            ]
+          },
+          "light_tracked_vehicle": {
+            "reject_boundary_edges": false,
+            "require_non_overlapping_uv1": false,
+            "pivot_rule": "none",
+            "max_tris": { "lod0": 16000, "lod1": 6500, "lod2": 2500, "lod3": 700 },
+            "max_material_slots_by_lod": { "lod0": 3, "lod1": 2, "lod2": 1, "lod3": 1 },
+            "max_lod_ratio": 0.5,
+            "ground_axis": "Z",
+            "ground_target": 0.0,
+            "ground_tolerance": 0.02,
+            "required_nodes": ["Turret_Pivot", "Gun_Elevation_Pivot"]
+          },
+          "contact_vehicle": {
+            "reject_boundary_edges": false,
+            "require_non_overlapping_uv1": false,
+            "pivot_rule": "none",
+            "max_tris": { "lod2": 3000, "lod3": 800 },
+            "max_material_slots_by_lod": { "lod2": 1, "lod3": 1 },
+            "max_lod_ratio": 0.5,
+            "ground_axis": "Z",
+            "ground_target": 0.0,
+            "ground_tolerance": 0.02
+          }
+        }
+      }
+    }
+  },
+  "bundle_defaults": {
+    "roles": ["primary", "chassis", "station", "collision", "wreck", "kit"]
+  }
+}
