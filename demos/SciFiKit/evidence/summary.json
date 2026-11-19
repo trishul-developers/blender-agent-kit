@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "provenance": "independent-agent-supplied archive blender_agent_kit_scifi_demo_evidence.zip; reviewed against supplied reports and visual assets; not rerun in this branch",
+  "agent_reported_blender": "5.2.4 LTS",
+  "kit_reported_version": "0.2.0-dev",
+  "assembly": {
+    "object_count": 60,
+    "mesh_count": 30,
+    "reusable_piece_types": 6,
+    "snap_sockets_observed": true
+  },
+  "bulkhead": {
+    "asset_id": "SF_BulkheadArch_4m",
+    "lod_render_triangles": [
+      3628,
+      1260,
+      372,
+      72
+    ],
+    "collider_count": 4,
+    "socket_count": 5,
+    "materials": [
+      "SciFi_ArmorTrim",
+      "SciFi_EmissiveTrim"
+    ],
+    "qa": {
+      "status": "ok",
+      "passed": true,
+      "error_count": 0,
+      "warning_count": 4,
+      "warnings": "UV1 overlap unverified"
+    },
+    "fbx_roundtrip": {
+      "passed": true,
+      "source_triangles_including_colliders_and_all_lods": 5380,
+      "imported_triangles": 5380,
+      "embedded_images": 0
+    },
+    "texture_pack": {
+      "target": "unity",
+      "profile": "urp",
+      "resolution": [
+        1024,
+        1024
+      ],
+      "packed_slots": [
+        "_BaseMap",
+        "_MetallicGlossMap",
+        "_BumpMap",
+        "_OcclusionMap"
+      ],
+      "normal_bit_depth": 16
+    }
+  },
+  "limitations": [
+    "Source machine reports supplied by the external agent; Blender and Unity have not been rerun for this integration",
+    "Reported geometry QA does not prove lightmap UV non-overlap",
+    "No formal productivity benchmark; percentages are subjective",
+    "Unity Editor import not verified"
+  ]
+}

@@ -5,7 +5,7 @@ import zlib
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageStat
 
 HERE = Path(__file__).resolve().parent
 R, RAW, BUILD, OUT = HERE / "renders", HERE / "raw", HERE / "build", HERE / "showcase"
@@ -23,33 +23,57 @@ def font(size):
 
 
 def read_png_16rgb(path):
-    """Minimal reader for the kit's own filter-0 16-bit RGB PNG (Pillow cannot open 16-bit RGB)."""
-    b = path.read_bytes()[8:]
+    """Read the kit's own unfiltered, 16-bit PNGs without Pillow's implicit downcast."""
+    data = path.read_bytes()
+    if not data.startswith(bytes.fromhex("89504e470d0a1a0a")):
+        raise ValueError(f"Not a PNG: {path}")
+    b = data[8:]
     pos, idat, ihdr = 0, b"", None
     while pos < len(b):
+        if pos + 12 > len(b):
+            raise ValueError(f"Truncated PNG chunk in {path}")
         n, t = struct.unpack(">I4s", b[pos:pos + 8])
+        if pos + 12 + n > len(b):
+            raise ValueError(f"Truncated PNG payload in {path}")
         d = b[pos + 8:pos + 8 + n]
         if t == b"IHDR":
             ihdr = struct.unpack(">IIBBBBB", d)
         elif t == b"IDAT":
             idat += d
         pos += 12 + n
+    if ihdr is None:
+        raise ValueError(f"Missing PNG IHDR: {path}")
     w, h, depth, ctype = ihdr[:4]
-    ch = {2: 3, 0: 1, 6: 4}[ctype]
-    raw = np.frombuffer(zlib.decompress(idat), np.uint8).reshape(h, 1 + w * ch * depth // 8)
-    assert (raw[:, 0] == 0).all()
-    a = raw[:, 1:].reshape(h, w, ch, depth // 8)
-    arr = (a[..., 0].astype(np.uint16) << 8 | a[..., 1]) if depth == 16 else a[..., 0]
-    return arr, depth
+    if depth != 16 or ctype not in (0, 2, 6):
+        raise ValueError(f"Expected kit 16-bit grayscale/RGB/RGBA PNG, got depth={depth}, type={ctype}: {path}")
+    ch = {0: 1, 2: 3, 6: 4}[ctype]
+    raw = np.frombuffer(zlib.decompress(idat), np.uint8).reshape(h, 1 + w * ch * 2)
+    if not (raw[:, 0] == 0).all():
+        raise ValueError(f"Kit PNG requires filter method 0: {path}")
+    a = raw[:, 1:].reshape(h, w, ch, 2)
+    arr = (a[..., 0].astype(np.uint16) << 8) | a[..., 1]
+    return arr
 
 
 def load(path):
-    try:
-        return Image.open(path).convert("RGB")
-    except Exception:
-        arr, depth = read_png_16rgb(path)
-        return Image.fromarray((arr >> 8).astype(np.uint8), "RGB")
-
+    """Fail on missing/corrupt inputs, preserve channel intent, and downsample 16-bit explicitly."""
+    if not path.is_file():
+        raise FileNotFoundError(f"Missing texture showcase source: {path}")
+    header = path.read_bytes()[:26]
+    if len(header) < 26 or not header.startswith(bytes.fromhex("89504e470d0a1a0a")):
+        raise ValueError(f"Invalid PNG texture source: {path}")
+    depth = header[24]
+    if depth == 16:
+        arr = read_png_16rgb(path)
+        # Source maps and URP packed outputs can be grayscale, RGB, or RGBA.
+        rgb = (arr >> 8).astype(np.uint8)
+        if rgb.shape[-1] == 1:
+            rgb = np.repeat(rgb, 3, axis=2)
+        return Image.fromarray(rgb[..., :3], "RGB")
+    with Image.open(path) as source:
+        source.load()
+        # RGB presentation is intentional; alpha in _MetallicGlossMap holds smoothness.
+        return source.convert("RGB")
 
 def label(img, text, sub=None, h=44):
     w = img.width
@@ -100,16 +124,48 @@ for lod in (0, 1, 2):
         tiles.append(label(im, f"LOD{lod} @ {dist} m", f"{parts[f'crate_lod{lod}']['tri_count']:,} tris", h=44))
 grid(tiles, 3).save(OUT / "demo_lod_range_grid.webp", "WEBP", quality=82, method=6)
 
-# 3) texture set
+# 3) source PBR -> Unity URP packed texture set (all five sources and four targets)
 tiles = []
-for name, note in (("base_color", "sRGB albedo"), ("roughness", "linear"), ("metallic", "linear"), ("ao", "linear"), ("normal", "OpenGL, 16-bit")):
+sources = (
+    ("base_color", "sRGB / BaseColor"),
+    ("roughness", "linear / inverted for gloss"),
+    ("metallic", "linear / metallic"),
+    ("ao", "linear / occlusion"),
+    ("normal", "OpenGL tangent-space, 16-bit"),
+)
+for name, note in sources:
     im = load(RAW / f"{name}.png").resize((340, 340), Image.LANCZOS)
-    tiles.append(label(im, name, note))
-packed = [("albedo", "_BaseMap"), ("metallic_smoothness", "_MetallicGlossMap")]
-for k, slot in packed:
-    im = load(BUILD / "textures" / f"SupplyCrate__Body__{k}.png").resize((340, 340), Image.LANCZOS)
-    tiles.append(label(im, f"packed: {k}", f"Unity URP {slot}"))
-grid(tiles[:6], 3).save(OUT / "demo_textures.webp", "WEBP", quality=82, method=6)
+    if max(ImageStat.Stat(im).stddev) < 1.0:
+        raise ValueError(f"Unexpectedly flat PBR source map: {name}")
+    tiles.append(label(im, f"SOURCE: {name}", note))
+packed = (
+    ("albedo", "_BaseMap"),
+    ("metallic_smoothness", "_MetallicGlossMap (smoothness in alpha)"),
+    ("normal", "_BumpMap (16-bit)"),
+    ("ao", "_OcclusionMap"),
+)
+for key, slot in packed:
+    path = BUILD / "textures" / f"SupplyCrate__Body__{key}.png"
+    im = load(path).resize((340, 340), Image.LANCZOS)
+    if max(ImageStat.Stat(im).stddev) < 1.0:
+        raise ValueError(f"Unexpectedly flat Unity packed map: {key}")
+    if key == "metallic_smoothness":
+        # Reveal the real alpha channel (smoothness); an RGB preview hides it.
+        with Image.open(path) as original:
+            if "A" not in original.getbands():
+                raise ValueError("MetallicGlossMap must include alpha smoothness")
+            alpha = original.getchannel("A").resize((170, 340), Image.LANCZOS).convert("RGB")
+        side_by_side = Image.new("RGB", (340, 340))
+        side_by_side.paste(im.crop((0, 0, 170, 340)), (0, 0))
+        side_by_side.paste(alpha, (170, 0))
+        im = side_by_side
+    tiles.append(label(im, f"UNITY URP: {slot}", f"packed map: {key}"))
+texture_sheet = grid(tiles, 3)
+if texture_sheet.getbbox() is None or not any(max(ImageStat.Stat(t).stddev) > 0 for t in tiles):
+    raise ValueError("Refusing to save an empty texture showcase")
+texture_sheet.save(OUT / "demo_textures.webp", "WEBP", quality=85, method=6)
+with Image.open(OUT / "demo_textures.webp") as verified:
+    verified.verify()
 
 # 4) hero + ortho set
 hero = Image.open(R / "review_closeup.png").convert("RGB")
