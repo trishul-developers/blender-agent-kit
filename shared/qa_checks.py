@@ -105,13 +105,14 @@ def _check_lod_metric(
                 )
 
 
-def _check_symmetry(errors: list[dict], inventory: dict, rule: dict) -> None:
+def _check_symmetry(errors: list[dict], inventory: dict, rule: dict) -> list[dict]:
+    reports: list[dict] = []
     if not rule or rule.get("enabled", True) is False:
-        return
+        return reports
     axis = str(rule.get("axis", "X")).upper()
     if axis not in _AXIS_INDEX:
         _error(errors, "invalid_symmetry_rule", f"unknown symmetry axis {axis}")
-        return
+        return reports
     axis_idx = _AXIS_INDEX[axis]
     left_token = str(rule.get("left_token", "_L"))
     right_token = str(rule.get("right_token", "_R"))
@@ -185,7 +186,8 @@ def _check_symmetry(errors: list[dict], inventory: dict, rule: dict) -> None:
     return reports
 
 
-def _check_dimension_boxes(errors: list[dict], inventory: dict, rules: list[dict]) -> None:
+def _check_dimension_boxes(errors: list[dict], inventory: dict, rules: list[dict]) -> list[dict]:
+    reports: list[dict] = []
     mesh_entries = [o for o in inventory["objects"] if o["type"] == "MESH"]
     for rule in rules:
         rid = str(rule.get("id", "dimension_box"))
@@ -240,15 +242,18 @@ def _uv_layer_bounds(obj: dict, rule: dict) -> dict | None:
     return bounds[index] if 0 <= index < len(bounds) else None
 
 
-def _check_uv_rules(errors: list[dict], inventory: dict, rules: list[dict]) -> None:
+def _check_uv_rules(errors: list[dict], inventory: dict, rules: list[dict]) -> list[dict]:
+    reports: list[dict] = []
     for rule in rules:
         rid = str(rule.get("id", "uv"))
         patterns = list(rule.get("patterns", []))
+        exclude_patterns = list(rule.get("exclude_patterns", []))
         lods = {int(v) for v in rule.get("lods", [])}
         matches = [
             obj for obj in inventory["objects"]
             if obj["type"] == "MESH"
             and (not patterns or _match_any(obj["name"], patterns))
+            and (not exclude_patterns or not _match_any(obj["name"], exclude_patterns))
             and (not lods or int(obj["lod"]) in lods)
         ]
         if not matches:
