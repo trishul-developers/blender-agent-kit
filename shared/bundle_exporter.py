@@ -5,9 +5,9 @@ import argparse
 import json
 from pathlib import Path
 
-from shared.exporter import compute_build_hash, export_selected
+from shared.exporter import compute_build_hash, export_selected, roundtrip_file
 from shared.profile_loader import load_profiled_target
-from shared.scene_inspector import inspect_objects, inspect_scene
+from shared.scene_inspector import inspect_objects
 from shared.version import KIT_VERSION
 
 
@@ -34,6 +34,8 @@ def validate_bundle_spec(data: dict) -> list[str]:
         selectors = [key for key in ("collection", "root") if part.get(key)]
         if len(selectors) != 1:
             errors.append(f"part {pid or index} must define exactly one of collection or root")
+        if "zero_root_location" in part and not isinstance(part["zero_root_location"], bool):
+            errors.append(f"part {pid or index} zero_root_location must be boolean")
     return errors
 
 
@@ -55,23 +57,29 @@ def _root_objects(root) -> list:
     return sorted(result, key=lambda o: o.name)
 
 
-def _resolve_part_objects(part: dict, allowed_types: set[str]) -> list:
+def _resolve_part_objects(part: dict, allowed_types: set[str]) -> tuple[list, object | None]:
     import bpy
 
+    explicit_root = None
     if part.get("collection"):
         collection = bpy.data.collections.get(part["collection"])
         if collection is None:
             raise KeyError(f"Bundle part '{part['id']}' collection not found: {part['collection']}")
         objects = _collection_objects(collection)
     else:
-        root = bpy.data.objects.get(part["root"])
-        if root is None:
+        explicit_root = bpy.data.objects.get(part["root"])
+        if explicit_root is None:
             raise KeyError(f"Bundle part '{part['id']}' root not found: {part['root']}")
-        objects = _root_objects(root)
+        objects = _root_objects(explicit_root)
+
     filtered = [o for o in objects if o.type in allowed_types]
     if not filtered:
         raise ValueError(f"Bundle part '{part['id']}' selected no exportable objects")
-    return filtered
+
+    selected_set = set(filtered)
+    roots = [o for o in filtered if o.parent is None or o.parent not in selected_set]
+    inferred_root = explicit_root or (roots[0] if len(roots) == 1 else None)
+    return filtered, inferred_root
 
 
 def _select(objects) -> None:
@@ -83,53 +91,10 @@ def _select(objects) -> None:
     bpy.context.view_layer.objects.active = objects[0]
 
 
-def _roundtrip_file(path: Path, source_inventory: dict, tolerance: float) -> dict:
-    import bpy
-
-    bpy.ops.wm.read_factory_settings(use_empty=True)
-    fmt = path.suffix.lower().lstrip(".")
-    if fmt == "fbx":
-        bpy.ops.import_scene.fbx(filepath=str(path))
-    elif fmt in ("glb", "gltf"):
-        bpy.ops.import_scene.gltf(filepath=str(path))
-    else:
-        raise ValueError(f"Unsupported round-trip format: {fmt}")
-
-    imported = inspect_scene()
-    expected_names = {o["name"] for o in source_inventory["objects"]}
-    imported_names = {o["name"] for o in imported["objects"]}
-    missing = sorted(expected_names - imported_names)
-    source_parents = {o["name"]: o["parent"] for o in source_inventory["objects"]}
-    imported_parents = {o["name"]: o["parent"] for o in imported["objects"]}
-    parent_mismatches = [
-        {"object": name, "expected": source_parents[name], "actual": imported_parents.get(name)}
-        for name in sorted(expected_names & imported_names)
-        if source_parents[name] != imported_parents.get(name)
-    ]
-    scale_errors = [
-        {"object": o["name"], "scale": o["scale"]}
-        for o in imported["objects"]
-        if o["type"] in ("MESH", "ARMATURE")
-        and any(abs(s - 1.0) > tolerance for s in o["scale"])
-    ]
-    source_tris = sum(v["tri_count"] for v in source_inventory["lods"].values())
-    imported_tris = sum(v["tri_count"] for v in imported["lods"].values())
-    passed = (
-        imported["object_count"] > 0
-        and not missing
-        and not parent_mismatches
-        and not scale_errors
-        and source_tris == imported_tris
-    )
-    return {
-        "passed": passed,
-        "missing_objects": missing,
-        "parent_mismatches": parent_mismatches,
-        "scale_errors": scale_errors,
-        "source_tri_count": source_tris,
-        "imported_tri_count": imported_tris,
-        "tri_count_match": source_tris == imported_tris,
-    }
+def _zero_root_default(part: dict) -> bool:
+    if "zero_root_location" in part:
+        return bool(part["zero_root_location"])
+    return part.get("role") in {"station", "kit"}
 
 
 def run(
@@ -154,29 +119,46 @@ def run(
         project_profile=project_profile,
     )
     export_cfg = target_cfg["export"]
+    damage_prefix = target_cfg["qa"]["common"].get("damage_prefix")
     allowed_types = set(export_cfg.get("object_types", ["MESH", "EMPTY", "ARMATURE"]))
     output = Path(out_dir).resolve()
     output.mkdir(parents=True, exist_ok=True)
 
     source_blend = bpy.data.filepath or ""
     exported_parts: list[dict] = []
-    roundtrip_sources: list[tuple[Path, dict, dict]] = []
+    roundtrip_sources: list[tuple[Path, dict, dict, list[str]]] = []
 
     for part in spec["parts"]:
-        objects = _resolve_part_objects(part, allowed_types)
+        objects, root_object = _resolve_part_objects(part, allowed_types)
         _select(objects)
-        inventory = inspect_objects(objects)
+        assembly_inventory = inspect_objects(objects, damage_prefix=damage_prefix)
         fmt = str(part.get("format") or export_cfg["format"]).lower()
         filename = part.get("file") or f"{part['id']}.{fmt}"
         export_file = output / filename
         export_file.parent.mkdir(parents=True, exist_ok=True)
         is_rigged = any(o.type == "ARMATURE" for o in objects)
-        export_selected(export_cfg, export_file, is_rigged=is_rigged)
 
-        tri_count = sum(v["tri_count"] for v in inventory["lods"].values())
+        zero_root = _zero_root_default(part)
+        if zero_root and root_object is None:
+            raise ValueError(
+                f"Bundle part '{part['id']}' requests zero_root_location but does not resolve to one root"
+            )
+
+        export_inventory = export_selected(
+            export_cfg,
+            export_file,
+            is_rigged=is_rigged,
+            objects=objects,
+            zero_root_object=root_object if zero_root else None,
+        )
+        export_inventory["damage_prefix"] = damage_prefix
+
+        tri_count = sum(v["tri_count"] for v in assembly_inventory["lods"].values())
+        intact_tri_count = sum(v["intact_tri_count"] for v in assembly_inventory["lods"].values())
+        damage_tri_count = sum(v["damage_tri_count"] for v in assembly_inventory["lods"].values())
         materials = sorted({
             material
-            for lod in inventory["lods"].values()
+            for lod in assembly_inventory["lods"].values()
             for material in lod["materials"]
         })
         result = {
@@ -184,24 +166,32 @@ def run(
             "role": part.get("role", "primary"),
             "lod": part.get("lod"),
             "file": str(export_file.relative_to(output)).replace("\\", "/"),
+            "zero_root_location": zero_root,
+            "export_root": root_object.name if root_object else None,
             "tri_count": tri_count,
+            "intact_tri_count": intact_tri_count,
+            "damage_tri_count": damage_tri_count,
             "material_count": len(materials),
             "materials": materials,
-            "roots": inventory["roots"],
-            "object_count": inventory["object_count"],
-            "inventory": inventory,
+            "roots": assembly_inventory["roots"],
+            "object_count": assembly_inventory["object_count"],
+            "assembly_inventory": assembly_inventory,
+            "inventory": export_inventory,
             "roundtrip": {"checked": False},
         }
         exported_parts.append(result)
-        roundtrip_sources.append((export_file, inventory, result))
+        required_zero = [root_object.name] if zero_root and root_object else []
+        roundtrip_sources.append((export_file, export_inventory, result, required_zero))
 
     tolerance = float(target_cfg["qa"]["common"].get("roundtrip_armature_scale_tolerance", 0.001))
     if verify_roundtrip:
-        for export_file, source_inventory, result in roundtrip_sources:
-            result["roundtrip"] = {
-                "checked": True,
-                **_roundtrip_file(export_file, source_inventory, tolerance),
-            }
+        for export_file, source_inventory, result, required_zero in roundtrip_sources:
+            result["roundtrip"] = roundtrip_file(
+                export_file,
+                source_inventory,
+                tolerance,
+                require_zero_roots=required_zero,
+            )
 
     build_inputs = [spec_file]
     if source_blend:

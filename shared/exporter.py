@@ -1,9 +1,11 @@
-"""Declarative exporter with target/profile overlays, inventory-backed manifests, and round-trip checks."""
+"""Declarative exporter with hierarchy-safe FBX prebake and round-trip evidence."""
 from __future__ import annotations
 
 import argparse
 import hashlib
 import json
+import math
+from contextlib import contextmanager
 from pathlib import Path
 
 from shared.profile_loader import load_profiled_target
@@ -12,6 +14,7 @@ from shared.version import KIT_VERSION
 
 
 def translate_fbx_kwargs(export_cfg: dict, filepath: str, is_rigged: bool = False) -> dict:
+    prebake = bool(export_cfg.get("prebake_yup_hierarchy", False))
     apply_transform = (
         bool(export_cfg.get("apply_transform_rigged", False))
         if is_rigged
@@ -26,7 +29,8 @@ def translate_fbx_kwargs(export_cfg: dict, filepath: str, is_rigged: bool = Fals
         "global_scale": 1.0,
         "apply_unit_scale": bool(export_cfg.get("apply_unit_scale", True)),
         "apply_scale_options": export_cfg.get("apply_scalings", "FBX_SCALE_ALL"),
-        "bake_space_transform": apply_transform,
+        "use_space_transform": False if prebake else bool(export_cfg.get("use_space_transform", True)),
+        "bake_space_transform": False if prebake else apply_transform,
         "use_mesh_modifiers": bool(export_cfg.get("apply_modifiers", True)),
         "use_triangles": bool(export_cfg.get("use_triangles", True)),
         "use_tspace": bool(export_cfg.get("use_tspace", True)),
@@ -57,7 +61,6 @@ def translate_gltf_kwargs(export_cfg: dict, filepath: str) -> dict:
 
 
 def compute_build_hash(paths: list[Path], metadata: dict | None = None) -> str:
-    """Hash content plus canonical configuration/tool metadata, independent of absolute root paths."""
     h = hashlib.sha256()
     for p in sorted((Path(x) for x in paths), key=lambda x: x.name):
         if p.is_file():
@@ -85,23 +88,127 @@ def _select_objects(objects) -> None:
         bpy.context.view_layer.objects.active = first
 
 
-def export_selected(export_cfg: dict, export_file: Path, is_rigged: bool) -> None:
+def _depth(obj) -> int:
+    depth = 0
+    cur = obj.parent
+    while cur is not None:
+        depth += 1
+        cur = cur.parent
+    return depth
+
+
+@contextmanager
+def _temporary_export_state(
+    objects: list,
+    export_cfg: dict,
+    zero_root_object=None,
+):
+    """Temporarily normalize a static hierarchy for FBX without mutating the authoring scene.
+
+    prebake_yup_hierarchy applies a coordinate-basis conversion:
+      local' = C * local * C^-1
+      mesh'  = C * mesh
+    where C = Rx(-90deg). Identity roots therefore remain identity, while nested
+    pivot/socket local axes are preserved in the converted Y-up/+Z-forward basis.
+    """
+    import bpy
+    from mathutils import Matrix
+
+    ordered = sorted(objects, key=_depth)
+    saved_matrices = {obj: obj.matrix_local.copy() for obj in ordered}
+    saved_data: dict = {}
+    temporary_meshes: list = []
+
+    try:
+        if zero_root_object is not None:
+            zero_root_object.location = (0.0, 0.0, 0.0)
+
+        expected_inventory = inspect_objects(ordered)
+
+        if export_cfg.get("prebake_yup_hierarchy", False):
+            armatures = [obj.name for obj in ordered if obj.type == "ARMATURE"]
+            if armatures:
+                raise ValueError(
+                    "prebake_yup_hierarchy currently supports static MESH/EMPTY hierarchies; "
+                    f"armatures present: {armatures}"
+                )
+            conversion = Matrix.Rotation(math.radians(-90.0), 4, "X")
+            inverse = conversion.inverted()
+            current_matrices = {obj: obj.matrix_local.copy() for obj in ordered}
+
+            for obj in ordered:
+                if obj.type == "MESH":
+                    saved_data[obj] = obj.data
+                    temp = obj.data.copy()
+                    temp.transform(conversion)
+                    temp.update()
+                    obj.data = temp
+                    temporary_meshes.append(temp)
+
+            for obj in ordered:
+                obj.matrix_local = conversion @ current_matrices[obj] @ inverse
+
+        yield expected_inventory
+    finally:
+        for obj, data in saved_data.items():
+            obj.data = data
+        for obj in ordered:
+            obj.matrix_local = saved_matrices[obj]
+        for mesh in temporary_meshes:
+            if mesh.users == 0:
+                bpy.data.meshes.remove(mesh)
+
+
+def export_selected(
+    export_cfg: dict,
+    export_file: Path,
+    is_rigged: bool,
+    objects: list | None = None,
+    zero_root_object=None,
+) -> dict:
     import bpy
 
-    fmt = export_file.suffix.lower().lstrip(".")
-    if fmt == "fbx":
-        bpy.ops.export_scene.fbx(
-            **translate_fbx_kwargs(export_cfg, str(export_file), is_rigged=is_rigged)
-        )
-    elif fmt in ("glb", "gltf"):
-        bpy.ops.export_scene.gltf(**translate_gltf_kwargs(export_cfg, str(export_file)))
-    else:
-        raise ValueError(f"Unsupported export format: {fmt}")
+    selected = list(objects) if objects is not None else list(bpy.context.selected_objects)
+    with _temporary_export_state(selected, export_cfg, zero_root_object=zero_root_object) as expected:
+        fmt = export_file.suffix.lower().lstrip(".")
+        if fmt == "fbx":
+            bpy.ops.export_scene.fbx(
+                **translate_fbx_kwargs(export_cfg, str(export_file), is_rigged=is_rigged)
+            )
+        elif fmt in ("glb", "gltf"):
+            bpy.ops.export_scene.gltf(**translate_gltf_kwargs(export_cfg, str(export_file)))
+        else:
+            raise ValueError(f"Unsupported export format: {fmt}")
+    return expected
 
 
-def _roundtrip_compare(export_file: Path, source_inventory: dict, tolerance: float) -> dict:
+def scan_embedded_images(path: Path) -> dict:
+    if path.suffix.lower() != ".fbx":
+        return {"checked": False, "png_headers": 0, "jpeg_headers": 0, "passed": True}
+    data = path.read_bytes()
+    png_count = data.count(b"\x89PNG\r\n\x1a\n")
+    jpeg_count = data.count(b"\xff\xd8\xff")
+    return {
+        "checked": True,
+        "png_headers": png_count,
+        "jpeg_headers": jpeg_count,
+        "passed": png_count == 0 and jpeg_count == 0,
+    }
+
+
+def _max_vec_error(a: list[float], b: list[float]) -> float:
+    return max(abs(float(x) - float(y)) for x, y in zip(a, b))
+
+
+def roundtrip_file(
+    export_file: Path,
+    source_inventory: dict,
+    tolerance: float,
+    require_zero_roots: list[str] | None = None,
+) -> dict:
     import bpy
 
+    binary_scan = scan_embedded_images(export_file)
     bpy.ops.wm.read_factory_settings(use_empty=True)
     fmt = export_file.suffix.lower().lstrip(".")
     if fmt == "fbx":
@@ -111,23 +218,59 @@ def _roundtrip_compare(export_file: Path, source_inventory: dict, tolerance: flo
     else:
         raise ValueError(f"Unsupported round-trip format: {fmt}")
 
-    imported_inventory = inspect_scene()
+    imported_inventory = inspect_scene(damage_prefix=source_inventory.get("damage_prefix"))
     expected_objects = {o["name"] for o in source_inventory["objects"]}
     imported_objects = {o["name"] for o in imported_inventory["objects"]}
     missing = sorted(expected_objects - imported_objects)
 
-    source_parent = {o["name"]: o["parent"] for o in source_inventory["objects"]}
-    imported_parent = {o["name"]: o["parent"] for o in imported_inventory["objects"]}
+    source_by_name = {o["name"]: o for o in source_inventory["objects"]}
+    imported_by_name = {o["name"]: o for o in imported_inventory["objects"]}
+    source_parent = {name: obj["parent"] for name, obj in source_by_name.items()}
+    imported_parent = {name: obj["parent"] for name, obj in imported_by_name.items()}
     parent_mismatches = [
         {"object": name, "expected": source_parent[name], "actual": imported_parent.get(name)}
         for name in sorted(expected_objects & imported_objects)
         if source_parent[name] != imported_parent.get(name)
     ]
 
-    scale_errors = []
-    for obj in imported_inventory["objects"]:
-        if obj["type"] in ("MESH", "ARMATURE") and any(abs(s - 1.0) > tolerance for s in obj["scale"]):
-            scale_errors.append({"object": obj["name"], "scale": obj["scale"]})
+    scale_errors = [
+        {"object": o["name"], "scale": o["scale"]}
+        for o in imported_inventory["objects"]
+        if o["type"] in ("MESH", "ARMATURE")
+        and any(abs(s - 1.0) > tolerance for s in o["scale"])
+    ]
+
+    transform_errors: list[dict] = []
+    for name in sorted(expected_objects & imported_objects):
+        expected = source_by_name[name]
+        actual = imported_by_name[name]
+        if expected["type"] != "EMPTY" and name not in source_inventory.get("roots", []):
+            continue
+        checks = {
+            "world_location": _max_vec_error(expected["world_location"], actual["world_location"]),
+            "plus_y_world": _max_vec_error(expected["plus_y_world"], actual["plus_y_world"]),
+            "plus_z_world": _max_vec_error(expected["plus_z_world"], actual["plus_z_world"]),
+        }
+        bad = {k: v for k, v in checks.items() if v > max(tolerance, 1e-4)}
+        if bad:
+            transform_errors.append({"object": name, "errors": bad})
+
+    zero_root_errors: list[dict] = []
+    for name in require_zero_roots or []:
+        obj = imported_by_name.get(name)
+        if obj is None:
+            zero_root_errors.append({"object": name, "error": "missing"})
+            continue
+        loc_error = max(abs(v) for v in obj["location"])
+        rot_error = max(abs(v) for v in obj["rotation_euler"])
+        scale_error = max(abs(v - 1.0) for v in obj["scale"])
+        if loc_error > tolerance or rot_error > tolerance or scale_error > tolerance:
+            zero_root_errors.append({
+                "object": name,
+                "location": obj["location"],
+                "rotation_euler": obj["rotation_euler"],
+                "scale": obj["scale"],
+            })
 
     source_tris = sum(v["tri_count"] for v in source_inventory["lods"].values())
     imported_tris = sum(v["tri_count"] for v in imported_inventory["lods"].values())
@@ -138,7 +281,10 @@ def _roundtrip_compare(export_file: Path, source_inventory: dict, tolerance: flo
         and not missing
         and not parent_mismatches
         and not scale_errors
+        and not transform_errors
+        and not zero_root_errors
         and tri_match
+        and binary_scan["passed"]
     )
     return {
         "checked": True,
@@ -146,9 +292,12 @@ def _roundtrip_compare(export_file: Path, source_inventory: dict, tolerance: flo
         "missing_objects": missing,
         "parent_mismatches": parent_mismatches,
         "scale_errors": scale_errors,
+        "transform_errors": transform_errors,
+        "zero_root_errors": zero_root_errors,
         "source_tri_count": source_tris,
         "imported_tri_count": imported_tris,
         "tri_count_match": tri_match,
+        "embedded_images": binary_scan,
         "imported_inventory": imported_inventory,
     }
 
@@ -174,6 +323,7 @@ def run(
         project_profile=project_profile,
     )
     export_cfg = target_cfg["export"]
+    damage_prefix = target_cfg["qa"]["common"].get("damage_prefix")
     out_path = Path(out_dir).resolve()
     out_path.mkdir(parents=True, exist_ok=True)
 
@@ -188,8 +338,11 @@ def run(
         raise ValueError("No exportable objects found in the active scene")
     is_rigged = rig_type != "none" or any(o.type == "ARMATURE" for o in objs)
     _select_objects(objs)
-    source_inventory = inspect_objects(objs)
-    export_selected(export_cfg, export_file, is_rigged=is_rigged)
+    source_inventory = inspect_objects(objs, damage_prefix=damage_prefix)
+    expected_inventory = export_selected(
+        export_cfg, export_file, is_rigged=is_rigged, objects=objs
+    )
+    expected_inventory["damage_prefix"] = damage_prefix
 
     build_inputs = []
     if source_blend:
@@ -247,7 +400,7 @@ def run(
     roundtrip = {"checked": False}
     if verify_roundtrip:
         tol = float(target_cfg["qa"]["common"].get("roundtrip_armature_scale_tolerance", 0.001))
-        roundtrip = _roundtrip_compare(export_file, source_inventory, tol)
+        roundtrip = roundtrip_file(export_file, expected_inventory, tol)
 
     return {
         "status": "ok" if (not verify_roundtrip or roundtrip["passed"]) else "error",
@@ -258,10 +411,7 @@ def run(
         "profile": chosen_profile,
         "project_profile": project_data["name"] if project_data else None,
         "inventory": source_inventory,
-        "artifacts": {
-            "export": str(export_file),
-            "manifest": str(manifest_path),
-        },
+        "artifacts": {"export": str(export_file), "manifest": str(manifest_path)},
         "roundtrip": roundtrip,
     }
 

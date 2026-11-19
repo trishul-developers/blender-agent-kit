@@ -1,8 +1,9 @@
-"""Fail-closed generic asset QA driven by target config plus optional project profile overlays."""
+"""Fail-closed generic asset QA driven by target config plus optional project profiles."""
 from __future__ import annotations
 
 import argparse
 import fnmatch
+from collections import defaultdict
 
 from shared.profile_loader import load_profiled_target
 from shared.scene_inspector import inspect_scene
@@ -17,12 +18,248 @@ def _error(errors: list[dict], code: str, message: str, object_name: str | None 
     errors.append(item)
 
 
+def _match_any(name: str, patterns: list[str]) -> bool:
+    return any(fnmatch.fnmatchcase(name, pattern) for pattern in patterns)
+
+
 def _match_required_nodes(names: set[str], patterns: list[str]) -> list[str]:
-    missing: list[str] = []
-    for pattern in patterns:
-        if not any(fnmatch.fnmatchcase(name, pattern) for name in names):
-            missing.append(pattern)
-    return missing
+    return [pattern for pattern in patterns if not any(fnmatch.fnmatchcase(name, pattern) for name in names)]
+
+
+def _axis_value(mapping: dict | float | int, axis: str, default: float) -> float:
+    if isinstance(mapping, (int, float)):
+        return float(mapping)
+    if isinstance(mapping, dict):
+        return float(mapping.get(axis, mapping.get(axis.lower(), default)))
+    return default
+
+
+def _bounds_for_entries(entries: list[dict]) -> dict | None:
+    if not entries:
+        return None
+    mins = [min(e["bounds"]["min"][i] for e in entries) for i in range(3)]
+    maxs = [max(e["bounds"]["max"][i] for e in entries) for i in range(3)]
+    return {
+        "min": mins,
+        "max": maxs,
+        "size": [maxs[i] - mins[i] for i in range(3)],
+        "center": [(maxs[i] + mins[i]) * 0.5 for i in range(3)],
+    }
+
+
+def _descendant_names(inventory: dict, root_name: str) -> set[str]:
+    children: dict[str, list[str]] = defaultdict(list)
+    for obj in inventory["objects"]:
+        if obj.get("parent"):
+            children[obj["parent"]].append(obj["name"])
+    result = {root_name}
+    stack = [root_name]
+    while stack:
+        current = stack.pop()
+        for child in children.get(current, []):
+            if child not in result:
+                result.add(child)
+                stack.append(child)
+    return result
+
+
+def _subtree_metrics(inventory: dict, root_name: str) -> dict:
+    names = _descendant_names(inventory, root_name)
+    meshes = [o for o in inventory["objects"] if o["name"] in names and o["type"] == "MESH"]
+    bounds = _bounds_for_entries(meshes)
+    return {
+        "tri_count": sum(int(o.get("tri_count", 0)) for o in meshes),
+        "abs_signed_volume": sum(abs(float(o["signed_volume"])) for o in meshes if o.get("signed_volume") is not None),
+        "bounds": bounds,
+        "mesh_count": len(meshes),
+    }
+
+
+def _check_lod_metric(
+    errors: list[dict],
+    lods: dict[int, dict],
+    ordered: list[int],
+    metric: str,
+    label: str,
+    require_monotonic: bool,
+    max_ratio: float | None,
+) -> None:
+    if len(ordered) <= 1:
+        return
+    for prev, cur in zip(ordered, ordered[1:]):
+        prev_value = int(lods[prev].get(metric, 0))
+        cur_value = int(lods[cur].get(metric, 0))
+        if require_monotonic and cur_value >= prev_value and prev_value > 0:
+            _error(
+                errors,
+                f"non_monotonic_lod_{label}",
+                f"{label} LOD{cur} triangles ({cur_value}) must be lower than LOD{prev} ({prev_value})",
+            )
+        if max_ratio is not None and prev_value > 0:
+            ratio = cur_value / prev_value
+            if ratio > max_ratio + 1e-9:
+                _error(
+                    errors,
+                    f"lod_reduction_ratio_{label}",
+                    f"{label} LOD{prev}->LOD{cur} ratio {ratio:.4f} > max {max_ratio:.4f}",
+                )
+
+
+def _check_symmetry(errors: list[dict], inventory: dict, rule: dict) -> None:
+    if not rule or rule.get("enabled", True) is False:
+        return
+    axis = str(rule.get("axis", "X")).upper()
+    if axis not in _AXIS_INDEX:
+        _error(errors, "invalid_symmetry_rule", f"unknown symmetry axis {axis}")
+        return
+    axis_idx = _AXIS_INDEX[axis]
+    left_token = str(rule.get("left_token", "_L"))
+    right_token = str(rule.get("right_token", "_R"))
+    include = list(rule.get("include_patterns", ["*"]))
+    names = {o["name"] for o in inventory["objects"]}
+    left_names = sorted(name for name in names if left_token in name and _match_any(name, include))
+    tri_tolerance = int(rule.get("tri_tolerance", 0))
+    bounds_tolerance = float(rule.get("bounds_tolerance", 0.02))
+    volume_rel_tolerance = float(rule.get("volume_relative_tolerance", 0.05))
+    require_pairs = bool(rule.get("require_pairs", True))
+
+    checked: set[tuple[str, str]] = set()
+    for left_name in left_names:
+        right_name = left_name.replace(left_token, right_token, 1)
+        pair = (left_name, right_name)
+        if pair in checked:
+            continue
+        checked.add(pair)
+        if right_name not in names:
+            if require_pairs:
+                _error(errors, "symmetry_missing_pair", f"missing mirror pair for {left_name}: {right_name}", left_name)
+            continue
+
+        left = _subtree_metrics(inventory, left_name)
+        right = _subtree_metrics(inventory, right_name)
+        if abs(left["tri_count"] - right["tri_count"]) > tri_tolerance:
+            _error(
+                errors,
+                "symmetry_tri_count",
+                f"{left_name}/{right_name} triangle mismatch {left['tri_count']} vs {right['tri_count']}",
+            )
+
+        if left["bounds"] and right["bounds"]:
+            lb = left["bounds"]
+            rb = right["bounds"]
+            for i in range(3):
+                if i == axis_idx:
+                    e1 = abs(lb["min"][i] + rb["max"][i])
+                    e2 = abs(lb["max"][i] + rb["min"][i])
+                else:
+                    e1 = abs(lb["min"][i] - rb["min"][i])
+                    e2 = abs(lb["max"][i] - rb["max"][i])
+                if max(e1, e2) > bounds_tolerance:
+                    _error(
+                        errors,
+                        "symmetry_bounds",
+                        f"{left_name}/{right_name} mirrored {axis} bounds error {max(e1, e2):.6f} > {bounds_tolerance:.6f}",
+                    )
+                    break
+
+        lv = left["abs_signed_volume"]
+        rv = right["abs_signed_volume"]
+        if lv > 0 and rv > 0:
+            rel = abs(lv - rv) / max(lv, rv)
+            if rel > volume_rel_tolerance:
+                _error(
+                    errors,
+                    "symmetry_volume",
+                    f"{left_name}/{right_name} signed-volume magnitude differs by {rel:.4f} > {volume_rel_tolerance:.4f}",
+                )
+
+
+def _check_dimension_boxes(errors: list[dict], inventory: dict, rules: list[dict]) -> None:
+    mesh_entries = [o for o in inventory["objects"] if o["type"] == "MESH"]
+    for rule in rules:
+        rid = str(rule.get("id", "dimension_box"))
+        include = list(rule.get("include_patterns", []))
+        exclude = list(rule.get("exclude_patterns", []))
+        entries = [
+            o for o in mesh_entries
+            if (not include or _match_any(o["name"], include))
+            and (not exclude or not _match_any(o["name"], exclude))
+        ]
+        bounds = _bounds_for_entries(entries)
+        if bounds is None:
+            _error(errors, "dimension_box_missing", f"{rid}: no meshes matched selectors {include}")
+            continue
+
+        tolerance = rule.get("tolerance", 0.0)
+        for field, source_key in (("expected_size", "size"), ("expected_min", "min"), ("expected_max", "max")):
+            expected = rule.get(field, {})
+            for axis, target in expected.items():
+                axis_name = str(axis).upper()
+                if axis_name not in _AXIS_INDEX:
+                    _error(errors, "invalid_dimension_rule", f"{rid}: unknown axis {axis_name}")
+                    continue
+                actual = float(bounds[source_key][_AXIS_INDEX[axis_name]])
+                tol = _axis_value(tolerance, axis_name, 0.0)
+                if abs(actual - float(target)) > tol:
+                    _error(
+                        errors,
+                        "dimension_box",
+                        f"{rid} {source_key}.{axis_name}={actual:.4f}, expected {float(target):.4f} ± {tol:.4f}",
+                    )
+
+
+def _uv_layer_bounds(obj: dict, rule: dict) -> dict | None:
+    bounds = list(obj.get("uv_bounds", []))
+    if not bounds:
+        return None
+    if rule.get("uv_layer_name"):
+        name = str(rule["uv_layer_name"])
+        return next((b for b in bounds if b["name"] == name), None)
+    index = int(rule.get("uv_layer_index", 0))
+    return bounds[index] if 0 <= index < len(bounds) else None
+
+
+def _check_uv_rules(errors: list[dict], inventory: dict, rules: list[dict]) -> None:
+    for rule in rules:
+        rid = str(rule.get("id", "uv"))
+        patterns = list(rule.get("patterns", []))
+        lods = {int(v) for v in rule.get("lods", [])}
+        matches = [
+            obj for obj in inventory["objects"]
+            if obj["type"] == "MESH"
+            and (not patterns or _match_any(obj["name"], patterns))
+            and (not lods or int(obj["lod"]) in lods)
+        ]
+        if not matches:
+            if rule.get("required", True):
+                _error(errors, "uv_rule_missing", f"{rid}: no mesh matched patterns={patterns} lods={sorted(lods)}")
+            continue
+
+        for obj in matches:
+            uv = _uv_layer_bounds(obj, rule)
+            if uv is None:
+                _error(errors, "uv_rule_missing_layer", f"{rid}: requested UV layer missing", obj["name"])
+                continue
+            checks = [
+                ("min_v_span", "v_span", lambda actual, target: actual >= target),
+                ("min_u_span", "u_span", lambda actual, target: actual >= target),
+                ("u_min_gte", "u_min", lambda actual, target: actual >= target),
+                ("u_max_lte", "u_max", lambda actual, target: actual <= target),
+                ("v_min_gte", "v_min", lambda actual, target: actual >= target),
+                ("v_max_lte", "v_max", lambda actual, target: actual <= target),
+            ]
+            for rule_key, field, predicate in checks:
+                if rule_key not in rule:
+                    continue
+                actual = float(uv[field])
+                target = float(rule[rule_key])
+                if not predicate(actual, target):
+                    _error(
+                        errors,
+                        "uv_rule",
+                        f"{rid}: {field}={actual:.4f} violates {rule_key}={target:.4f}",
+                        obj["name"],
+                    )
 
 
 def run(
@@ -38,8 +275,9 @@ def run(
     if asset_class not in classes:
         raise KeyError(f"Unknown asset_class '{asset_class}'. Available: {sorted(classes.keys())}")
     rules = classes[asset_class]
+    damage_prefix = rules.get("damage_prefix", common.get("damage_prefix"))
 
-    inventory = inspect_scene()
+    inventory = inspect_scene(damage_prefix=damage_prefix)
     errors: list[dict] = []
     warnings: list[dict] = []
     names = {o["name"] for o in inventory["objects"]}
@@ -91,12 +329,27 @@ def run(
     budgets = rules.get("max_tris", {})
     for lod_index, budget in budgets.items():
         index = int(str(lod_index).removeprefix("lod"))
-        if index in lods and lods[index]["tri_count"] > int(budget):
-            _error(
-                errors,
-                "triangle_budget",
-                f"LOD{index} triangles ({lods[index]['tri_count']}) > max ({budget})",
-            )
+        if index not in lods:
+            continue
+        total = int(lods[index]["tri_count"])
+        intact = int(lods[index].get("intact_tri_count", total))
+        if total > int(budget):
+            _error(errors, "triangle_budget_total", f"LOD{index} total triangles ({total}) > max ({budget})")
+        if damage_prefix and intact > int(budget):
+            _error(errors, "triangle_budget_intact", f"LOD{index} intact triangles ({intact}) > max ({budget})")
+
+    if damage_prefix:
+        allowed_damage_lods = set(int(v) for v in rules.get(
+            "damage_allowed_lods",
+            common.get("damage_allowed_lods", [0, 1]),
+        ))
+        for index, data in lods.items():
+            if int(data.get("damage_tri_count", 0)) > 0 and index not in allowed_damage_lods:
+                _error(
+                    errors,
+                    "damage_lod_leak",
+                    f"LOD{index} contains damage geometry {data.get('damage_objects', [])}; allowed LODs: {sorted(allowed_damage_lods)}",
+                )
 
     material_by_lod = rules.get("max_material_slots_by_lod", {})
     scalar_material_limit = rules.get("max_material_slots")
@@ -110,30 +363,14 @@ def run(
             )
 
     ordered = sorted(lods)
-    if common.get("require_monotonic_lod_tris", True) and len(ordered) > 1:
-        for prev, cur in zip(ordered, ordered[1:]):
-            if lods[cur]["tri_count"] >= lods[prev]["tri_count"]:
-                _error(
-                    errors,
-                    "non_monotonic_lod",
-                    f"LOD{cur} triangles ({lods[cur]['tri_count']}) must be lower than LOD{prev} ({lods[prev]['tri_count']})",
-                )
+    require_monotonic = bool(common.get("require_monotonic_lod_tris", True))
+    max_ratio_value = rules.get("max_lod_ratio", common.get("max_lod_ratio"))
+    max_ratio = float(max_ratio_value) if max_ratio_value is not None else None
+    _check_lod_metric(errors, lods, ordered, "tri_count", "total", require_monotonic, max_ratio)
+    if damage_prefix:
+        _check_lod_metric(errors, lods, ordered, "intact_tri_count", "intact", require_monotonic, max_ratio)
 
-    max_ratio = rules.get("max_lod_ratio", common.get("max_lod_ratio"))
-    if max_ratio is not None and len(ordered) > 1:
-        for prev, cur in zip(ordered, ordered[1:]):
-            prev_tris = lods[prev]["tri_count"]
-            cur_tris = lods[cur]["tri_count"]
-            if prev_tris and (cur_tris / prev_tris) > float(max_ratio) + 1e-9:
-                _error(
-                    errors,
-                    "lod_reduction_ratio",
-                    f"LOD{prev}->LOD{cur} ratio {cur_tris / prev_tris:.4f} > max {float(max_ratio):.4f}",
-                )
-
-    required_nodes = list(rules.get("required_nodes", []))
-    missing = _match_required_nodes(names, required_nodes)
-    for pattern in missing:
+    for pattern in _match_required_nodes(names, list(rules.get("required_nodes", []))):
         _error(errors, "missing_required_node", f"required node/pattern not found: {pattern}")
 
     parent_map = {o["name"]: o["parent"] for o in inventory["objects"]}
@@ -141,12 +378,7 @@ def run(
         child = relation.get("child")
         parent = relation.get("parent")
         if child in parent_map and parent_map[child] != parent:
-            _error(
-                errors,
-                "wrong_parent",
-                f"{child} parent is {parent_map[child]!r}, expected {parent!r}",
-                child,
-            )
+            _error(errors, "wrong_parent", f"{child} parent is {parent_map[child]!r}, expected {parent!r}", child)
         elif child not in parent_map:
             _error(errors, "missing_required_node", f"required child node not found: {child}")
 
@@ -174,15 +406,13 @@ def run(
             root = next(o for o in inventory["objects"] if o["name"] == root_name)
             b = inventory["bounds"]
             expected = [b["center"][0], b["center"][1], b["min"][2]]
-            # Root entry location is local for a root, therefore world-equivalent.
             tol = float(rules.get("pivot_tolerance", 1e-3))
             if any(abs(root["location"][i] - expected[i]) > tol for i in range(3)):
-                _error(
-                    errors,
-                    "pivot_rule",
-                    f"root origin {root['location']} is not bottom-center {expected} within {tol}",
-                    root_name,
-                )
+                _error(errors, "pivot_rule", f"root origin {root['location']} is not bottom-center {expected} within {tol}", root_name)
+
+    _check_symmetry(errors, inventory, rules.get("mirror_symmetry", {}))
+    _check_dimension_boxes(errors, inventory, list(rules.get("dimension_boxes", [])))
+    _check_uv_rules(errors, inventory, list(rules.get("uv_checks", [])))
 
     return {
         "status": "ok" if not errors else "error",
@@ -202,8 +432,4 @@ def cli_main(argv: list[str]) -> dict:
     p.add_argument("--asset-class", default="solid_prop")
     p.add_argument("--project-profile", default=None)
     ns = p.parse_args(argv)
-    return run(
-        target=ns.target,
-        asset_class=ns.asset_class,
-        project_profile=ns.project_profile,
-    )
+    return run(target=ns.target, asset_class=ns.asset_class, project_profile=ns.project_profile)

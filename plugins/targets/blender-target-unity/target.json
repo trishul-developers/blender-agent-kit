@@ -1,7 +1,7 @@
 {
   "name": "unity",
   "skill_name": "blender-target-unity",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "default_profile": "urp",
   "units": { "system": "METRIC", "scale": 1.0 },
   "export": {
@@ -13,7 +13,9 @@
     "up_axis": "Y",
     "apply_scalings": "FBX_SCALE_ALL",
     "apply_unit_scale": true,
-    "apply_transform_static": true,
+    "use_space_transform": false,
+    "prebake_yup_hierarchy": true,
+    "apply_transform_static": false,
     "apply_transform_rigged": false,
     "apply_modifiers": true,
     "use_triangles": true,

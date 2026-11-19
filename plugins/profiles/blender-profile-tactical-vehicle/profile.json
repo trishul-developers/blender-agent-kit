@@ -1,7 +1,7 @@
 {
   "name": "tactical-vehicle",
-  "version": "0.1.0",
-  "description": "Optional reusable profile for multi-part tactical ground vehicles. It demonstrates requirements distilled from production military-asset pipelines without changing the generic Unity target.",
+  "version": "0.2.0",
+  "description": "Optional reusable profile for multi-part tactical ground vehicles. Project-specific simulation truth remains downstream.",
   "target_overrides": {
     "unity": {
       "naming": {
@@ -41,7 +41,9 @@
       },
       "qa": {
         "common": {
-          "max_lod_ratio": 0.5
+          "max_lod_ratio": 0.5,
+          "damage_prefix": "Damage_",
+          "damage_allowed_lods": [0, 1]
         },
         "asset_classes": {
           "heavy_tracked_vehicle": {
@@ -87,6 +89,23 @@
     }
   },
   "bundle_defaults": {
-    "roles": ["primary", "chassis", "station", "collision", "wreck", "kit"]
+    "roles": ["primary", "chassis", "station", "collision", "wreck", "kit"],
+    "zero_root_location_roles": ["station", "kit"]
+  },
+  "review_presets": {
+    "tactical": {
+      "resolution": [1280, 720],
+      "orthographic_views": ["front", "side", "top"],
+      "range_shots_m": [50, 150, 400],
+      "lods": [0, 1, 2, 3],
+      "primary_lod": 0,
+      "azimuth_deg": 45,
+      "elevation_deg": 45,
+      "lens_mm": 50,
+      "damage_prefix": "Damage_",
+      "damage_views": true,
+      "damage_lods": [0, 1],
+      "collision_view": true
+    }
   }
 }

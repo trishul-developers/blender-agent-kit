@@ -1,4 +1,4 @@
-"""Generic Blender scene inventory used by QA, bundle export, and evidence generation."""
+"""Generic Blender scene inventory used by QA, export, and evidence generation."""
 from __future__ import annotations
 
 import argparse
@@ -12,7 +12,11 @@ def _as_list(values) -> list[float]:
     return [float(v) for v in values]
 
 
-def _lod_index(obj) -> int:
+def _matrix_list(matrix) -> list[list[float]]:
+    return [[float(v) for v in row] for row in matrix]
+
+
+def lod_index(obj) -> int:
     candidates = [obj.name]
     parent = obj.parent
     while parent is not None:
@@ -36,7 +40,46 @@ def _world_bounds(obj) -> tuple[list[float], list[float]]:
     )
 
 
-def inspect_objects(objects=None) -> dict:
+def _basis_vectors(obj) -> tuple[list[float], list[float]]:
+    from mathutils import Vector
+
+    basis = obj.matrix_world.to_3x3()
+    up = (basis @ Vector((0.0, 1.0, 0.0))).normalized()
+    forward = (basis @ Vector((0.0, 0.0, 1.0))).normalized()
+    return _as_list(up), _as_list(forward)
+
+
+def _uv_bounds(mesh) -> list[dict]:
+    result: list[dict] = []
+    for layer in mesh.uv_layers:
+        if not layer.data:
+            continue
+        us = [float(loop.uv.x) for loop in layer.data]
+        vs = [float(loop.uv.y) for loop in layer.data]
+        result.append({
+            "name": layer.name,
+            "u_min": min(us),
+            "u_max": max(us),
+            "u_span": max(us) - min(us),
+            "v_min": min(vs),
+            "v_max": max(vs),
+            "v_span": max(vs) - min(vs),
+        })
+    return result
+
+
+def _is_damage_object(obj, damage_prefix: str | None) -> bool:
+    if not damage_prefix:
+        return False
+    cur = obj
+    while cur is not None:
+        if cur.name.startswith(damage_prefix):
+            return True
+        cur = cur.parent
+    return False
+
+
+def inspect_objects(objects=None, damage_prefix: str | None = None) -> dict:
     import bmesh
     import bpy
 
@@ -45,9 +88,13 @@ def inspect_objects(objects=None) -> dict:
     object_entries: list[dict] = []
     lod_acc: dict[int, dict] = defaultdict(lambda: {
         "tri_count": 0,
+        "intact_tri_count": 0,
+        "damage_tri_count": 0,
         "mesh_count": 0,
+        "damage_mesh_count": 0,
         "materials": set(),
         "objects": [],
+        "damage_objects": [],
     })
     collider_names: list[str] = []
     bounds_min = [float("inf")] * 3
@@ -55,14 +102,20 @@ def inspect_objects(objects=None) -> dict:
     mesh_count = 0
 
     for obj in sorted(selected, key=lambda o: o.name):
+        plus_y, plus_z = _basis_vectors(obj)
         entry = {
             "name": obj.name,
             "type": obj.type,
             "parent": obj.parent.name if obj.parent and obj.parent in selected_set else None,
             "location": _as_list(obj.location),
+            "world_location": _as_list(obj.matrix_world.translation),
             "rotation_euler": _as_list(obj.rotation_euler),
             "scale": _as_list(obj.scale),
-            "lod": _lod_index(obj),
+            "matrix_local": _matrix_list(obj.matrix_local),
+            "plus_y_world": plus_y,
+            "plus_z_world": plus_z,
+            "lod": lod_index(obj),
+            "is_damage": _is_damage_object(obj, damage_prefix),
         }
 
         if obj.type == "MESH":
@@ -94,6 +147,7 @@ def inspect_objects(objects=None) -> dict:
             entry.update({
                 "tri_count": int(tri_count),
                 "uv_layers": [uv.name for uv in mesh.uv_layers],
+                "uv_bounds": _uv_bounds(mesh),
                 "material_names": material_names,
                 "material_slots": len(obj.material_slots),
                 "non_manifold_edges": non_manifold_edges,
@@ -104,6 +158,12 @@ def inspect_objects(objects=None) -> dict:
             })
             lod = lod_acc[entry["lod"]]
             lod["tri_count"] += int(tri_count)
+            if entry["is_damage"]:
+                lod["damage_tri_count"] += int(tri_count)
+                lod["damage_mesh_count"] += 1
+                lod["damage_objects"].append(obj.name)
+            else:
+                lod["intact_tri_count"] += int(tri_count)
             lod["mesh_count"] += 1
             lod["materials"].update(material_names)
             lod["objects"].append(obj.name)
@@ -127,10 +187,14 @@ def inspect_objects(objects=None) -> dict:
     lods = {
         str(index): {
             "tri_count": data["tri_count"],
+            "intact_tri_count": data["intact_tri_count"],
+            "damage_tri_count": data["damage_tri_count"],
             "mesh_count": data["mesh_count"],
+            "damage_mesh_count": data["damage_mesh_count"],
             "material_count": len(data["materials"]),
             "materials": sorted(data["materials"]),
             "objects": sorted(data["objects"]),
+            "damage_objects": sorted(data["damage_objects"]),
         }
         for index, data in sorted(lod_acc.items())
     }
@@ -141,6 +205,7 @@ def inspect_objects(objects=None) -> dict:
     return {
         "object_count": len(selected),
         "mesh_count": mesh_count,
+        "damage_prefix": damage_prefix,
         "roots": roots,
         "bounds": bounds,
         "lods": lods,
@@ -149,17 +214,18 @@ def inspect_objects(objects=None) -> dict:
     }
 
 
-def inspect_scene() -> dict:
-    return inspect_objects()
+def inspect_scene(damage_prefix: str | None = None) -> dict:
+    return inspect_objects(damage_prefix=damage_prefix)
 
 
 def cli_main(argv: list[str]) -> dict:
     p = argparse.ArgumentParser()
-    p.parse_args(argv)
+    p.add_argument("--damage-prefix", default=None)
+    ns = p.parse_args(argv)
     import bpy
 
     return {
         "status": "ok",
         "blender_version": bpy.app.version_string,
-        "inventory": inspect_scene(),
+        "inventory": inspect_scene(damage_prefix=ns.damage_prefix),
     }

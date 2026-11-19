@@ -23,7 +23,8 @@
           "collection": { "type": "string", "minLength": 1 },
           "root": { "type": "string", "minLength": 1 },
           "file": { "type": "string", "minLength": 1 },
-          "format": { "type": "string", "enum": ["fbx", "glb", "gltf"] }
+          "format": { "type": "string", "enum": ["fbx", "glb", "gltf"] },
+          "zero_root_location": { "type": "boolean" }
         },
         "oneOf": [
           { "required": ["collection"], "not": { "required": ["root"] } },

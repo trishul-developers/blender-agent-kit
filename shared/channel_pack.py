@@ -1,7 +1,8 @@
-"""Safe-grammar PBR channel packer with exact 8/16-bit unpremultiplied PNG output."""
+"""Safe PBR channel packing, Lanczos resizing, and normal-Y convention reporting."""
 from __future__ import annotations
 
 import argparse
+import math
 import re
 import struct
 import zlib
@@ -88,11 +89,8 @@ def encode_png(array_float: np.ndarray, bit_depth: int = 8) -> bytes:
     if channels not in _PNG_COLOR_TYPE:
         raise ValueError(f"Unsupported channel count {channels}; must be 1, 3, or 4")
 
-    quant = (
-        np.rint(arr * 255.0).astype(np.uint8)
-        if bit_depth == 8
-        else np.rint(arr * 65535.0).astype(">u2")
-    )
+    quant = np.rint(arr * (255.0 if bit_depth == 8 else 65535.0))
+    quant = quant.astype(np.uint8 if bit_depth == 8 else ">u2")
     row_bytes = quant.reshape(height, -1).view(np.uint8)
     raw_scanlines = np.concatenate(
         [np.zeros((height, 1), dtype=np.uint8), row_bytes], axis=1
@@ -104,6 +102,74 @@ def encode_png(array_float: np.ndarray, bit_depth: int = 8) -> bytes:
         + _png_chunk(b"IDAT", zlib.compress(raw_scanlines, level=6))
         + _png_chunk(b"IEND", b"")
     )
+
+
+def _lanczos_kernel(x: np.ndarray, a: float) -> np.ndarray:
+    ax = np.abs(x)
+    return np.where(ax < a, np.sinc(x) * np.sinc(x / a), 0.0)
+
+
+def _resample_axis(arr: np.ndarray, dst_size: int, axis: int, a: int = 3, chunk: int = 32) -> np.ndarray:
+    src_size = arr.shape[axis]
+    if src_size == dst_size:
+        return arr.copy()
+    scale = src_size / dst_size
+    support = a * max(1.0, scale)
+    taps = max(2, int(math.ceil(support)) * 2)
+    centers = (np.arange(dst_size, dtype=np.float64) + 0.5) * scale - 0.5
+    left = np.floor(centers - support + 1.0).astype(np.int64)
+    offsets = np.arange(taps, dtype=np.int64)
+    indices = left[:, None] + offsets[None, :]
+    distances = centers[:, None] - indices
+    kernel_x = distances / max(1.0, scale)
+    weights = _lanczos_kernel(kernel_x, float(a))
+    clipped = np.clip(indices, 0, src_size - 1)
+    weights_sum = weights.sum(axis=1, keepdims=True)
+    weights = np.divide(weights, weights_sum, out=np.zeros_like(weights), where=np.abs(weights_sum) > 1e-12)
+
+    moved = np.moveaxis(arr, axis, 0)
+    rest_shape = moved.shape[1:]
+    flat = moved.reshape(src_size, -1)
+    out = np.empty((dst_size, flat.shape[1]), dtype=np.float32)
+    for start in range(0, dst_size, chunk):
+        end = min(dst_size, start + chunk)
+        gathered = flat[clipped[start:end], :]
+        out[start:end] = np.einsum("kt,ktf->kf", weights[start:end], gathered, optimize=True)
+    shaped = out.reshape((dst_size,) + rest_shape)
+    return np.moveaxis(shaped, 0, axis)
+
+
+def lanczos_resample(array: np.ndarray, shape_hw: tuple[int, int], a: int = 3) -> np.ndarray:
+    arr = np.asarray(array, dtype=np.float32)
+    target_h, target_w = map(int, shape_hw)
+    if target_h < 1 or target_w < 1:
+        raise ValueError(f"Invalid target size {shape_hw}")
+    out = _resample_axis(arr, target_w, axis=1, a=a)
+    out = _resample_axis(out, target_h, axis=0, a=a)
+    return np.clip(out, 0.0, 1.0)
+
+
+def detect_normal_y_convention(normal: np.ndarray) -> dict:
+    arr = np.asarray(normal, dtype=np.float32)
+    if arr.ndim != 3 or arr.shape[2] < 2:
+        raise ValueError("normal map must be HxWxC with at least two channels")
+    green = np.clip(arr[:, :, 1], 0.0, 1.0)
+    mean_g = float(np.mean(green))
+    median_g = float(np.median(green))
+    bias = mean_g - 0.5
+    confidence = min(1.0, abs(bias) * 4.0)
+    if abs(bias) < 0.02:
+        convention = "ambiguous"
+    else:
+        convention = "opengl" if bias > 0 else "directx"
+    return {
+        "convention": convention,
+        "heuristic_only": True,
+        "mean_green": mean_g,
+        "median_green": median_g,
+        "confidence": confidence,
+        "note": "Tangent-space normal convention cannot be proven from pixels alone; this is a directional-bias heuristic.",
+    }
 
 
 def write_packed_profile(
@@ -123,12 +189,8 @@ def write_packed_profile(
 
     written: list[dict] = []
     for map_key, map_spec in profile_cfg["maps"].items():
-        packed = pack_map(
-            map_spec["channels"], raw_maps, shape_hw, fallbacks, normal_conv
-        )
-        rel_path = pattern.format(
-            asset_id=asset_id, material_name=material_name, map=map_key
-        )
+        packed = pack_map(map_spec["channels"], raw_maps, shape_hw, fallbacks, normal_conv)
+        rel_path = pattern.format(asset_id=asset_id, material_name=material_name, map=map_key)
         dest = out_dir / rel_path
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_bytes(encode_png(packed, bit_depth=map_spec["bit_depth"]))
@@ -183,7 +245,8 @@ def cli_main(argv: list[str]) -> dict:
     p.add_argument("--material", required=True)
     p.add_argument("--input-dir", required=True)
     p.add_argument("--out", default="build")
-    p.add_argument("--size", type=int, default=None)
+    p.add_argument("--size", type=int, default=None, help="Target square size; raw maps are Lanczos-resampled when needed")
+    p.add_argument("--detect-normal-y", action="store_true")
     ns = p.parse_args(argv)
 
     target_cfg, profile_name, _, project_data, _ = load_profiled_target(
@@ -193,24 +256,37 @@ def cli_main(argv: list[str]) -> dict:
     )
     input_dir = Path(ns.input_dir)
     raw_maps: dict[str, np.ndarray] = {}
-    shape_hw: tuple[int, int] | None = None
+    shape_hw: tuple[int, int] | None = (ns.size, ns.size) if ns.size else None
+    resized_maps: list[dict] = []
 
     for map_name in sorted(required_raw_map_names(target_cfg, profile_name)):
         candidate = input_dir / f"{map_name}.png"
         if not candidate.is_file():
             continue
         arr = _load_raw_map(candidate)
-        current_shape = tuple(arr.shape[:2])
-        if shape_hw is None:
-            shape_hw = current_shape
-        elif current_shape != shape_hw:
-            raise ValueError(f"Raw map '{candidate}' shape {current_shape} != expected {shape_hw}")
+        original_shape = tuple(arr.shape[:2])
+        if ns.size:
+            if original_shape != (ns.size, ns.size):
+                arr = lanczos_resample(arr, (ns.size, ns.size))
+                resized_maps.append({"map": map_name, "from": list(original_shape), "to": [ns.size, ns.size], "filter": "lanczos3"})
+        else:
+            current_shape = tuple(arr.shape[:2])
+            if shape_hw is None:
+                shape_hw = current_shape
+            elif current_shape != shape_hw:
+                raise ValueError(
+                    f"Raw map '{candidate}' shape {current_shape} != expected {shape_hw}; use --size to normalize inputs"
+                )
         raw_maps[map_name] = arr
 
     if shape_hw is None:
-        if ns.size is None or ns.size < 1:
-            raise ValueError("No canonical raw PNGs found; provide --size for fallback-only packing")
-        shape_hw = (ns.size, ns.size)
+        raise ValueError("No canonical raw PNGs found; provide --size for fallback-only packing")
+    if not raw_maps and ns.size is None:
+        raise ValueError("No canonical raw PNGs found")
+
+    normal_report = None
+    if ns.detect_normal_y and "normal" in raw_maps:
+        normal_report = detect_normal_y_convention(raw_maps["normal"])
 
     written = write_packed_profile(
         target_cfg, profile_name, ns.asset_id, ns.material,
@@ -222,5 +298,8 @@ def cli_main(argv: list[str]) -> dict:
         "profile": profile_name,
         "project_profile": project_data["name"] if project_data else None,
         "raw_maps": sorted(raw_maps),
+        "target_size": list(shape_hw),
+        "resized_maps": resized_maps,
+        "normal_y_detection": normal_report,
         "artifacts": {"textures": written},
     }

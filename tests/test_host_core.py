@@ -1,4 +1,4 @@
-"""Tier 1 host-side tests for contracts, overlays, PNG packing, hashing, and installers."""
+"""Tier 1 host-side tests for contracts, profiles, packing, hashing, and installers."""
 from __future__ import annotations
 
 import json
@@ -13,7 +13,9 @@ import numpy as np
 from shared.bundle_exporter import validate_bundle_spec
 from shared.channel_pack import (
     cli_main as channel_pack_cli_main,
+    detect_normal_y_convention,
     encode_png,
+    lanczos_resample,
     pack_map,
     parse_channel_expr,
     required_raw_map_names,
@@ -51,12 +53,14 @@ class TestRepoSpecsAndSchemas(unittest.TestCase):
     def test_validate_repo_passes(self) -> None:
         self.assertEqual(validate_repo(KIT_ROOT), [])
 
-    def test_unity_target_loads_and_validates(self) -> None:
+    def test_unity_target_uses_hierarchy_safe_static_fbx(self) -> None:
         self.assertIn("unity", list_targets(KIT_ROOT))
         cfg, profile, folder = load_target("unity", kit_root=KIT_ROOT)
         self.assertEqual(profile, "urp")
         self.assertEqual(folder.name, "blender-target-unity")
-        self.assertEqual(cfg["export"]["apply_scalings"], "FBX_SCALE_ALL")
+        self.assertTrue(cfg["export"]["prebake_yup_hierarchy"])
+        self.assertFalse(cfg["export"]["use_space_transform"])
+        self.assertFalse(cfg["export"]["apply_transform_static"])
 
     def test_reject_duplicate_anim_export_flags(self) -> None:
         cfg, _, _ = load_target("unity", kit_root=KIT_ROOT)
@@ -90,20 +94,23 @@ class TestProjectProfiles(unittest.TestCase):
         self.assertEqual(data["name"], "tactical-vehicle")
         self.assertIn("heavy_tracked_vehicle", profiled["qa"]["asset_classes"])
         self.assertIn("Mask", profiled["textures"]["profiles"]["tactical_urp"]["maps"])
+        self.assertEqual(profiled["qa"]["common"]["damage_prefix"], "Damage_")
         self.assertNotIn("tactical_urp", base["textures"]["profiles"])
 
-    def test_profile_discovery(self) -> None:
+    def test_profile_review_preset(self) -> None:
         data, path = load_project_profile("tactical-vehicle", kit_root=KIT_ROOT)
-        self.assertEqual(data["name"], "tactical-vehicle")
         self.assertTrue(path.is_file())
+        preset = data["review_presets"]["tactical"]
+        self.assertEqual(preset["resolution"], [1280, 720])
+        self.assertEqual(preset["range_shots_m"], [50, 150, 400])
 
 
 class TestBundleSpec(unittest.TestCase):
-    def test_semantic_bundle_selectors(self) -> None:
+    def test_semantic_bundle_selectors_and_zero_root(self) -> None:
         valid = {
             "schema_version": "1.0",
             "asset_id": "x",
-            "parts": [{"id": "body", "role": "primary", "collection": "Body"}],
+            "parts": [{"id": "station", "role": "station", "root": "Station", "zero_root_location": True}],
         }
         self.assertEqual(validate_bundle_spec(valid), [])
         invalid = {
@@ -142,6 +149,19 @@ class TestChannelPackAndPngEncoder(unittest.TestCase):
         self.assertAlmostEqual(float(packed[0, 0, 1]), 0.75, places=5)
         self.assertEqual(_decode_png_raw(encode_png(packed, bit_depth=16))[:4], (2, 2, 16, 2))
 
+    def test_lanczos_resample_normalizes_mixed_source_sizes(self) -> None:
+        src = np.linspace(0.0, 1.0, 8 * 6 * 3, dtype=np.float32).reshape((8, 6, 3))
+        out = lanczos_resample(src, (4, 4))
+        self.assertEqual(out.shape, (4, 4, 3))
+        self.assertGreaterEqual(float(out.min()), 0.0)
+        self.assertLessEqual(float(out.max()), 1.0)
+
+    def test_normal_y_detection_is_explicitly_heuristic(self) -> None:
+        normal = np.full((8, 8, 3), [0.5, 0.8, 1.0], dtype=np.float32)
+        report = detect_normal_y_convention(normal)
+        self.assertEqual(report["convention"], "opengl")
+        self.assertTrue(report["heuristic_only"])
+
     def test_multi_material_texture_naming_no_collision(self) -> None:
         cfg, _, _ = load_target("unity", kit_root=KIT_ROOT)
         with tempfile.TemporaryDirectory() as tmp:
@@ -156,7 +176,8 @@ class TestExporterRnaRunnerAndHash(unittest.TestCase):
         cfg, _, _ = load_target("unity", kit_root=KIT_ROOT)
         fbx = translate_fbx_kwargs(cfg["export"], "out.fbx", is_rigged=False)
         self.assertEqual(fbx["apply_scale_options"], "FBX_SCALE_ALL")
-        self.assertTrue(fbx["bake_space_transform"])
+        self.assertFalse(fbx["use_space_transform"])
+        self.assertFalse(fbx["bake_space_transform"])
         self.assertTrue(fbx["use_triangles"])
         glb = translate_gltf_kwargs(cfg["export"], "out.glb")
         self.assertEqual(glb["export_format"], "GLB")
@@ -174,9 +195,7 @@ class TestExporterRnaRunnerAndHash(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             p = Path(tmp) / "source.txt"
             p.write_text("same", encoding="utf-8")
-            a = compute_build_hash([p], {"profile": "a"})
-            b = compute_build_hash([p], {"profile": "b"})
-            self.assertNotEqual(a, b)
+            self.assertNotEqual(compute_build_hash([p], {"profile": "a"}), compute_build_hash([p], {"profile": "b"}))
 
 
 class TestUnifiedInstaller(unittest.TestCase):
