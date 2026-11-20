@@ -124,6 +124,7 @@ def run(
         project_profile=project_profile,
     )
     export_cfg = target_cfg["export"]
+    naming = target_cfg.get("naming", {})
     damage_prefix = target_cfg["qa"]["common"].get("damage_prefix")
     allowed_types = set(export_cfg.get("object_types", ["MESH", "EMPTY", "ARMATURE"]))
     output = Path(out_dir).resolve()
@@ -136,7 +137,12 @@ def run(
     for part in spec["parts"]:
         objects, root_object = _resolve_part_objects(part, allowed_types)
         _select(objects)
-        assembly_inventory = inspect_objects(objects, damage_prefix=damage_prefix)
+        assembly_inventory = inspect_objects(
+            objects,
+            damage_prefix=damage_prefix,
+            lod_pattern=naming.get("lod_pattern"),
+            collider_pattern=naming.get("collider_pattern"),
+        )
         fmt = str(part.get("format") or export_cfg["format"]).lower()
         filename = part.get("file") or f"{part['id']}.{fmt}"
         export_file = output / filename
@@ -155,6 +161,8 @@ def run(
             is_rigged=is_rigged,
             objects=objects,
             zero_root_object=root_object if zero_root else None,
+            lod_pattern=naming.get("lod_pattern"),
+            collider_pattern=naming.get("collider_pattern"),
         )
         export_inventory["damage_prefix"] = damage_prefix
         export_root_name = None
