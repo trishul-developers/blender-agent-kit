@@ -6,7 +6,7 @@ import math
 from pathlib import Path
 
 from shared.profile_loader import load_profiled_target
-from shared.scene_inspector import inspect_objects, inspect_scene, is_collider_name, lod_index
+from shared.scene_inspector import collider_patterns_from_naming, inspect_objects, inspect_scene, is_collider_name, lod_index
 
 
 def configure_cycles_device(scene, device: str = "auto") -> str:
@@ -400,7 +400,7 @@ def run(
     )
     naming = target_cfg.get("naming", {})
     lod_pattern = naming.get("lod_pattern")
-    collider_pattern = naming.get("collider_pattern")
+    collider_pattern = collider_patterns_from_naming(naming)
     preset_cfg = {}
     if project_data and preset:
         preset_cfg = dict(project_data.get("review_presets", {}).get(preset, {}))
@@ -418,7 +418,7 @@ def run(
         damage_prefix=preset_cfg.get("damage_prefix", common.get("damage_prefix")),
         lod_exclude_patterns=sorted(exclusions),
         lod_pattern=lod_pattern,
-        collider_pattern=collider_pattern,
+        collider_patterns=collider_pattern,
     )
     if not inventory["bounds"]:
         raise ValueError("Cannot render review sheet: scene has no mesh bounds")
