@@ -114,15 +114,14 @@ jobs:
           S="$RUNNER_TEMP/independent/SupplyCrate"
           F="$RUNNER_TEMP/independent/SciFiKit"
           RUN="skills/core/blender-core/scripts/run.py"
-          python "$RUN" qa --blend "$S/scenes/SupplyCrate.blend" \
-            --target unity --project-profile demo/SupplyCrate/source/supplycrate.profile.json \
-            --asset-class solid_prop --result-json "$S/qa.json"
           python "$RUN" pack --target unity --profile urp --asset-id SupplyCrate \
             --material M_SupplyCrate_Body --input-dir "$S/raw_textures" \
             --size 2048 --out "$S/packed_textures" --result-json "$S/pack.json"
-          python "$RUN" bundle --blend "$S/scenes/SupplyCrate.blend" \
-            --spec demo/SupplyCrate/source/bundle-spec.json \
-            --target unity --profile urp --out "$S/exports" --result-json "$S/bundle.json"
+          python "$RUN" deliver --blend "$S/scenes/SupplyCrate.blend" \
+            --target unity --project-profile demo/SupplyCrate/source/supplycrate.profile.json \
+            --asset-class solid_prop --profile urp --asset-id SupplyCrate \
+            --bundle-spec demo/SupplyCrate/source/bundle-spec.json \
+            --review-style technical --out "$S/delivery" --result-json "$S/deliver.json"
           python "$RUN" qa --blend "$F/scenes/SF_Bulkhead_Arch.blend" \
             --target unity --project-profile demo/SciFiKit/source/scifikit.profile.json \
             --asset-class modular_bulkhead --result-json "$F/qa.json"
@@ -142,13 +141,30 @@ jobs:
           import json, os
           from pathlib import Path
           base = Path(os.environ["RUNNER_TEMP"]) / "independent"
-          for category, count in (("SupplyCrate", 4), ("SciFiKit", 6)):
-              root = base / category
-              qa = json.loads((root / "qa.json").read_text())
-              bundle = json.loads((root / "bundle.json").read_text())
-              assert qa["status"] == "ok" and qa["passed"], (category, qa.get("errors"))
-              assert bundle["status"] == "ok" and len(bundle["parts"]) == count
-              assert all(part["roundtrip"]["passed"] for part in bundle["parts"])
+          # SupplyCrate exercises the real host deliver orchestrator:
+          # inspect -> QA gate -> fast technical review -> verified bundle.
+          crate = base / "SupplyCrate"
+          delivery = json.loads((crate / "deliver.json").read_text())
+          assert delivery["status"] == "ok" and delivery["qa_gate"]["passed"], delivery
+          assert [s["name"] for s in delivery["stages"]] == ["inspect", "qa", "review", "bundle"]
+          assert all(s["duration_ms"] >= 0 for s in delivery["stages"])
+          crate_bundle = next(s["result"] for s in delivery["stages"] if s["name"] == "bundle")
+          assert len(crate_bundle["parts"]) == 4
+          assert all(part["roundtrip"]["passed"] for part in crate_bundle["parts"])
+          crate_review = next(s["result"] for s in delivery["stages"] if s["name"] == "review")
+          assert crate_review["style"] == "technical"
+          assert crate_review["render_engine"] == "BLENDER_EEVEE_NEXT"
+          for image_path in crate_review["artifacts"].values():
+              if isinstance(image_path, str):
+                  assert Path(image_path).is_file() and Path(image_path).stat().st_size > 1000
+
+          sci = base / "SciFiKit"
+          qa = json.loads((sci / "qa.json").read_text())
+          bundle = json.loads((sci / "bundle.json").read_text())
+          assert qa["status"] == "ok" and qa["passed"], qa.get("errors")
+          assert bundle["status"] == "ok" and len(bundle["parts"]) == 6
+          assert all(part["roundtrip"]["passed"] for part in bundle["parts"])
+
           emissive = json.loads((base / "SciFiKit/pack_emissive.json").read_text())
           assert "_EmissionMap" in {t["slot"] for t in emissive["artifacts"]["textures"]}
           print("PASS: two fresh source-bound QA/packing/FBX bundle smoke runs")
