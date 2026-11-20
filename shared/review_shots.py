@@ -211,11 +211,19 @@ def _restore_visibility(scene, saved: dict) -> None:
             obj.hide_render = bool(saved[obj.name])
 
 
-def _bounds_from_visible(scene) -> dict | None:
+def _bounds_from_visible(
+    scene,
+    lod_pattern: str | None = None,
+    collider_patterns: str | list[str] | None = None,
+) -> dict | None:
     meshes = _visible_meshes(scene)
     if not meshes:
         return None
-    return inspect_objects(meshes)["bounds"]
+    return inspect_objects(
+        meshes,
+        lod_pattern=lod_pattern,
+        collider_patterns=collider_patterns,
+    )["bounds"]
 
 
 def _render(scene, out_file: Path) -> None:
@@ -456,7 +464,7 @@ def run(
         collider_pattern=collider_pattern,
     )
     try:
-        bounds = _bounds_from_visible(scene) or base_bounds
+        bounds = _bounds_from_visible(scene, lod_pattern, collider_pattern) or base_bounds
         c = bounds["center"]
         r = max(max(bounds["size"]) * 0.6, 0.5)
         for view in requested:
@@ -480,7 +488,7 @@ def run(
             collider_pattern=collider_pattern,
         )
         try:
-            bounds = _bounds_from_visible(scene)
+            bounds = _bounds_from_visible(scene, lod_pattern, collider_pattern)
             if bounds:
                 _configure_range(
                     camera,
@@ -515,7 +523,7 @@ def run(
                 collider_pattern=collider_pattern,
             )
             try:
-                bounds = _bounds_from_visible(scene)
+                bounds = _bounds_from_visible(scene, lod_pattern, collider_pattern)
                 if not bounds:
                     continue
                 for distance in ranges:
@@ -548,7 +556,7 @@ def run(
                 collider_pattern=collider_pattern,
             )
             try:
-                bounds = _bounds_from_visible(scene)
+                bounds = _bounds_from_visible(scene, lod_pattern, collider_pattern)
                 if not bounds:
                     continue
                 r = max(max(bounds["size"]) * 0.6, 0.5)
@@ -578,7 +586,7 @@ def run(
             collider_pattern=collider_pattern,
         )
         try:
-            bounds = _bounds_from_visible(scene)
+            bounds = _bounds_from_visible(scene, lod_pattern, collider_pattern)
             if not bounds:
                 raise ValueError(
                     f"Review variant '{variant_id}' matched no visible meshes; patterns={include}"
@@ -610,7 +618,7 @@ def run(
         )
         wireframe_state: list[dict] = []
         try:
-            bounds = _bounds_from_visible(scene)
+            bounds = _bounds_from_visible(scene, lod_pattern, collider_pattern)
             if bounds:
                 r = max(max(bounds["size"]) * 0.6, 0.5)
                 wireframe_state = _prepare_collision_wireframe(
@@ -637,7 +645,7 @@ def run(
             collider_pattern=collider_pattern,
         )
         try:
-            subject_bounds = _bounds_from_visible(scene)
+            subject_bounds = _bounds_from_visible(scene, lod_pattern, collider_pattern)
             if subject_bounds:
                 artifacts["silhouette_comparison"] = _render_reference_silhouette(
                     scene,
