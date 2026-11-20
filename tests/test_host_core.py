@@ -23,6 +23,7 @@ from shared.channel_pack import (
 )
 from shared.exporter import compute_build_hash, translate_fbx_kwargs, translate_gltf_kwargs
 from shared.paths import resolve_kit_root
+from shared.policy_loader import load_policy
 from shared.profile_loader import load_profiled_target, load_project_profile
 from shared.runner import build_blender_command
 from shared.target_loader import list_targets, load_target, validate_target_dict
@@ -62,7 +63,45 @@ class TestRepoSpecsAndSchemas(unittest.TestCase):
         self.assertFalse(cfg["export"]["use_space_transform"])
         self.assertFalse(cfg["export"]["apply_transform_static"])
         self.assertFalse(cfg["export"]["strip_lod_suffix_on_export"])
-        self.assertEqual(cfg["export"]["strip_lod_suffix_pattern"], "_LOD[0-9]+$")
+        self.assertEqual(cfg["default_policy"], "realtime-default")
+        self.assertNotIn("solid_prop", cfg["qa"]["asset_classes"])
+        self.assertNotIn("lod_pattern", cfg["naming"])
+        self.assertNotIn("collider_pattern", cfg["naming"])
+        self.assertNotIn("prebake_directional_patterns", cfg["export"])
+
+    def test_default_realtime_policy_restores_generic_asset_contract(self) -> None:
+        policy, policy_path = load_policy("realtime-default", kit_root=KIT_ROOT)
+        self.assertTrue(policy_path.is_file())
+        self.assertEqual(policy["name"], "realtime-default")
+        cfg, _, _, data, path = load_profiled_target("unity", kit_root=KIT_ROOT)
+        self.assertIsNone(data)
+        self.assertIsNone(path)
+        self.assertIn("solid_prop", cfg["qa"]["asset_classes"])
+        self.assertEqual(cfg["qa"]["asset_classes"]["solid_prop"]["max_tris"]["lod0"], 15000)
+        self.assertEqual(cfg["naming"]["lod_pattern"], "{name}_LOD{index}")
+        self.assertEqual(
+            cfg["naming"]["collider_patterns"],
+            ["{name}_COL_{index:02d}", "COLLISION_{name}"],
+        )
+        self.assertEqual(cfg["export"]["prebake_directional_patterns"], ["Socket_*"])
+        self.assertEqual(cfg["export"]["lod_screen_transitions"]["2"], 0.05)
+
+    def test_explicit_policy_can_change_classification_without_code(self) -> None:
+        policy, _ = load_policy("realtime-default", kit_root=KIT_ROOT)
+        custom = json.loads(json.dumps(policy))
+        custom["name"] = "alternate-naming"
+        custom["target_defaults"]["naming"]["lod_pattern"] = "Level{index}__{name}"
+        custom["target_defaults"]["naming"]["collider_pattern"] = "Proxy{index:02d}__{name}"
+        custom["target_defaults"]["export"]["prebake_directional_patterns"] = ["Aim_*"]
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "policy.json"
+            path.write_text(json.dumps(custom), encoding="utf-8")
+            cfg, _, _, _, _ = load_profiled_target(
+                "unity", kit_root=KIT_ROOT, policy=str(path)
+            )
+        self.assertEqual(cfg["naming"]["lod_pattern"], "Level{index}__{name}")
+        self.assertEqual(cfg["naming"]["collider_pattern"], "Proxy{index:02d}__{name}")
+        self.assertEqual(cfg["export"]["prebake_directional_patterns"], ["Aim_*"])
 
     def test_reject_duplicate_anim_export_flags(self) -> None:
         cfg, _, _ = load_target("unity", kit_root=KIT_ROOT)

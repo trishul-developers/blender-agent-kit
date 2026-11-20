@@ -6,7 +6,7 @@ import fnmatch
 from collections import defaultdict
 
 from shared.profile_loader import load_profiled_target
-from shared.scene_inspector import inspect_scene
+from shared.scene_inspector import collider_patterns_from_naming, inspect_scene
 
 _AXIS_INDEX = {"X": 0, "Y": 1, "Z": 2}
 
@@ -367,9 +367,12 @@ def run(
         rules.get("lod_exclude_patterns", common.get("lod_exclude_patterns", []))
     )
 
+    naming = target_cfg.get("naming", {})
     inventory = inspect_scene(
         damage_prefix=damage_prefix,
         lod_exclude_patterns=lod_exclude_patterns,
+        lod_pattern=naming.get("lod_pattern"),
+        collider_patterns=collider_patterns_from_naming(naming),
     )
     errors: list[dict] = []
     warnings: list[dict] = []
@@ -512,6 +515,7 @@ def run(
     return {
         "status": "ok" if not errors else "error",
         "target": target_cfg["name"],
+        "policy": target_cfg.get("default_policy"),
         "project_profile": project_data["name"] if project_data else None,
         "asset_class": asset_class,
         "passed": not errors,

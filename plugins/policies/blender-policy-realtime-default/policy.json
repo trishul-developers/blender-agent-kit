@@ -1,0 +1,74 @@
+{
+  "name": "realtime-default",
+  "version": "1.0.0",
+  "description": "Reusable real-time asset production policy. These are Blender Agent Kit defaults, not engine requirements.",
+  "target_defaults": {
+    "naming": {
+      "lod_pattern": "{name}_LOD{index}",
+      "collider_patterns": [
+        "{name}_COL_{index:02d}",
+        "COLLISION_{name}"
+      ]
+    },
+    "export": {
+      "prebake_directional_patterns": [
+        "Socket_*"
+      ],
+      "strip_lod_suffix_pattern": "_LOD[0-9]+$",
+      "lod_screen_transitions": {
+        "0": 0.5,
+        "1": 0.2,
+        "2": 0.05,
+        "3": 0.01
+      }
+    },
+    "qa": {
+      "common": {
+        "require_applied_scale": true,
+        "reject_negative_scale": true,
+        "reject_non_manifold_edges": true,
+        "reject_inward_normals": true,
+        "require_uv0": true,
+        "require_monotonic_lod_tris": true,
+        "texel_density_px_per_m": [
+          256,
+          1024
+        ]
+      },
+      "asset_classes": {
+        "solid_prop": {
+          "reject_boundary_edges": true,
+          "require_non_overlapping_uv1": true,
+          "pivot_rule": "bottom_center_z0",
+          "max_tris": {
+            "lod0": 15000,
+            "lod1": 7500,
+            "lod2": 3000
+          },
+          "max_material_slots": 2
+        },
+        "open_sheet": {
+          "reject_boundary_edges": false,
+          "require_non_overlapping_uv1": false,
+          "pivot_rule": "none",
+          "max_tris": {
+            "lod0": 10000
+          },
+          "max_material_slots": 2
+        },
+        "skinned_character": {
+          "reject_boundary_edges": false,
+          "require_non_overlapping_uv1": false,
+          "max_bone_weights_per_vertex": 4,
+          "pivot_rule": "bottom_center_z0",
+          "max_tris": {
+            "lod0": 60000,
+            "lod1": 30000,
+            "lod2": 12000
+          },
+          "max_material_slots": 4
+        }
+      }
+    }
+  }
+}

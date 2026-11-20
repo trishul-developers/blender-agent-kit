@@ -18,6 +18,9 @@ from shared.review_shots import (
     _set_mesh_visibility,
 )
 
+DEFAULT_LOD_PATTERN = "{name}_LOD{index}"
+DEFAULT_COLLIDER_PATTERN = "{name}_COL_{index:02d}"
+
 
 def _ensure_uv(obj, second: bool = True):
     if len(obj.data.uv_layers) == 0:
@@ -58,6 +61,19 @@ def run() -> dict:
     _make_compliant_cube("SolidProp")
     res = run_qa(target="unity", asset_class="solid_prop")
     assert res["passed"], f"Expected compliant cube to pass: {res}"
+    assert res["policy"] == "realtime-default", res
+    passed += 1
+
+    # Standalone inspect resolves the same target policy/classification as QA.
+    from shared.scene_inspector import cli_main as inspect_cli_main
+    inspected = inspect_cli_main([])
+    assert inspected["status"] == "ok", inspected
+    assert inspected["policy"] == "realtime-default", inspected
+    assert inspected["inventory"]["classification"]["lod_pattern"] == DEFAULT_LOD_PATTERN, inspected
+    assert inspected["inventory"]["classification"]["collider_patterns"] == [
+        DEFAULT_COLLIDER_PATTERN,
+        "COLLISION_{name}",
+    ], inspected
     passed += 1
 
     bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -407,6 +423,8 @@ def run() -> dict:
         bpy.context.scene,
         lod=0,
         exclude_patterns=["Variant_Destroyed*"],
+        lod_pattern=DEFAULT_LOD_PATTERN,
+        collider_pattern=DEFAULT_COLLIDER_PATTERN,
     )
     assert normal.hide_render is False
     assert variant.hide_render is True
@@ -418,6 +436,8 @@ def run() -> dict:
         bpy.context.scene,
         lod=0,
         include_patterns=["Variant_Destroyed*"],
+        lod_pattern=DEFAULT_LOD_PATTERN,
+        collider_pattern=DEFAULT_COLLIDER_PATTERN,
     )
     assert normal.hide_render is True
     assert variant.hide_render is False
@@ -444,11 +464,18 @@ def run() -> dict:
     body0 = _make_compliant_cube("Prop_LOD0", size=1.0)
     body1 = _make_compliant_cube("Prop_LOD1", location=(0.0, 0.0, 2.0), size=0.8)
     collider = _make_compliant_cube("Prop_COL_01", size=1.05)
-    saved = _set_collision_overlay_visibility(bpy.context.scene, lod=0)
+    saved = _set_collision_overlay_visibility(
+        bpy.context.scene,
+        lod=0,
+        lod_pattern=DEFAULT_LOD_PATTERN,
+        collider_pattern=DEFAULT_COLLIDER_PATTERN,
+    )
     assert body0.hide_render is False
     assert body1.hide_render is True
     assert collider.hide_render is False
-    overlay = _prepare_collision_wireframe(bpy.context.scene, 0.5)
+    overlay = _prepare_collision_wireframe(
+        bpy.context.scene, 0.5, collider_pattern=DEFAULT_COLLIDER_PATTERN
+    )
     assert len(overlay) == 1, overlay
     assert overlay[0]["object"] is collider
     assert overlay[0]["modifier"].type == "WIREFRAME"
@@ -518,13 +545,81 @@ def run() -> dict:
         assert Path(second["artifacts"]["manifest"]).is_file()
     passed += 1
 
+    # Alternate LOD/collider/socket naming is entirely profile-driven.
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    alt_root = _link_empty("AltRoot")
+    alt_body0 = _make_compliant_cube("Level0__Body", size=1.0)
+    alt_body0.parent = alt_root
+    alt_body1 = _make_compliant_cube("Level1__Body", location=(0.0, 0.0, 1.0), size=0.5)
+    alt_body1.parent = alt_root
+    alt_proxy = _make_compliant_cube("Proxy01__Body", size=1.05)
+    alt_proxy.parent = alt_root
+    alt_aim = _link_empty(
+        "Aim_Muzzle",
+        parent=alt_root,
+        location=(0.1, -0.3, 0.4),
+        rotation=(0.1, 0.2, -0.15),
+    )
+    with tempfile.TemporaryDirectory(prefix="bak_alt_policy_") as tmp:
+        root_dir = Path(tmp)
+        profile_path = root_dir / "profile.json"
+        profile_path.write_text(json.dumps({
+            "name": "alternate-naming",
+            "version": "0.1.0",
+            "target_overrides": {
+                "unity": {
+                    "naming": {
+                        "lod_pattern": "Level{index}__{name}",
+                        "collider_pattern": "Proxy{index:02d}__{name}"
+                    },
+                    "export": {
+                        "prebake_directional_patterns": ["Aim_*"]
+                    },
+                    "qa": {
+                        "common": {"require_monotonic_lod_tris": False}
+                    }
+                }
+            }
+        }), encoding="utf-8")
+        spec_path = root_dir / "bundle.json"
+        spec_path.write_text(json.dumps({
+            "schema_version": "1.0",
+            "asset_id": "alternate",
+            "parts": [{
+                "id": "main",
+                "role": "primary",
+                "root": "AltRoot",
+                "file": "alternate.fbx"
+            }]
+        }), encoding="utf-8")
+        alt = run_bundle(
+            str(spec_path),
+            target="unity",
+            project_profile=str(profile_path),
+            out_dir=str(root_dir / "out"),
+            verify_roundtrip=True,
+        )
+        assert alt["status"] == "ok", alt
+        part = alt["parts"][0]
+        assert part["assembly_inventory"]["lods"]["0"]["objects"] == ["Level0__Body"], part
+        assert part["assembly_inventory"]["lods"]["1"]["objects"] == ["Level1__Body"], part
+        assert part["assembly_inventory"]["colliders"] == ["Proxy01__Body"], part
+        assert part["roundtrip"]["passed"], part["roundtrip"]
+        assert not part["roundtrip"]["transform_errors"], part["roundtrip"]
+        imported_names = {o["name"] for o in part["roundtrip"]["imported_inventory"]["objects"]}
+        assert "Aim_Muzzle" in imported_names, imported_names
+    passed += 1
+
     # Explicit collision geometry must remain visible in collider evidence but
     # never inflate the render-LOD triangle count or visible asset bounds.
     bpy.ops.wm.read_factory_settings(use_empty=True)
     primary = _make_compliant_cube("Prop_LOD0", location=(0, 0, 1), size=2.0)
     proxy = _make_compliant_cube("Prop_COL_01", location=(0, 0, 1), size=2.5)
     from shared.scene_inspector import inspect_scene
-    separated = inspect_scene()
+    separated = inspect_scene(
+        lod_pattern=DEFAULT_LOD_PATTERN,
+        collider_patterns=DEFAULT_COLLIDER_PATTERN,
+    )
     assert separated["lods"]["0"]["tri_count"] == 12, separated["lods"]
     assert separated["colliders"] == ["Prop_COL_01"], separated["colliders"]
     assert any(o["name"] == "Prop_COL_01" and o["excluded_from_lod"] and o["is_collider"]

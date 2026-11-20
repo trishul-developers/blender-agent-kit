@@ -10,7 +10,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 from shared.profile_loader import load_profiled_target
-from shared.scene_inspector import inspect_objects, inspect_scene
+from shared.scene_inspector import collider_patterns_from_naming, inspect_objects, inspect_scene
 from shared.version import KIT_VERSION
 
 
@@ -101,7 +101,10 @@ def _depth(obj) -> int:
 def _strip_export_lod_suffix(name: str, export_cfg: dict) -> str:
     if not export_cfg.get("strip_lod_suffix_on_export", False):
         return name
-    pattern = str(export_cfg.get("strip_lod_suffix_pattern", r"_LOD[0-9]+$"))
+    pattern_value = export_cfg.get("strip_lod_suffix_pattern")
+    if not pattern_value:
+        raise ValueError("strip_lod_suffix_on_export requires configured strip_lod_suffix_pattern")
+    pattern = str(pattern_value)
     try:
         return re.sub(pattern, "", name)
     except re.error as exc:
@@ -165,6 +168,8 @@ def _temporary_export_state(
     export_cfg: dict,
     zero_root_object=None,
     is_rigged: bool = False,
+    lod_pattern: str | None = None,
+    collider_patterns: str | list[str] | None = None,
 ):
     """Temporarily convert a static Blender hierarchy into a Unity-friendly Y-up basis.
 
@@ -210,7 +215,7 @@ def _temporary_export_state(
             conversion3 = conversion.to_3x3()
             conversion3_inv = conversion3.inverted()
             directional_patterns = list(
-                export_cfg.get("prebake_directional_patterns", ["Socket_*"])
+                export_cfg.get("prebake_directional_patterns", [])
             )
 
             bpy.context.view_layer.update()
@@ -250,7 +255,11 @@ def _temporary_export_state(
                     obj.matrix_local = converted_world[obj]
             bpy.context.view_layer.update()
 
-        expected_inventory = inspect_objects(ordered)
+        expected_inventory = inspect_objects(
+            ordered,
+            lod_pattern=lod_pattern,
+            collider_patterns=collider_patterns,
+        )
         expected_inventory["coordinate_basis"] = "unity_y_up" if prebake else "blender_native"
         expected_inventory["export_name_map"] = {
             original: obj.name for obj, original in saved_names.items()
@@ -274,6 +283,8 @@ def export_selected(
     is_rigged: bool,
     objects: list | None = None,
     zero_root_object=None,
+    lod_pattern: str | None = None,
+    collider_patterns: str | list[str] | None = None,
 ) -> dict:
     import bpy
 
@@ -283,6 +294,8 @@ def export_selected(
         export_cfg,
         zero_root_object=zero_root_object,
         is_rigged=is_rigged,
+        lod_pattern=lod_pattern,
+        collider_patterns=collider_patterns,
     ) as expected:
         fmt = export_file.suffix.lower().lstrip(".")
         if fmt == "fbx":
@@ -340,7 +353,12 @@ def roundtrip_file(
     else:
         raise ValueError(f"Unsupported round-trip format: {fmt}")
 
-    imported_inventory = inspect_scene(damage_prefix=source_inventory.get("damage_prefix"))
+    classification = source_inventory.get("classification", {})
+    imported_inventory = inspect_scene(
+        damage_prefix=source_inventory.get("damage_prefix"),
+        lod_pattern=classification.get("lod_pattern"),
+        collider_patterns=classification.get("collider_patterns") or classification.get("collider_pattern"),
+    )
     expected_objects = {o["name"] for o in source_inventory["objects"]}
     imported_objects = {o["name"] for o in imported_inventory["objects"]}
     missing = sorted(expected_objects - imported_objects)
@@ -464,6 +482,7 @@ def run(
         project_profile=project_profile,
     )
     export_cfg = target_cfg["export"]
+    naming = target_cfg.get("naming", {})
     damage_prefix = target_cfg["qa"]["common"].get("damage_prefix")
     out_path = Path(out_dir).resolve()
     out_path.mkdir(parents=True, exist_ok=True)
@@ -479,9 +498,19 @@ def run(
         raise ValueError("No exportable objects found in the active scene")
     is_rigged = rig_type != "none" or any(o.type == "ARMATURE" for o in objs)
     _select_objects(objs)
-    source_inventory = inspect_objects(objs, damage_prefix=damage_prefix)
+    source_inventory = inspect_objects(
+        objs,
+        damage_prefix=damage_prefix,
+        lod_pattern=naming.get("lod_pattern"),
+        collider_patterns=collider_patterns_from_naming(naming),
+    )
     expected_inventory = export_selected(
-        export_cfg, export_file, is_rigged=is_rigged, objects=objs
+        export_cfg,
+        export_file,
+        is_rigged=is_rigged,
+        objects=objs,
+        lod_pattern=naming.get("lod_pattern"),
+        collider_patterns=collider_patterns_from_naming(naming),
     )
     expected_inventory["damage_prefix"] = damage_prefix
 
@@ -502,13 +531,25 @@ def run(
     build_hash = compute_build_hash(build_inputs or [export_file], metadata=build_metadata)
 
     lods = []
-    default_transitions = {0: 0.50, 1: 0.20, 2: 0.05, 3: 0.01}
+    transitions = {
+        int(index): float(value)
+        for index, value in export_cfg.get("lod_screen_transitions", {}).items()
+    }
+    lod_name_pattern = naming.get("lod_pattern")
     for index_text, data in source_inventory["lods"].items():
         index = int(index_text)
+        if not lod_name_pattern:
+            raise ValueError(
+                "Resolved policy/target must define naming.lod_pattern before asset manifest export"
+            )
+        if index not in transitions:
+            raise ValueError(
+                f"Resolved policy/target has no export.lod_screen_transitions entry for LOD{index}"
+            )
         lods.append({
-            "name": f"{aid}_LOD{index}",
+            "name": str(lod_name_pattern).format(name=aid, index=index),
             "tri_count": int(data["tri_count"]),
-            "screen_relative_transition_height": default_transitions.get(index, 0.01),
+            "screen_relative_transition_height": transitions[index],
         })
 
     colliders = [
@@ -524,6 +565,7 @@ def run(
         "build_hash": build_hash,
         "blender_version": bpy.app.version_string,
         "target": target_cfg["name"],
+        "policy": target_cfg.get("default_policy"),
         "profile": chosen_profile,
         "rig_type": rig_type,
         "uv1_source": uv1_source,
@@ -549,6 +591,7 @@ def run(
         "kit_version": KIT_VERSION,
         "build_hash": build_hash,
         "target": target_cfg["name"],
+        "policy": target_cfg.get("default_policy"),
         "profile": chosen_profile,
         "project_profile": project_data["name"] if project_data else None,
         "inventory": source_inventory,

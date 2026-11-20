@@ -194,29 +194,45 @@
         },
         "embed_textures": {
           "type": "boolean"
+        },
+        "lod_screen_transitions": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
         }
       }
     },
     "naming": {
       "type": "object",
       "required": [
-        "lod_pattern",
-        "collider_pattern",
         "texture_pattern",
         "manifest_file"
       ],
       "properties": {
         "lod_pattern": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "collider_pattern": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "texture_pattern": {
           "type": "string"
         },
         "manifest_file": {
           "type": "string"
+        },
+        "collider_patterns": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
         }
       }
     },
@@ -324,7 +340,6 @@
         },
         "asset_classes": {
           "type": "object",
-          "minProperties": 1,
           "additionalProperties": {
             "type": "object",
             "properties": {
@@ -353,6 +368,10 @@
           }
         }
       }
+    },
+    "default_policy": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
     }
   }
 }

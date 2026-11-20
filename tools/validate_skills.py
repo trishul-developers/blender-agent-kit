@@ -12,8 +12,9 @@ KIT_ROOT = Path(__file__).resolve().parent.parent
 if str(KIT_ROOT) not in sys.path:
     sys.path.insert(0, str(KIT_ROOT))
 
+from shared.policy_loader import load_policy, policy_overlay_for_target, validate_policy_dict  # noqa: E402
 from shared.profile_loader import load_project_profile, validate_project_profile_dict  # noqa: E402
-from shared.target_loader import load_target, validate_target_dict  # noqa: E402
+from shared.target_loader import deep_merge_dict, list_targets, load_target, validate_target_dict  # noqa: E402
 
 NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 MAX_LINES = 500
@@ -133,6 +134,41 @@ def validate_repo(kit_root: Path | None = None, require_jsonschema: bool | None 
         errors.extend(f"{tjson}: {e}" for e in validate_target_dict(data, folder_name=tjson.parent.name))
         if target_schema:
             errors.extend(validate_json_instance(data, target_schema, str(tjson), require_jsonschema=strict))
+        default_policy = data.get("default_policy")
+        if default_policy:
+            try:
+                policy_data, _ = load_policy(default_policy, kit_root=root)
+                overlay = policy_overlay_for_target(policy_data, data["name"])
+                effective, _, _ = load_target(data["name"], kit_root=root, overlay=overlay)
+                if target_schema:
+                    errors.extend(validate_json_instance(
+                        effective,
+                        target_schema,
+                        f"{tjson} + policy:{default_policy}",
+                        require_jsonschema=strict,
+                    ))
+            except Exception as exc:
+                errors.append(f"{tjson}: default_policy '{default_policy}' is invalid: {exc}")
+
+    policy_schema = schemas.get("policy.schema.json")
+    for policy_json in sorted(root.glob("plugins/policies/*/policy.json")):
+        data = json.loads(policy_json.read_text(encoding="utf-8"))
+        errors.extend(f"{policy_json}: {e}" for e in validate_policy_dict(data))
+        if policy_schema:
+            errors.extend(validate_json_instance(
+                data, policy_schema, str(policy_json), require_jsonschema=strict
+            ))
+        defaults = data.get("target_defaults", {})
+        for target_name in list_targets(root).keys():
+            specific = data.get("target_overrides", {}).get(target_name, {})
+            overlay = deep_merge_dict(defaults, specific)
+            try:
+                load_target(target_name, kit_root=root, overlay=overlay)
+            except Exception as exc:
+                errors.append(
+                    f"{policy_json}: defaults/override for target '{target_name}' "
+                    f"does not produce a valid target: {exc}"
+                )
 
     profile_schema = schemas.get("project-profile.schema.json")
     for pjson in sorted(root.glob("plugins/profiles/*/profile.json")):
