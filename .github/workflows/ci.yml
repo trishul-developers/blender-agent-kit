@@ -153,7 +153,7 @@ jobs:
           assert all(part["roundtrip"]["passed"] for part in crate_bundle["parts"])
           crate_review = next(s["result"] for s in delivery["stages"] if s["name"] == "review")
           assert crate_review["style"] == "technical"
-          assert crate_review["render_engine"] == "BLENDER_EEVEE"
+          assert crate_review["render_engine"] == "CYCLES"
           for image_path in crate_review["artifacts"].values():
               if isinstance(image_path, str):
                   assert Path(image_path).is_file() and Path(image_path).stat().st_size > 1000
