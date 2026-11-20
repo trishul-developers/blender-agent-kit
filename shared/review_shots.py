@@ -666,6 +666,7 @@ def run(
         "device": active_device,
         "resolution": [render_w, render_h],
         "target": target_cfg["name"],
+        "policy": target_cfg.get("default_policy"),
         "project_profile": project_data["name"] if project_data else None,
         "preset": preset,
         "inventory": inventory,
