@@ -61,6 +61,19 @@ def run() -> dict:
     _make_compliant_cube("SolidProp")
     res = run_qa(target="unity", asset_class="solid_prop")
     assert res["passed"], f"Expected compliant cube to pass: {res}"
+    assert res["policy"] == "realtime-default", res
+    passed += 1
+
+    # Standalone inspect resolves the same target policy/classification as QA.
+    from shared.scene_inspector import cli_main as inspect_cli_main
+    inspected = inspect_cli_main([])
+    assert inspected["status"] == "ok", inspected
+    assert inspected["policy"] == "realtime-default", inspected
+    assert inspected["inventory"]["classification"]["lod_pattern"] == DEFAULT_LOD_PATTERN, inspected
+    assert inspected["inventory"]["classification"]["collider_patterns"] == [
+        DEFAULT_COLLIDER_PATTERN,
+        "COLLISION_{name}",
+    ], inspected
     passed += 1
 
     bpy.ops.wm.read_factory_settings(use_empty=True)
