@@ -7,7 +7,7 @@ from pathlib import Path
 
 from shared.exporter import compute_build_hash, export_selected, roundtrip_file
 from shared.profile_loader import load_profiled_target
-from shared.scene_inspector import inspect_objects
+from shared.scene_inspector import collider_patterns_from_naming, inspect_objects
 from shared.version import KIT_VERSION
 
 
@@ -141,7 +141,7 @@ def run(
             objects,
             damage_prefix=damage_prefix,
             lod_pattern=naming.get("lod_pattern"),
-            collider_patterns=naming.get("collider_patterns") or naming.get("collider_pattern"),
+            collider_patterns=collider_patterns_from_naming(naming),
         )
         fmt = str(part.get("format") or export_cfg["format"]).lower()
         filename = part.get("file") or f"{part['id']}.{fmt}"
@@ -162,7 +162,7 @@ def run(
             objects=objects,
             zero_root_object=root_object if zero_root else None,
             lod_pattern=naming.get("lod_pattern"),
-            collider_patterns=naming.get("collider_patterns") or naming.get("collider_pattern"),
+            collider_patterns=collider_patterns_from_naming(naming),
         )
         export_inventory["damage_prefix"] = damage_prefix
         export_root_name = None
