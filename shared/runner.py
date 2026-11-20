@@ -1,6 +1,7 @@
 """Host-side headless Blender orchestrator (Python 3.10+ stdlib only)."""
 from __future__ import annotations
 
+import importlib
 import json
 import os
 import platform
@@ -9,17 +10,36 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+from shared.command_registry import BLENDER_SUBCOMMANDS, COMMANDS, HOST_SUBCOMMANDS, SUBCOMMAND_TO_MODULE
 from shared.paths import resolve_kit_root
 
-SUBCOMMAND_TO_MODULE = {
-    "doctor": "tools.doctor_blender",
-    "inspect": "shared.scene_inspector",
-    "qa": "shared.qa_checks",
-    "pack": "shared.channel_pack",
-    "export": "shared.exporter",
-    "bundle": "shared.bundle_exporter",
-    "review": "shared.review_shots",
-}
+
+def run_host_module(
+    module_name: str,
+    module_args: list[str] | None = None,
+) -> dict:
+    """Execute a stdlib/host command without discovering or launching Blender."""
+    try:
+        module = importlib.import_module(module_name)
+        entrypoint = getattr(module, "cli_main", None)
+        if not callable(entrypoint):
+            raise AttributeError(f"{module_name} has no callable cli_main")
+        payload = entrypoint(list(module_args or []))
+        if not isinstance(payload, dict):
+            raise TypeError(f"{module_name}.cli_main must return a dict")
+        return payload
+    except SystemExit as exc:
+        return {
+            "status": "error",
+            "error_type": "ArgumentError",
+            "error": f"host command argument parsing failed (exit {exc.code})",
+        }
+    except Exception as exc:
+        return {
+            "status": "error",
+            "error_type": type(exc).__name__,
+            "error": str(exc),
+        }
 
 
 def find_blender(explicit: str | None = None) -> str:

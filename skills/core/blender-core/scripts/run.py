@@ -2,6 +2,8 @@
 """Single host entrypoint shim for AI agents (Python 3.10+ stdlib only).
 
 Usage:
+  python <blender-core>/scripts/run.py capabilities --json
+  python <blender-core>/scripts/run.py contract --target unity --asset-class solid_prop
   python <blender-core>/scripts/run.py doctor [--device auto|gpu|cpu]
   python <blender-core>/scripts/run.py qa --blend in.blend --target unity --asset-class solid_prop
   python <blender-core>/scripts/run.py export --blend in.blend --target unity --profile urp --out build/
@@ -48,7 +50,8 @@ def main(argv: list[str] | None = None) -> int:
     if str(kit_root) not in sys.path:
         sys.path.insert(0, str(kit_root))
 
-    from shared.runner import SUBCOMMAND_TO_MODULE, run_blender_module
+    from shared.command_registry import COMMANDS, HOST_SUBCOMMANDS, SUBCOMMAND_TO_MODULE
+    from shared.runner import run_blender_module, run_host_module
 
     parser = argparse.ArgumentParser(description="blender-agent-kit single agent entrypoint")
     parser.add_argument("subcommand", choices=sorted(SUBCOMMAND_TO_MODULE.keys()))
@@ -61,23 +64,37 @@ def main(argv: list[str] | None = None) -> int:
         arg in ("--help", "-h") for arg in raw_args[1:]
     ):
         from shared.cli_help import render_subcommand_help
+        command = raw_args[0]
         print(render_subcommand_help(
-            kit_root, raw_args[0], SUBCOMMAND_TO_MODULE[raw_args[0]],
+            kit_root,
+            command,
+            SUBCOMMAND_TO_MODULE[command],
+            mode=COMMANDS[command]["mode"],
         ))
         return 0
     if sum(arg == "--result-json" or arg.startswith("--result-json=") for arg in raw_args) > 1:
         parser.error("--result-json may only be supplied once")
     known, remainder = parser.parse_known_args(raw_args)
 
-    addon_list = [a.strip() for a in known.addons.split(",") if a.strip()] if known.addons else None
-    result = run_blender_module(
-        module_name=SUBCOMMAND_TO_MODULE[known.subcommand],
-        module_args=remainder,
-        blend_file=known.blend,
-        addons=addon_list,
-        blender_exe=known.blender,
-        kit_root=kit_root,
-    )
+    if known.subcommand in HOST_SUBCOMMANDS:
+        if known.blend or known.blender or known.addons:
+            parser.error(
+                f"{known.subcommand} is host-only; --blend/--blender/--addons are not applicable"
+            )
+        result = run_host_module(
+            module_name=SUBCOMMAND_TO_MODULE[known.subcommand],
+            module_args=remainder,
+        )
+    else:
+        addon_list = [a.strip() for a in known.addons.split(",") if a.strip()] if known.addons else None
+        result = run_blender_module(
+            module_name=SUBCOMMAND_TO_MODULE[known.subcommand],
+            module_args=remainder,
+            blend_file=known.blend,
+            addons=addon_list,
+            blender_exe=known.blender,
+            kit_root=kit_root,
+        )
     serialized = json.dumps(result, indent=2)
     if known.result_json:
         destination = Path(known.result_json).expanduser().resolve()

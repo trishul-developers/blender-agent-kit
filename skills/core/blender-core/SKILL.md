@@ -1,38 +1,25 @@
 ---
 name: blender-core
-description: Use this skill as the starting point for headless Blender 5.2+ inspection, asset creation, QA, texture packing, rendering, semantic bundle export, or game-engine export. Routes to specialist core skills, target plugins, and optional project profiles through one run.py entrypoint.
+description: Start here for Blender Agent Kit. Discover executable capabilities and the resolved production contract before authoring or running headless Blender workflows.
 ---
 
 # Blender Core
 
-Always execute Blender through the single host entrypoint:
+Use executable discovery before reading implementation files:
 
 ```bash
-python <blender-core>/scripts/run.py doctor --device auto
-python <blender-core>/scripts/run.py inspect --blend in.blend
-python <blender-core>/scripts/run.py qa --blend in.blend --target unity --asset-class solid_prop
-python <blender-core>/scripts/run.py pack --target unity --profile urp --asset-id prop01 --material Body --input-dir raw/ --out build/
-python <blender-core>/scripts/run.py export --blend in.blend --target unity --profile urp --out build/
-python <blender-core>/scripts/run.py bundle --blend in.blend --spec bundle.json --target unity --out build/
-python <blender-core>/scripts/run.py review --blend in.blend --device auto --out review/
+python <blender-core>/scripts/run.py capabilities --json
+python <blender-core>/scripts/run.py contract --target unity --asset-class solid_prop
 ```
 
-## Routing
+Add `--project-profile <name-or-json>`, `--profile <texture-profile>`, or `--preset <review-preset>` to `contract` when relevant.
 
-- Geometry: `blender-modeling`
-- UV/raw PBR baking: `blender-uv-baking`
-- LOD/collision authoring: `blender-lod-collision`
-- Rigging/animation: `blender-rigging-animation`
-- Inspection/QA: `blender-asset-qa`
-- Compound multi-file assets: `blender-bundle`
-- Folder jobs: `blender-batch`
-- Engine export: `blender-target-<engine>`
-- Optional downstream conventions: `blender-profile-<name>` or an external project-profile JSON
+## Minimum safe workflow
 
-## Boundaries
+1. Read the resolved contract.
+2. Author or modify the asset with the relevant specialist skill.
+3. Run `qa` before expensive review/export work.
+4. Use `pack`, `review`, `export`, or `bundle` as required.
+5. Preserve machine-readable results and source/build inputs.
 
-1. Core primitives stay engine- and project-agnostic.
-2. Target plugins own engine semantics such as axes, exporter settings, and standard texture layouts.
-3. Project profiles are overlays: they may add asset classes, budgets, naming, or texture profiles without changing the base target.
-4. Exact simulation contracts, faction rules, vehicle measurements, socket inventories, and game-specific damage semantics belong in downstream project profiles.
-5. Deterministic build scripts and source files should be included in build inputs so manifests change when source/config/tool identity changes.
+Use `run.py <command> --help` for exact flags. Engine semantics belong to target plugins; reusable production defaults belong to policies; project-specific rules belong to project profiles.

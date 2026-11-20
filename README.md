@@ -181,15 +181,37 @@ General-purpose illustration, concept-art generation, or arbitrary text-to-image
 | `blender-rigging-animation` | Rigging, weights, and animation staging |
 | `blender-asset-qa` | Production QA and structured evidence |
 | `blender-bundle` | Compound multi-file asset delivery |
-| `blender-batch` | Folder-scale headless processing and build caching |
+| `blender-batch` | Guidance for external folder orchestration; first-class `batch` command/caching is tracked in #11 |
 | `blender-target-unity` | Unity-specific axes, export, and texture conventions |
 | project profiles | Optional reusable production policies layered over a target |
+
+## Agent-first discovery
+
+Before reading target/profile internals, an agent can discover the installed executable surface and resolve the production rules it must satisfy:
+
+```bash
+# Host-only: does not locate or launch Blender
+python skills/core/blender-core/scripts/run.py capabilities --json
+
+# Host-only: target -> default production policy -> optional project profile
+python skills/core/blender-core/scripts/run.py contract \
+  --target unity --asset-class solid_prop
+
+# Add project/profile context only when needed
+python skills/core/blender-core/scripts/run.py contract \
+  --target unity --project-profile tactical-vehicle \
+  --asset-class heavy_tracked_vehicle --profile tactical_urp
+```
+
+`capabilities` explicitly separates executable commands, configuration plugins, and guidance-only skills. `contract` returns units, naming/classifiers, QA/LOD/material/pivot/UV requirements, texture layout, export/round-trip behavior, and available review presets in one JSON response. This is the preferred source of truth for agent decisions; `SKILL.md` files retain only specialist guardrails that are not usefully expressed as configuration.
 
 ## Command surface
 
 The host-facing command surface is intentionally small:
 
 ```bash
+python skills/core/blender-core/scripts/run.py capabilities --json
+python skills/core/blender-core/scripts/run.py contract --target unity --asset-class solid_prop
 python skills/core/blender-core/scripts/run.py doctor --device auto
 python skills/core/blender-core/scripts/run.py inspect --blend asset.blend
 python skills/core/blender-core/scripts/run.py qa --blend asset.blend --target unity --asset-class solid_prop
