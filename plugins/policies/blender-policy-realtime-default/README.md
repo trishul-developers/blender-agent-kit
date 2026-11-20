@@ -37,3 +37,14 @@ Normal `run.py` commands remain backwards compatible because they call `load_pro
 Python integrations that intentionally call low-level `load_target("unity")` now receive the **engine-only** target and should not expect `solid_prop`, generic LOD/collider naming, or production budgets there. Use `load_profiled_target("unity")` when you need the effective production contract.
 
 Existing v0.2.x manifests remain schema-compatible. New manifests/results may additionally record the resolved `policy` name for provenance.
+
+## Review styles
+
+The policy supplies two reusable review styles:
+
+- `technical` — the headless-safe default: low-sample Cycles, brighter neutral background, tighter framing, and deterministic review lighting for fast inspection.
+- `showcase` — higher-sample Cycles, darker presentation background, tighter hero framing, and presentation-oriented lighting.
+
+The style contract owns render engine, samples, background, camera factors, and light rig. A project `review_preset` may select a style and overlay asset/project-specific views, ranges, exclusions, or reference imagery.
+
+Eevee remains an allowed configurable engine for environments with a suitable graphics/EGL stack, but is not the headless CI default.
