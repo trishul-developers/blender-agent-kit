@@ -5,8 +5,7 @@ import argparse
 import fnmatch
 import re
 from collections import defaultdict
-
-_LOD_RE = re.compile(r"(?:^|[_\-.])LOD(?P<index>\d+)(?:$|[_\-.])", re.IGNORECASE)
+from string import Formatter
 
 
 def _as_list(values) -> list[float]:
@@ -27,12 +26,37 @@ def _candidate_hierarchy_names(obj) -> list[str]:
     return candidates
 
 
-def lod_index(obj) -> int:
+def _format_name_regex(pattern: str, *, capture_index: bool = False) -> re.Pattern:
+    """Compile a configured {name}/{index} naming format into a full regex."""
+    pieces: list[str] = []
+    for literal, field_name, _format_spec, _conversion in Formatter().parse(pattern):
+        pieces.append(re.escape(literal))
+        if field_name is None:
+            continue
+        if field_name == "index":
+            pieces.append(r"(?P<index>\\d+)" if capture_index else r"\\d+")
+        elif field_name == "name":
+            pieces.append(r".+?")
+        else:
+            pieces.append(r".+?")
+    return re.compile("^" + "".join(pieces) + "$", re.IGNORECASE)
+
+
+def lod_index(obj, lod_pattern: str | None = None) -> int:
+    if not lod_pattern:
+        return 0
+    matcher = _format_name_regex(lod_pattern, capture_index=True)
     for name in _candidate_hierarchy_names(obj):
-        match = _LOD_RE.search(name)
+        match = matcher.match(name)
         if match:
             return int(match.group("index"))
     return 0
+
+
+def is_collider_name(name: str, collider_pattern: str | None = None) -> bool:
+    if not collider_pattern:
+        return False
+    return bool(_format_name_regex(collider_pattern).match(name))
 
 
 def _is_excluded_from_lod(obj, patterns: list[str] | None) -> bool:
@@ -97,6 +121,8 @@ def inspect_objects(
     objects=None,
     damage_prefix: str | None = None,
     lod_exclude_patterns: list[str] | None = None,
+    lod_pattern: str | None = None,
+    collider_pattern: str | None = None,
 ) -> dict:
     import bmesh
     import bpy
@@ -122,8 +148,7 @@ def inspect_objects(
 
     for obj in sorted(selected, key=lambda o: o.name):
         plus_y, plus_z = _basis_vectors(obj)
-        upper_name = obj.name.upper()
-        is_collider = "_COL_" in upper_name or upper_name.endswith("_COL") or upper_name.startswith("COLLISION_")
+        is_collider = is_collider_name(obj.name, collider_pattern)
         excluded_from_lod = is_collider or _is_excluded_from_lod(obj, lod_exclude_patterns)
         entry = {
             "name": obj.name,
@@ -136,7 +161,7 @@ def inspect_objects(
             "matrix_local": _matrix_list(obj.matrix_local),
             "plus_y_world": plus_y,
             "plus_z_world": plus_z,
-            "lod": lod_index(obj),
+            "lod": lod_index(obj, lod_pattern),
             "is_damage": _is_damage_object(obj, damage_prefix),
             "excluded_from_lod": excluded_from_lod,
             "is_collider": is_collider,
@@ -231,6 +256,10 @@ def inspect_objects(
         "object_count": len(selected),
         "mesh_count": mesh_count,
         "damage_prefix": damage_prefix,
+        "classification": {
+            "lod_pattern": lod_pattern,
+            "collider_pattern": collider_pattern,
+        },
         "roots": roots,
         "bounds": bounds,
         "lods": lods,
@@ -242,21 +271,40 @@ def inspect_objects(
 def inspect_scene(
     damage_prefix: str | None = None,
     lod_exclude_patterns: list[str] | None = None,
+    lod_pattern: str | None = None,
+    collider_pattern: str | None = None,
 ) -> dict:
     return inspect_objects(
         damage_prefix=damage_prefix,
         lod_exclude_patterns=lod_exclude_patterns,
+        lod_pattern=lod_pattern,
+        collider_pattern=collider_pattern,
     )
 
 
 def cli_main(argv: list[str]) -> dict:
     p = argparse.ArgumentParser()
+    p.add_argument("--target", default="unity")
+    p.add_argument("--project-profile", default=None)
     p.add_argument("--damage-prefix", default=None)
     ns = p.parse_args(argv)
     import bpy
+    from shared.profile_loader import load_profiled_target
 
+    target_cfg, _, _, _, _ = load_profiled_target(
+        ns.target, project_profile=ns.project_profile
+    )
+    naming = target_cfg.get("naming", {})
+    common = target_cfg.get("qa", {}).get("common", {})
+    damage_prefix = ns.damage_prefix if ns.damage_prefix is not None else common.get("damage_prefix")
     return {
         "status": "ok",
         "blender_version": bpy.app.version_string,
-        "inventory": inspect_scene(damage_prefix=ns.damage_prefix),
+        "target": target_cfg["name"],
+        "inventory": inspect_scene(
+            damage_prefix=damage_prefix,
+            lod_exclude_patterns=list(common.get("lod_exclude_patterns", [])),
+            lod_pattern=naming.get("lod_pattern"),
+            collider_pattern=naming.get("collider_pattern"),
+        ),
     }
