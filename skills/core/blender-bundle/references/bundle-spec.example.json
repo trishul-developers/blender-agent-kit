@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "asset_id": "ExampleAsset",
+  "parts": [
+    {
+      "id": "primary_lod0",
+      "role": "primary",
+      "lod": 0,
+      "collection": "Primary_LOD0",
+      "file": "ExampleAsset_Primary_LOD0.fbx"
+    },
+    {
+      "id": "attachment_lod0",
+      "role": "attachment",
+      "lod": 0,
+      "root": "AttachmentRoot_LOD0",
+      "file": "ExampleAsset_Attachment_LOD0.fbx",
+      "zero_root_location": true
+    }
+  ]
+}
