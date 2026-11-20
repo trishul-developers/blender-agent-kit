@@ -212,6 +212,7 @@ The host-facing command surface is intentionally small:
 ```bash
 python skills/core/blender-core/scripts/run.py capabilities --json
 python skills/core/blender-core/scripts/run.py contract --target unity --asset-class solid_prop
+python skills/core/blender-core/scripts/run.py deliver --blend asset.blend --target unity --asset-class solid_prop --out delivery/
 python skills/core/blender-core/scripts/run.py doctor --device auto
 python skills/core/blender-core/scripts/run.py inspect --blend asset.blend
 python skills/core/blender-core/scripts/run.py qa --blend asset.blend --target unity --asset-class solid_prop
@@ -546,34 +547,55 @@ Pixel statistics cannot mathematically prove a tangent-space normal convention, 
 
 ## Review rendering
 
-A profile can define `review_presets` with:
+Review behavior is now split into reusable **styles** and project-specific **presets**.
 
-- output resolution;
-- orthographic views;
-- primary LOD;
-- close-up distance;
-- range shots;
-- azimuth/elevation/lens;
-- LOD list;
-- damage prefix and damage LODs;
-- generic hierarchy `exclude_patterns` for ordinary review shots;
-- optional `reference_exclude_patterns` for comparison imports;
-- generic `variant_views` selected by hierarchy include/exclude patterns;
-- collision view with a wireframe proxy over the primary LOD;
-- optional reference FBX.
+The default `realtime-default` production policy provides:
 
-If the scene has no authored lights, automatic review lighting scales with the subject bounds so small props and larger assets receive comparable illumination instead of assuming a fixed vehicle-scale rig.
+- **`technical`** — headless-safe low-sample Cycles, bright neutral background, high-contrast deterministic lighting, tighter framing, and fast inspection-oriented output;
+- **`showcase`** — higher-sample Cycles with presentation-oriented background, lighting, lens, and framing.
 
-Example:
+Render engine, samples, background, hero distance/lens, orthographic scale, and light placement/energy are policy/configuration values rather than hidden code constants. Eevee can be selected by a custom style where a graphics/EGL stack is available, but the default technical style remains Cycles for reliable headless CI.
+
+A project profile can overlay either style with a `review_preset` containing asset/project-specific views, LODs, ranges, damage/exclusion rules, collision views, and reference FBX.
 
 ```bash
+# Fast technical evidence
 python skills/core/blender-core/scripts/run.py review \
-  --blend vehicle.blend \
-  --project-profile tactical-vehicle \
-  --preset tactical \
-  --reference-fbx reference.fbx \
-  --out review/
+  --blend asset.blend --target unity --style technical --out review/
+
+# Higher-quality presentation render
+python skills/core/blender-core/scripts/run.py review \
+  --blend asset.blend --target unity --style showcase --out showcase/
 ```
+
+The resolved review contract is discoverable without Blender:
+
+```bash
+python skills/core/blender-core/scripts/run.py contract \
+  --target unity --asset-class solid_prop --style technical
+```
+
+### QA-gated delivery
+
+For a source-ready `.blend`, `deliver` reuses the existing commands in a fail-closed sequence:
+
+```text
+inspect -> QA gate -> optional pack -> review -> export/bundle -> round-trip verification
+```
+
+By default, **review and export do not run when QA fails**. The JSON report records every stage result and duration, whether the QA gate passed, and the recommended rerun point.
+
+```bash
+python skills/core/blender-core/scripts/run.py deliver \
+  --blend asset.blend \
+  --target unity --asset-class solid_prop \
+  --asset-id Prop01 \
+  --review-style technical \
+  --out delivery/ \
+  --result-json delivery/report.json
+```
+
+Use `--bundle-spec` for semantic bundles. Texture packing is opt-in via `--pack-input-dir` because canonical raw texture inputs/material identity must be explicit. `--continue-on-qa-error` exists as an intentional diagnostic override; normal delivery should leave the gate enabled.
 
 ## Generic review contact sheets
 
