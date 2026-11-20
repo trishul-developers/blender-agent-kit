@@ -181,7 +181,7 @@ General-purpose illustration, concept-art generation, or arbitrary text-to-image
 | `blender-rigging-animation` | Rigging, weights, and animation staging |
 | `blender-asset-qa` | Production QA and structured evidence |
 | `blender-bundle` | Compound multi-file asset delivery |
-| `blender-batch` | Guidance for external folder orchestration; first-class `batch` command/caching is tracked in #11 |
+| `blender-batch` | Bounded folder-scale QA/packing/export/delivery with subprocess isolation, safe caching, and measured telemetry |
 | `blender-target-unity` | Unity-specific axes, export, and texture conventions |
 | project profiles | Optional reusable production policies layered over a target |
 
@@ -213,6 +213,7 @@ The host-facing command surface is intentionally small:
 python skills/core/blender-core/scripts/run.py capabilities --json
 python skills/core/blender-core/scripts/run.py contract --target unity --asset-class solid_prop
 python skills/core/blender-core/scripts/run.py deliver --blend asset.blend --target unity --asset-class solid_prop --out delivery/
+python skills/core/blender-core/scripts/run.py batch --operation qa --input-dir assets --target unity --asset-class solid_prop --out batch-build/
 python skills/core/blender-core/scripts/run.py doctor --device auto
 python skills/core/blender-core/scripts/run.py inspect --blend asset.blend
 python skills/core/blender-core/scripts/run.py qa --blend asset.blend --target unity --asset-class solid_prop
@@ -225,6 +226,24 @@ python skills/core/blender-core/scripts/run.py pack --target unity --profile urp
 ```
 
 Asset **creation itself is performed by the agent through Blender/Python**, using the modeling and specialist skills. The commands above provide the stable runtime around creation: discovery, inspection, QA, packing, export, bundle delivery, and review evidence.
+
+## Batch processing, caching and measured telemetry
+
+`batch` runs bounded folder jobs without requiring an agent to write its own orchestration loop:
+
+```bash
+python skills/core/blender-core/scripts/run.py batch \
+  --operation qa \
+  --input-dir assets --pattern "*.blend" \
+  --target unity --asset-class solid_prop \
+  --out batch-build/ --result-json batch-build/report.json
+```
+
+Supported operations are `qa`, `pack`, `export`, `bundle`, and `deliver`. Blender-backed cache misses execute in separate headless processes. Cache hits are accepted only when source bytes, resolved configuration, toolkit identity, Blender identity, and operation options match; export/bundle hits also validate manifest build hashes and required generated files.
+
+Reports contain per-asset durations plus processed/skipped/failed and cache hit/miss counts. The toolkit intentionally reports only telemetry it can observe; it does **not** estimate model/API tokens or agent turns.
+
+Use `--refresh-cache` to rebuild known assets, `--no-cache` to disable cache use, and `--max-assets` to bound discovery.
 
 ## Architecture
 
