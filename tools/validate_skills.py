@@ -12,7 +12,7 @@ KIT_ROOT = Path(__file__).resolve().parent.parent
 if str(KIT_ROOT) not in sys.path:
     sys.path.insert(0, str(KIT_ROOT))
 
-from shared.policy_loader import validate_policy_dict  # noqa: E402
+from shared.policy_loader import load_policy, validate_policy_dict  # noqa: E402
 from shared.profile_loader import load_project_profile, validate_project_profile_dict  # noqa: E402
 from shared.target_loader import deep_merge_dict, list_targets, load_target, validate_target_dict  # noqa: E402
 
@@ -134,6 +134,12 @@ def validate_repo(kit_root: Path | None = None, require_jsonschema: bool | None 
         errors.extend(f"{tjson}: {e}" for e in validate_target_dict(data, folder_name=tjson.parent.name))
         if target_schema:
             errors.extend(validate_json_instance(data, target_schema, str(tjson), require_jsonschema=strict))
+        default_policy = data.get("default_policy")
+        if default_policy:
+            try:
+                load_policy(default_policy, kit_root=root)
+            except Exception as exc:
+                errors.append(f"{tjson}: default_policy '{default_policy}' is invalid: {exc}")
 
     policy_schema = schemas.get("policy.schema.json")
     for policy_json in sorted(root.glob("plugins/policies/*/policy.json")):
