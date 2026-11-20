@@ -5,7 +5,10 @@
   "target_defaults": {
     "naming": {
       "lod_pattern": "{name}_LOD{index}",
-      "collider_pattern": "{name}_COL_{index:02d}"
+      "collider_patterns": [
+        "{name}_COL_{index:02d}",
+        "COLLISION_{name}"
+      ]
     },
     "export": {
       "prebake_directional_patterns": [
