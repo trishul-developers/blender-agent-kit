@@ -367,9 +367,12 @@ def run(
         rules.get("lod_exclude_patterns", common.get("lod_exclude_patterns", []))
     )
 
+    naming = target_cfg.get("naming", {})
     inventory = inspect_scene(
         damage_prefix=damage_prefix,
         lod_exclude_patterns=lod_exclude_patterns,
+        lod_pattern=naming.get("lod_pattern"),
+        collider_pattern=naming.get("collider_pattern"),
     )
     errors: list[dict] = []
     warnings: list[dict] = []
