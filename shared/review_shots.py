@@ -410,9 +410,7 @@ def run(
     out_path = Path(out_dir).resolve()
     out_path.mkdir(parents=True, exist_ok=True)
     scene = bpy.context.scene
-    # Inventory must use the same generic LOD exclusions as target/profile QA.
-    # A review stage has no target argument; union configured target exclusions
-    # rather than hardcoding a game or engine target.
+    # Inventory uses the same resolved target/policy naming and LOD exclusions as QA.
     common = target_cfg.get("qa", {}).get("common", {})
     exclusions = set(common.get("lod_exclude_patterns", []))
     exclusions.update(preset_cfg.get("lod_exclude_patterns", []))
@@ -440,7 +438,7 @@ def run(
     radius = max(max(base_bounds["size"]) * 0.6, 0.5)
     camera = _ensure_camera(scene)
     _ensure_lighting(scene, center, radius)
-    damage_prefix = str(preset_cfg.get("damage_prefix", "Damage_"))
+    damage_prefix = str(preset_cfg.get("damage_prefix", common.get("damage_prefix", "Damage_")))
     exclude_patterns = [str(v) for v in preset_cfg.get("exclude_patterns", [])]
     reference_exclude_patterns = [
         str(v) for v in preset_cfg.get("reference_exclude_patterns", exclude_patterns)
@@ -454,6 +452,8 @@ def run(
         damage_mode="intact",
         damage_prefix=damage_prefix,
         exclude_patterns=exclude_patterns,
+        lod_pattern=lod_pattern,
+        collider_pattern=collider_pattern,
     )
     try:
         bounds = _bounds_from_visible(scene) or base_bounds
