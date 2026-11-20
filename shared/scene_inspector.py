@@ -68,6 +68,15 @@ def is_collider_name(name: str, collider_patterns: str | list[str] | None = None
     )
 
 
+def collider_patterns_from_naming(naming: dict | None) -> list[str]:
+    """Resolve configured collider naming, honoring legacy singular overrides."""
+    cfg = naming or {}
+    legacy = cfg.get("collider_pattern")
+    if legacy:
+        return _pattern_list(legacy)
+    return _pattern_list(cfg.get("collider_patterns"))
+
+
 def _is_excluded_from_lod(obj, patterns: list[str] | None) -> bool:
     if not patterns:
         return False
@@ -314,6 +323,6 @@ def cli_main(argv: list[str]) -> dict:
             damage_prefix=damage_prefix,
             lod_exclude_patterns=list(common.get("lod_exclude_patterns", [])),
             lod_pattern=naming.get("lod_pattern"),
-            collider_patterns=naming.get("collider_patterns") or naming.get("collider_pattern"),
+            collider_patterns=collider_patterns_from_naming(naming),
         ),
     }
