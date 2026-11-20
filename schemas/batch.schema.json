@@ -1,0 +1,240 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/trishul-developers/blender-agent-kit/schemas/batch.schema.json",
+  "title": "Blender Agent Kit Batch Report",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "status": {
+      "enum": [
+        "ok",
+        "error"
+      ]
+    },
+    "operation": {
+      "enum": [
+        "qa",
+        "pack",
+        "export",
+        "bundle",
+        "deliver"
+      ]
+    },
+    "input_dir": {
+      "type": "string"
+    },
+    "out_dir": {
+      "type": "string"
+    },
+    "pattern": {
+      "type": "string"
+    },
+    "recursive": {
+      "type": "boolean"
+    },
+    "tool_identity": {
+      "type": "string",
+      "pattern": "^sha256:"
+    },
+    "blender_identity": {
+      "type": "object",
+      "required": [
+        "path",
+        "version",
+        "size",
+        "mtime_ns"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "mtime_ns": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "cache": {
+      "type": "object",
+      "required": [
+        "enabled",
+        "refresh",
+        "hits",
+        "misses"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "refresh": {
+          "type": "boolean"
+        },
+        "hits": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "misses": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "required": [
+        "discovered",
+        "processed",
+        "skipped",
+        "failed"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "discovered": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "processed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "skipped": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failed": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "duration_ms": {
+      "type": "number",
+      "minimum": 0
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "source",
+          "asset_id",
+          "status",
+          "cache_hit",
+          "cache_key",
+          "duration_ms",
+          "cache_file",
+          "result"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "type": "string"
+          },
+          "asset_id": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "ok",
+              "error"
+            ]
+          },
+          "cache_hit": {
+            "type": "boolean"
+          },
+          "cache_key": {
+            "type": "string",
+            "pattern": "^sha256:"
+          },
+          "duration_ms": {
+            "type": "number",
+            "minimum": 0
+          },
+          "cache_file": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "result": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "telemetry": {
+      "type": "object",
+      "required": [
+        "measured",
+        "not_measured"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "measured": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "not_measured": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "error": {
+      "type": "string"
+    },
+    "discovered": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "status": {
+          "const": "ok"
+        }
+      },
+      "required": [
+        "status",
+        "operation",
+        "input_dir",
+        "out_dir",
+        "pattern",
+        "recursive",
+        "tool_identity",
+        "blender_identity",
+        "cache",
+        "counts",
+        "duration_ms",
+        "items",
+        "telemetry"
+      ]
+    },
+    {
+      "properties": {
+        "status": {
+          "const": "error"
+        }
+      },
+      "required": [
+        "status",
+        "error",
+        "items"
+      ]
+    }
+  ]
+}

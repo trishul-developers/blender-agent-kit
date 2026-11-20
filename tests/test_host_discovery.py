@@ -40,7 +40,7 @@ class DiscoveryTests(unittest.TestCase):
         self.assertEqual(by_target["unity"]["default_policy"], "realtime-default")
         self.assertIn("urp", by_target["unity"]["texture_profiles"])
         by_skill = {row["name"]: row for row in first["skills"]}
-        self.assertEqual(by_skill["blender-batch"]["execution"], "guidance-only")
+        self.assertEqual(by_skill["blender-batch"]["execution"], "executable")
         self.assertEqual(by_skill["blender-asset-qa"]["execution"], "executable")
 
     def test_discovery_payloads_match_public_json_schemas(self):
@@ -130,7 +130,7 @@ class DiscoveryTests(unittest.TestCase):
 
     def test_run_py_host_discovery_never_launches_blender(self):
         entry = _entrypoint()
-        self.assertEqual(HOST_SUBCOMMANDS, {"capabilities", "contract", "deliver"})
+        self.assertEqual(HOST_SUBCOMMANDS, {"batch", "capabilities", "contract", "deliver"})
         with patch("shared.runner.find_blender", side_effect=AssertionError("Blender discovery forbidden")):
             out = io.StringIO()
             with contextlib.redirect_stdout(out):

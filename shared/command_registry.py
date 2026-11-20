@@ -2,6 +2,14 @@
 from __future__ import annotations
 
 COMMANDS = {
+    "batch": {
+        "module": "shared.batch",
+        "mode": "host",
+        "skill": "blender-batch",
+        "purpose": "Run bounded folder-scale QA/pack/export/bundle/deliver jobs with subprocess isolation, safe cache skips, and measured telemetry.",
+        "evidence": ["batch_report", "cache_identity", "per_asset_timings"],
+        "host_options": ["blender", "addons"],
+    },
     "capabilities": {
         "module": "shared.capabilities",
         "mode": "host",

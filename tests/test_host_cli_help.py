@@ -33,6 +33,11 @@ class SubcommandHelpTests(unittest.TestCase):
                     self.assertIn("--review-style", output)
                     self.assertIn("--asset-class", output)
                     self.assertIn("Execution mode: host", output)
+                if command == "batch":
+                    self.assertIn("--operation", output)
+                    self.assertIn("--max-assets", output)
+                    self.assertIn("--refresh-cache", output)
+                    self.assertIn("Execution mode: host", output)
 
     def test_host_help_does_not_start_blender(self):
         spec = importlib.util.spec_from_file_location("bak_help_entry", ENTRY)
