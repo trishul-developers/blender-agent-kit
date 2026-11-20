@@ -605,7 +605,7 @@ def run() -> dict:
     from shared.scene_inspector import inspect_scene
     separated = inspect_scene(
         lod_pattern=DEFAULT_LOD_PATTERN,
-        collider_pattern=DEFAULT_COLLIDER_PATTERN,
+        collider_patterns=DEFAULT_COLLIDER_PATTERN,
     )
     assert separated["lods"]["0"]["tri_count"] == 12, separated["lods"]
     assert separated["colliders"] == ["Prop_COL_01"], separated["colliders"]
