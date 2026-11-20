@@ -11,7 +11,7 @@ def _value(node: ast.AST):
     return None
 
 
-def render_subcommand_help(kit_root: Path, command: str, module_name: str) -> str:
+def render_subcommand_help(kit_root: Path, command: str, module_name: str, mode: str = "blender") -> str:
     path = kit_root.joinpath(*module_name.split(".")).with_suffix(".py")
     source = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
     function = next((node for node in source.body if isinstance(node, ast.FunctionDef)
@@ -43,10 +43,16 @@ def render_subcommand_help(kit_root: Path, command: str, module_name: str) -> st
         args.append((name, desc.strip()))
     width = max((len(name) for name, _ in args), default=0)
     body = "\n".join(f"  {name.ljust(width)}  {desc}".rstrip() for name, desc in args)
+    entry_options = (
+        "--result-json FILE"
+        if mode == "host"
+        else "--blend FILE --blender FILE --addons IDS --result-json FILE"
+    )
     return (
         f"Blender Agent Kit: {command}\n"
         f"  python skills/core/blender-core/scripts/run.py {command} [OPTIONS]\n\n"
-        f"Host options: --blend FILE --blender FILE --addons IDS --result-json FILE\n"
+        f"Host options: {entry_options}\n"
+        f"Execution mode: {mode}\n"
         f"Subcommand options (from {module_name}.cli_main):\n"
         f"{body}\n"
     )
