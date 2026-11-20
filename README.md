@@ -30,6 +30,8 @@ The emphasis is not only on generating geometry. The goal is to let an agent pro
 
 ## Independently tested — two real 3D asset workflows
 
+**Canonical reproduction:** [`demo/README.md`](demo/README.md) documents the v0.2.3+ source-bound full/smoke entrypoints. The separate `demos/` tree is retained only as historical v0.2.1 provenance.
+
 A separate agent installed **Blender 5.2.4 LTS** and the **unmodified Blender Agent Kit v0.2.1** release, then authored two new assets from scratch. It recorded installation friction, actual QA failures, output files, real Blender FBX round trips, and an estimated with-kit versus no-kit effort comparison. This is an **agent-authored field trial**, not a controlled benchmark or Unity Editor test.
 
 ### SupplyCrate — procedural prop, PBR, QA, LOD and collision

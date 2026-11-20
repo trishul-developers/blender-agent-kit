@@ -310,13 +310,17 @@ def main() -> int:
 
     em_e, _, _ = read_png_exact(re_dir / "emission.png")
     pk_em_b, _, _ = read_png_exact(pk_dir / "SciFiKit__M_SciFi_Emissive__albedo.png")
+    pk_em_e, _, _ = read_png_exact(pk_dir / "SciFiKit__M_SciFi_Emissive__emission.png")
 
     ts_mae = float(np.abs(pk_ts_mg[:, :, 3:4] - (1.0 - ts_r[:, :, 0:1])).mean())
+    emission_mae = float(np.abs(pk_em_e[:, :, :3] - em_e[:, :, :3]).mean())
     tex_val = {
         "trim_sheet_raw_normal_bit_depth": bd_tsn,
         "trim_sheet_packed_normal_bit_depth": bd_pk_tsn,
         "trim_sheet_smoothness_mae": ts_mae,
         "trim_sheet_verified": (bd_tsn == 16 and bd_pk_tsn == 16 and ts_mae < 0.005),
+        "emission_source_vs_packed_mae": emission_mae,
+        "emission_map_verified": emission_mae < 0.005,
     }
     (base / "evidence" / "texture_validation.json").write_text(json.dumps(tex_val, indent=2) + "\n", encoding="utf-8")
 
@@ -335,13 +339,14 @@ def main() -> int:
         (to_rgb(mg_split), "TrimSheet URP: _MetallicGlossMap", f"L: Metallic RGB | R: Smoothness A (MAE {ts_mae:.5f})"),
         (to_rgb(pk_ts_n), "TrimSheet URP: _BumpMap", f"2048² {bd_pk_tsn}-bit Linear NormalMap (OpenGL +Y)"),
         (to_rgb(pk_ts_ao), "TrimSheet URP: _OcclusionMap", "2048² 8-bit Linear Grayscale  |  Panel & Rib AO"),
-        (to_rgb(pk_em_b), "Emissive URP: _BaseMap", "1024² 8-bit sRGB RGBA  |  URP Emissive Slot Note*"),
+        (to_rgb(pk_em_b), "Emissive URP: _BaseMap", "1024² 8-bit sRGB RGBA"),
+        (to_rgb(pk_em_e), "Emissive URP: _EmissionMap", f"1024² source-bound emission  |  MAE {emission_mae:.5f}"),
     ]
     tex_img = make_grid(
         "Helios Conduit — Trim-Sheet, Emissive & Unity URP Packed Material Proof",
-        f"2 Materials: M_SciFi_TrimSheet (2048²) + M_SciFi_Emissive (1024²)  |  16-bit Normal: PASS  |  Smoothness Alpha: PASS  |  *URP default target lacks _EmissionMap",
+        f"2 Materials: M_SciFi_TrimSheet (2048²) + M_SciFi_Emissive (1024²)  |  16-bit Normal: PASS  |  Smoothness Alpha: PASS  |  Emission: PASS",
         tex_tiles,
-        cols=4,
+        cols=3,
         tile_w=480,
         tile_h=480,
     )

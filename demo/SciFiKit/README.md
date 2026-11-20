@@ -1,5 +1,10 @@
 # Demonstration B — Sci-Fi Modular Environment Kit ("Helios Conduit")
 
+> **Canonical v0.2.3+ reproduction:** `python demo/SciFiKit/run_demo.py --mode full --clean`  
+> Representative CI/source smoke: `python demo/SciFiKit/run_demo.py --mode smoke --clean`  
+> Regenerated output is written to `build/canonical-demos/SciFiKit/` by default; the checked-in evidence below remains the original independent v0.2.1 trial. Current full reproduction also validates the source-bound optional Unity `_EmissionMap`, which the original v0.2.1 evidence predated.
+
+
 Independently authored 6-piece industrial sci-fi modular environment kit built from scratch in Blender 5.2.4 LTS and validated through **Blender Agent Kit v0.2.1** (`0c6c3d10cb7265166fe46e7c5ccab69ff2abf793`).
 
 ## Modular Grid & Component Inventory
