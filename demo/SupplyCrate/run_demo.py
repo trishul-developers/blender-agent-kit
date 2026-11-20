@@ -92,6 +92,14 @@ def main() -> int:
         "--project-profile", str(SOURCE / "supplycrate.profile.json"),
         "--result-json", str(out / "evidence/inspect.json"),
     ], steps)
+    _run("qa", [
+        py, str(RUN_PY), "qa",
+        "--blend", str(out / "scenes/SupplyCrate.blend"),
+        "--target", "unity",
+        "--project-profile", str(SOURCE / "supplycrate.profile.json"),
+        "--asset-class", "solid_prop",
+        "--result-json", str(out / "evidence/qa.json"),
+    ], steps)
     _run("pack", [
         py, str(RUN_PY), "pack",
         "--target", "unity", "--profile", "urp",
@@ -115,14 +123,6 @@ def main() -> int:
             "--result-json", str(out / "evidence/deliver.json"),
         ], steps)
     else:
-        _run("qa", [
-            py, str(RUN_PY), "qa",
-            "--blend", str(out / "scenes/SupplyCrate.blend"),
-            "--target", "unity",
-            "--project-profile", str(SOURCE / "supplycrate.profile.json"),
-            "--asset-class", "solid_prop",
-            "--result-json", str(out / "evidence/qa.json"),
-        ], steps)
         _run("bundle", [
             py, str(RUN_PY), "bundle",
             "--blend", str(out / "scenes/SupplyCrate.blend"),
