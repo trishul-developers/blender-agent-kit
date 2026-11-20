@@ -394,7 +394,7 @@
                 "type": "string",
                 "enum": [
                   "CYCLES",
-                  "BLENDER_EEVEE_NEXT"
+                  "BLENDER_EEVEE"
                 ]
               },
               "resolution": {
