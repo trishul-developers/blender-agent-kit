@@ -145,6 +145,16 @@ class DiscoveryTests(unittest.TestCase):
             self.assertEqual(json.loads(stream.getvalue()), json.loads(dest.read_text()))
             self.assertEqual(json.loads(dest.read_text())["target"]["name"], "unity")
 
+    def test_invalid_host_flag_is_structured_error(self):
+        entry = _entrypoint()
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+            rc = entry.main(["capabilities", "--not-a-real-flag"])
+        self.assertEqual(rc, 1)
+        payload = json.loads(out.getvalue())
+        self.assertEqual(payload["status"], "error")
+        self.assertEqual(payload["error_type"], "ArgumentError")
+
     def test_invalid_contract_is_structured_error(self):
         entry = _entrypoint()
         out = io.StringIO()
