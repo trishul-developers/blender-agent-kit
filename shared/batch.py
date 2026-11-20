@@ -42,11 +42,7 @@ def _tool_identity(root: Path) -> str:
     candidates: list[Path] = []
     for pattern in (
         "shared/**/*.py",
-        "tools/*.py",
         "skills/core/blender-core/scripts/run.py",
-        "plugins/targets/*/target.json",
-        "plugins/policies/*/policy.json",
-        "schemas/*.json",
     ):
         candidates.extend(root.glob(pattern))
     h = hashlib.sha256()
@@ -83,19 +79,79 @@ def _blender_identity(explicit: str | None) -> dict:
 
 
 def _resolved_config_identity(
+    operation: str,
     target: str,
     texture_profile: str | None,
     project_profile: str | None,
 ) -> dict:
+    """Hash only configuration that can affect the selected operation."""
     cfg, chosen, _target_dir, project_data, _project_path = load_profiled_target(
         target,
         texture_profile=texture_profile,
         project_profile=project_profile,
     )
-    return {
-        "target": cfg,
+    identity: dict = {
+        "target_name": cfg.get("name"),
+        "target_version": cfg.get("version"),
+        "policy": cfg.get("default_policy"),
         "texture_profile": chosen,
-        "project_profile": project_data,
+    }
+    if operation == "qa":
+        identity.update({
+            "units": cfg.get("units", {}),
+            "naming": cfg.get("naming", {}),
+            "qa": cfg.get("qa", {}),
+        })
+    elif operation == "pack":
+        identity.update({
+            "naming": {"texture_pattern": cfg.get("naming", {}).get("texture_pattern")},
+            "textures": cfg.get("textures", {}),
+        })
+    elif operation in {"export", "bundle"}:
+        identity.update({
+            "units": cfg.get("units", {}),
+            "naming": cfg.get("naming", {}),
+            "export": cfg.get("export", {}),
+            "qa_common": cfg.get("qa", {}).get("common", {}),
+        })
+        if operation == "bundle":
+            identity["project_bundle_defaults"] = (project_data or {}).get("bundle_defaults", {})
+    else:  # deliver composes QA, review and export/bundle.
+        identity["target"] = cfg
+        identity["project_bundle_defaults"] = (project_data or {}).get("bundle_defaults", {})
+    return identity
+
+
+def _operation_options(
+    operation: str,
+    *,
+    asset_class: str,
+    material: str | None,
+    pack_size: int | None,
+    detect_normal_y: bool,
+    bundle_spec_template: str | None,
+    review_style: str,
+    no_roundtrip: bool,
+) -> dict:
+    if operation == "qa":
+        return {"asset_class": asset_class}
+    if operation == "pack":
+        return {
+            "material": material,
+            "pack_size": pack_size,
+            "detect_normal_y": detect_normal_y,
+        }
+    if operation == "export":
+        return {"category": asset_class, "no_roundtrip": no_roundtrip}
+    if operation == "bundle":
+        return {
+            "bundle_spec_template": bundle_spec_template,
+            "no_roundtrip": no_roundtrip,
+        }
+    return {
+        "asset_class": asset_class,
+        "bundle_spec_template": bundle_spec_template,
+        "review_style": review_style,
     }
 
 
@@ -453,6 +509,12 @@ def run(
         return {"status": "error", "error": "--max-assets must be >= 1", "items": []}
     if operation == "pack" and not material:
         return {"status": "error", "error": "--material is required for batch pack", "items": []}
+    if no_roundtrip and operation not in {"export", "bundle"}:
+        return {
+            "status": "error",
+            "error": "--no-roundtrip applies only to batch export or bundle",
+            "items": [],
+        }
 
     chosen_pattern = pattern or ("*" if operation == "pack" else "*.blend")
     sources = (
@@ -478,21 +540,21 @@ def run(
     output_root.mkdir(parents=True, exist_ok=True)
     tool_id = _tool_identity(root)
     blender_id = _blender_identity(blender_exe)
-    config_id = _resolved_config_identity(target, texture_profile, project_profile)
+    config_id = _resolved_config_identity(
+        operation, target, texture_profile, project_profile
+    )
     effective_blender = blender_id["path"]
 
-    option_identity = {
-        "target": target,
-        "texture_profile": texture_profile,
-        "project_profile": project_profile,
-        "asset_class": asset_class,
-        "material": material,
-        "pack_size": pack_size,
-        "detect_normal_y": detect_normal_y,
-        "bundle_spec_template": bundle_spec_template,
-        "review_style": review_style,
-        "no_roundtrip": no_roundtrip,
-    }
+    option_identity = _operation_options(
+        operation,
+        asset_class=asset_class,
+        material=material,
+        pack_size=pack_size,
+        detect_normal_y=detect_normal_y,
+        bundle_spec_template=bundle_spec_template,
+        review_style=review_style,
+        no_roundtrip=no_roundtrip,
+    )
 
     items: list[dict] = []
     processed = skipped = failed = 0
