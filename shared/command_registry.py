@@ -16,6 +16,14 @@ COMMANDS = {
         "purpose": "Resolve target + production policy + optional project profile into one production contract.",
         "evidence": ["resolved_contract"],
     },
+    "deliver": {
+        "module": "shared.deliver",
+        "mode": "host",
+        "skill": "blender-core",
+        "purpose": "Run inspect -> QA gate -> optional pack -> review -> export/bundle with structured stage timings.",
+        "evidence": ["delivery_report", "stage_timings", "qa_gate"],
+        "host_options": ["blend", "blender", "addons"],
+    },
     "doctor": {
         "module": "tools.doctor_blender",
         "mode": "blender",
