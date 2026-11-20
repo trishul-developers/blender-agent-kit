@@ -13,6 +13,7 @@ from unittest.mock import patch
 from shared.capabilities import build_capabilities
 from shared.command_registry import COMMANDS, HOST_SUBCOMMANDS
 from shared.contract import build_contract
+from tools.validate_skills import validate_json_instance
 
 ROOT = Path(__file__).resolve().parents[1]
 ENTRY = ROOT / "skills/core/blender-core/scripts/run.py"
@@ -41,6 +42,26 @@ class DiscoveryTests(unittest.TestCase):
         by_skill = {row["name"]: row for row in first["skills"]}
         self.assertEqual(by_skill["blender-batch"]["execution"], "guidance-only")
         self.assertEqual(by_skill["blender-asset-qa"]["execution"], "executable")
+
+    def test_discovery_payloads_match_public_json_schemas(self):
+        try:
+            import jsonschema  # noqa: F401
+        except ImportError:
+            self.skipTest("jsonschema optional outside strict CI")
+        cap_schema = json.loads((ROOT / "schemas/capabilities.schema.json").read_text())
+        contract_schema = json.loads((ROOT / "schemas/contract.schema.json").read_text())
+        self.assertEqual(
+            validate_json_instance(
+                build_capabilities(ROOT), cap_schema, "capabilities", require_jsonschema=True
+            ),
+            [],
+        )
+        self.assertEqual(
+            validate_json_instance(
+                build_contract(), contract_schema, "contract", require_jsonschema=True
+            ),
+            [],
+        )
 
     def test_default_contract_resolves_policy_without_reading_blender(self):
         contract = build_contract(target="unity", asset_class="solid_prop")
