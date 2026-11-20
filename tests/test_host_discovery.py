@@ -130,7 +130,7 @@ class DiscoveryTests(unittest.TestCase):
 
     def test_run_py_host_discovery_never_launches_blender(self):
         entry = _entrypoint()
-        self.assertEqual(HOST_SUBCOMMANDS, {"capabilities", "contract", "deliver"})
+        self.assertEqual(HOST_SUBCOMMANDS, {"batch", "capabilities", "contract", "deliver"})
         with patch("shared.runner.find_blender", side_effect=AssertionError("Blender discovery forbidden")):
             out = io.StringIO()
             with contextlib.redirect_stdout(out):
