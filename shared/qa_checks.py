@@ -515,6 +515,7 @@ def run(
     return {
         "status": "ok" if not errors else "error",
         "target": target_cfg["name"],
+        "policy": target_cfg.get("default_policy"),
         "project_profile": project_data["name"] if project_data else None,
         "asset_class": asset_class,
         "passed": not errors,
