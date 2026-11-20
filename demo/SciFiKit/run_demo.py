@@ -107,6 +107,14 @@ def main() -> int:
         "--result-json", str(out / "evidence/inspect.json"),
     ], steps)
 
+    _run("qa", [
+        py, str(RUN_PY), "qa",
+        "--blend", str(out / "scenes/SF_Bulkhead_Arch.blend"),
+        "--target", "unity",
+        "--project-profile", str(SOURCE / "scifikit.profile.json"),
+        "--asset-class", "modular_bulkhead",
+        "--result-json", str(out / "evidence/qa_bulkhead.json"),
+    ], steps)
     _run("pack_trim", [
         py, str(RUN_PY), "pack",
         "--target", "unity", "--profile", "urp", "--asset-id", "SciFiKit",
@@ -140,14 +148,6 @@ def main() -> int:
             "--result-json", str(out / "evidence/deliver.json"),
         ], steps)
     else:
-        _run("qa", [
-            py, str(RUN_PY), "qa",
-            "--blend", str(out / "scenes/SF_Bulkhead_Arch.blend"),
-            "--target", "unity",
-            "--project-profile", str(SOURCE / "scifikit.profile.json"),
-            "--asset-class", "modular_bulkhead",
-            "--result-json", str(out / "evidence/qa_bulkhead.json"),
-        ], steps)
         _run("bundle", [
             py, str(RUN_PY), "bundle",
             "--blend", str(out / "scenes/SF_Bulkhead_Arch.blend"),
