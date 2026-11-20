@@ -5,7 +5,21 @@ description: Use this skill when preparing, packing standard URP/HDRP PBR maps f
 
 # Blender Target: Unity
 
-The Unity target owns engine-level behavior only. Project budgets, exact pivots/sockets, vehicle dimensions, custom packed masks, prefab logic, and simulation semantics belong in project profiles or downstream repositories.
+The Unity target owns engine-level behavior only. Project budgets, exact pivots/sockets, vehicle dimensions, custom packed masks, prefab logic, and simulation semantics belong in reusable production policies, project profiles, or downstream repositories.
+
+## Default production policy
+
+The raw Unity `target.json` intentionally does **not** define universal prop/character triangle budgets, material caps, pivot rules, texel-density bands, LOD/collider naming, or socket naming. Those are not Unity engine requirements.
+
+Normal commands automatically resolve the target's `default_policy: realtime-default` before an optional project profile. That reusable policy preserves the kit's backwards-compatible real-time defaults (including `solid_prop`) while keeping them explicitly attributable to Blender Agent Kit policy rather than Unity itself.
+
+Resolution order:
+
+```text
+Unity engine target -> realtime-default production policy -> optional project profile
+```
+
+A project profile can override any resolved policy rule without modifying the Unity target.
 
 ## Static FBX contract
 
