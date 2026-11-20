@@ -121,7 +121,7 @@ jobs:
           crate_run = json.loads((crate / "evidence/run_demo.json").read_text())
           assert crate_run["status"] == "ok" and crate_run["mode"] == "smoke", crate_run
           assert [s["name"] for s in crate_run["steps"]] == [
-              "generate_textures", "build_blend", "inspect", "pack", "deliver"
+              "generate_textures", "build_blend", "inspect", "qa", "pack", "deliver"
           ], crate_run
 
           batch_first = json.loads((crate / "evidence/batch_first.json").read_text())
@@ -153,7 +153,7 @@ jobs:
           sci_run = json.loads((sci / "evidence/run_demo.json").read_text())
           assert sci_run["status"] == "ok" and sci_run["mode"] == "smoke", sci_run
           assert [s["name"] for s in sci_run["steps"]] == [
-              "generate_textures", "build_bulkhead", "inspect",
+              "generate_textures", "build_bulkhead", "inspect", "qa",
               "pack_trim", "pack_emissive", "deliver"
           ], sci_run
           sci_delivery = json.loads((sci / "evidence/deliver.json").read_text())
