@@ -28,6 +28,12 @@ def run_host_module(
         if not isinstance(payload, dict):
             raise TypeError(f"{module_name}.cli_main must return a dict")
         return payload
+    except SystemExit as exc:
+        return {
+            "status": "error",
+            "error_type": "ArgumentError",
+            "error": f"host command argument parsing failed (exit {exc.code})",
+        }
     except Exception as exc:
         return {
             "status": "error",
