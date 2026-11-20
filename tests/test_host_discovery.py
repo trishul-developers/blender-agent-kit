@@ -86,7 +86,7 @@ class DiscoveryTests(unittest.TestCase):
         )
         self.assertEqual(
             contract["review"]["style_settings"]["engine"],
-            "BLENDER_EEVEE_NEXT",
+            "BLENDER_EEVEE",
         )
 
     def test_contract_includes_project_override_and_review_preset(self):
