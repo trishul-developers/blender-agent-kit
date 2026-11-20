@@ -40,7 +40,7 @@ class DiscoveryTests(unittest.TestCase):
         self.assertEqual(by_target["unity"]["default_policy"], "realtime-default")
         self.assertIn("urp", by_target["unity"]["texture_profiles"])
         by_skill = {row["name"]: row for row in first["skills"]}
-        self.assertEqual(by_skill["blender-batch"]["execution"], "guidance-only")
+        self.assertEqual(by_skill["blender-batch"]["execution"], "executable")
         self.assertEqual(by_skill["blender-asset-qa"]["execution"], "executable")
 
     def test_discovery_payloads_match_public_json_schemas(self):
