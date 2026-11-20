@@ -1,5 +1,10 @@
 # Demonstration A — SupplyCrate (Independent Trial)
 
+> **Canonical v0.2.3+ reproduction:** `python demo/SupplyCrate/run_demo.py --mode full --clean`  
+> Fast CI/source smoke: `python demo/SupplyCrate/run_demo.py --mode smoke --clean`  
+> Regenerated output is written to `build/canonical-demos/SupplyCrate/` by default; the checked-in evidence below remains the original independent v0.2.1 trial.
+
+
 Independently authored industrial wooden-and-steel shipping crate built from scratch using deterministic Blender 5.2.4 LTS Python scripts and validated end-to-end through **Blender Agent Kit v0.2.1** (`0c6c3d10cb7265166fe46e7c5ccab69ff2abf793`).
 
 ## Design & Specifications
