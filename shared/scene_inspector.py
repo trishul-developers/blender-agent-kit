@@ -319,6 +319,7 @@ def cli_main(argv: list[str]) -> dict:
         "status": "ok",
         "blender_version": bpy.app.version_string,
         "target": target_cfg["name"],
+        "policy": target_cfg.get("default_policy"),
         "inventory": inspect_scene(
             damage_prefix=damage_prefix,
             lod_exclude_patterns=list(common.get("lod_exclude_patterns", [])),
