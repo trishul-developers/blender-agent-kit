@@ -79,7 +79,10 @@ class TestRepoSpecsAndSchemas(unittest.TestCase):
         self.assertIn("solid_prop", cfg["qa"]["asset_classes"])
         self.assertEqual(cfg["qa"]["asset_classes"]["solid_prop"]["max_tris"]["lod0"], 15000)
         self.assertEqual(cfg["naming"]["lod_pattern"], "{name}_LOD{index}")
-        self.assertEqual(cfg["naming"]["collider_pattern"], "{name}_COL_{index:02d}")
+        self.assertEqual(
+            cfg["naming"]["collider_patterns"],
+            ["{name}_COL_{index:02d}", "COLLISION_{name}"],
+        )
         self.assertEqual(cfg["export"]["prebake_directional_patterns"], ["Socket_*"])
         self.assertEqual(cfg["export"]["lod_screen_transitions"]["2"], 0.05)
 
