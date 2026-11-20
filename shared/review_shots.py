@@ -476,7 +476,7 @@ def run(
             raise KeyError(f"Review preset '{preset}' not found in project profile '{project_data['name']}'")
 
     review_cfg = target_cfg.get("review", {})
-    style_name = style or effective_cfg.get("style") or review_cfg.get("default_style")
+    style_name = style or preset_cfg.get("style") or review_cfg.get("default_style")
     styles = review_cfg.get("styles", {})
     if not style_name or style_name not in styles:
         raise KeyError(
@@ -668,7 +668,7 @@ def run(
                 )
             view = str(variant.get("view", "hero"))
             r = max(max(bounds["size"]) * 0.6, 0.5)
-            _configure_view(camera, view, bounds["center"], r)
+            _configure_view(camera, view, bounds["center"], r, effective_cfg)
             out_file = out_path / f"review_{variant_id}.png"
             _render(scene, out_file)
             variant_artifacts.append({
