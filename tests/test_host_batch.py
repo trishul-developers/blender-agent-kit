@@ -76,6 +76,34 @@ class BatchTests(unittest.TestCase):
             self.assertEqual(len(calls), 2)
             self.assertNotEqual(first["items"][0]["cache_key"], third["items"][0]["cache_key"])
 
+    def test_irrelevant_review_option_does_not_invalidate_qa_cache(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source_dir = root / "assets"
+            source_dir.mkdir()
+            (source_dir / "A.blend").write_bytes(b"same-source")
+            output = root / "out"
+            calls = []
+
+            def fake(module_name, **kwargs):
+                calls.append(module_name)
+                return {"status": "ok", "passed": True, "errors": [], "warnings": []}
+
+            with patch.object(batch, "_blender_identity", return_value=BLENDER_ID):
+                with patch.object(batch, "run_blender_module", side_effect=fake):
+                    first = batch.run(
+                        operation="qa", input_dir=str(source_dir), out_dir=str(output),
+                        review_style="technical", kit_root=ROOT
+                    )
+                    second = batch.run(
+                        operation="qa", input_dir=str(source_dir), out_dir=str(output),
+                        review_style="showcase", kit_root=ROOT
+                    )
+            self.assertEqual(first["counts"]["processed"], 1)
+            self.assertEqual(second["counts"]["skipped"], 1)
+            self.assertEqual(len(calls), 1)
+            self.assertEqual(first["items"][0]["cache_key"], second["items"][0]["cache_key"])
+
     def test_project_config_and_tool_identity_invalidate_cache(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -199,6 +227,18 @@ class BatchTests(unittest.TestCase):
             self.assertEqual(calls[0][0], "shared.channel_pack")
             self.assertIn("Crate", calls[0][1])
             self.assertIn("Body", calls[0][1])
+
+    def test_irrelevant_no_roundtrip_flag_fails_closed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "A.blend").write_bytes(b"blend")
+            with patch.object(batch, "_blender_identity", side_effect=AssertionError("must not identify Blender")):
+                result = batch.run(
+                    operation="qa", input_dir=str(root), out_dir=str(root / "out"),
+                    no_roundtrip=True, kit_root=ROOT
+                )
+            self.assertEqual(result["status"], "error")
+            self.assertIn("export or bundle", result["error"])
 
     def test_batch_is_bounded_before_blender_discovery(self):
         with tempfile.TemporaryDirectory() as directory:
