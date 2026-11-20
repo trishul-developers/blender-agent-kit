@@ -3,21 +3,6 @@
   "$id": "https://github.com/trishul-developers/blender-agent-kit/schemas/batch.schema.json",
   "title": "Blender Agent Kit Batch Report",
   "type": "object",
-  "required": [
-    "status",
-    "operation",
-    "input_dir",
-    "out_dir",
-    "pattern",
-    "recursive",
-    "tool_identity",
-    "blender_identity",
-    "cache",
-    "counts",
-    "duration_ms",
-    "items",
-    "telemetry"
-  ],
   "additionalProperties": false,
   "properties": {
     "status": {
@@ -207,6 +192,49 @@
           }
         }
       }
+    },
+    "error": {
+      "type": "string"
+    },
+    "discovered": {
+      "type": "integer",
+      "minimum": 0
     }
-  }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "status": {
+          "const": "ok"
+        }
+      },
+      "required": [
+        "status",
+        "operation",
+        "input_dir",
+        "out_dir",
+        "pattern",
+        "recursive",
+        "tool_identity",
+        "blender_identity",
+        "cache",
+        "counts",
+        "duration_ms",
+        "items",
+        "telemetry"
+      ]
+    },
+    {
+      "properties": {
+        "status": {
+          "const": "error"
+        }
+      },
+      "required": [
+        "status",
+        "error",
+        "items"
+      ]
+    }
+  ]
 }
