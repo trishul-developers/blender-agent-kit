@@ -7,6 +7,7 @@ from pathlib import Path
 
 from shared.profile_loader import load_profiled_target
 from shared.scene_inspector import collider_patterns_from_naming, inspect_objects, inspect_scene, is_collider_name, lod_index
+from shared.target_loader import deep_merge_dict
 
 
 def configure_cycles_device(scene, device: str = "auto") -> str:
@@ -39,6 +40,32 @@ def configure_cycles_device(scene, device: str = "auto") -> str:
     return "CPU"
 
 
+def configure_review_engine(scene, engine: str, device: str = "auto") -> str:
+    """Configure the renderer declared by the resolved review style."""
+    if engine == "CYCLES":
+        return configure_cycles_device(scene, device=device)
+    if engine == "BLENDER_EEVEE_NEXT":
+        scene.render.engine = "BLENDER_EEVEE_NEXT"
+        return "EEVEE_NEXT"
+    raise ValueError(f"Unsupported review engine '{engine}'")
+
+
+def _configure_world(scene, style_cfg: dict) -> None:
+    import bpy
+
+    color = [float(v) for v in style_cfg.get("background_color", [0.05, 0.05, 0.05, 1.0])]
+    strength = float(style_cfg.get("background_strength", 1.0))
+    if scene.world is None:
+        scene.world = bpy.data.worlds.new("QA_Review_World")
+    scene.world.color = tuple(color[:3])
+    scene.world.use_nodes = True
+    nodes = scene.world.node_tree.nodes
+    background = nodes.get("Background")
+    if background is not None:
+        background.inputs["Color"].default_value = tuple(color)
+        background.inputs["Strength"].default_value = strength
+
+
 def _look_at(obj, target) -> None:
     from mathutils import Vector
 
@@ -63,52 +90,83 @@ def _review_light_scale(radius: float, reference_radius: float = 2.5) -> float:
     return (safe_radius / reference_radius) ** 2
 
 
-def _ensure_lighting(scene, center, radius: float) -> None:
+def _ensure_lighting(
+    scene,
+    center,
+    radius: float,
+    lighting_cfg: dict | None = None,
+) -> None:
     import bpy
 
-    if any(o.type == "LIGHT" for o in scene.objects):
+    cfg = dict(lighting_cfg or {})
+    use_authored = bool(cfg.get("use_authored_lights", True))
+    authored = [o for o in scene.objects if o.type == "LIGHT" and not o.hide_render]
+    if use_authored and authored:
         return
-    scale = _review_light_scale(radius)
-    placements = [
-        ("QA_Key", (1.5, -1.5, 1.8), 900.0),
-        ("QA_Fill", (-1.5, -0.7, 1.0), 500.0),
-        ("QA_Rim", (0.3, 1.8, 1.4), 700.0),
+    if not use_authored:
+        for obj in authored:
+            obj.hide_render = True
+
+    reference_radius = float(cfg.get("reference_radius_m", 2.5))
+    scale = _review_light_scale(radius, reference_radius=reference_radius)
+    placements = cfg.get("lights") or [
+        {"name": "QA_Key", "direction": [1.5, -1.5, 1.8], "energy": 900.0},
+        {"name": "QA_Fill", "direction": [-1.5, -0.7, 1.0], "energy": 500.0},
+        {"name": "QA_Rim", "direction": [0.3, 1.8, 1.4], "energy": 700.0},
     ]
-    for name, direction, base_energy in placements:
+    area_factor = float(cfg.get("area_size_factor", 0.8))
+    min_area = float(cfg.get("min_area_size_m", 0.25))
+    for item in placements:
+        name = str(item["name"])
+        direction = [float(v) for v in item["direction"]]
+        base_energy = float(item["energy"])
         data = bpy.data.lights.new(name, type="AREA")
         data.energy = base_energy * scale
         data.shape = "DISK"
-        data.size = max(0.25, radius * 0.8)
+        data.size = max(min_area, radius * area_factor)
         obj = bpy.data.objects.new(name, data)
         scene.collection.objects.link(obj)
         obj.location = tuple(center[i] + direction[i] * radius for i in range(3))
         _look_at(obj, center)
 
 
-def _configure_view(camera, view: str, center: list[float], radius: float) -> None:
+def _configure_view(
+    camera,
+    view: str,
+    center: list[float],
+    radius: float,
+    style_cfg: dict | None = None,
+) -> None:
+    cfg = style_cfg or {}
     cx, cy, cz = center
-    d = max(radius * 2.8, 2.0)
+    d = max(
+        radius * float(cfg.get("hero_distance_factor", 2.8)),
+        float(cfg.get("hero_min_distance_m", 2.0)),
+    )
+    height_factor = float(cfg.get("hero_height_factor", 0.65))
+    hero_lens = float(cfg.get("hero_lens_mm", 55.0))
+    ortho_factor = float(cfg.get("ortho_scale_factor", 2.4))
     camera.data.type = "PERSP"
 
     if view == "hero":
-        camera.location = (cx + d, cy - d, cz + d * 0.65)
-        camera.data.lens = 55
+        camera.location = (cx + d, cy - d, cz + d * height_factor)
+        camera.data.lens = hero_lens
     elif view == "front":
         camera.location = (cx, cy - d, cz)
         camera.data.type = "ORTHO"
-        camera.data.ortho_scale = radius * 2.4
+        camera.data.ortho_scale = radius * ortho_factor
     elif view == "rear":
         camera.location = (cx, cy + d, cz)
         camera.data.type = "ORTHO"
-        camera.data.ortho_scale = radius * 2.4
+        camera.data.ortho_scale = radius * ortho_factor
     elif view == "side":
         camera.location = (cx + d, cy, cz)
         camera.data.type = "ORTHO"
-        camera.data.ortho_scale = radius * 2.4
+        camera.data.ortho_scale = radius * ortho_factor
     elif view == "top":
         camera.location = (cx, cy, cz + d)
         camera.data.type = "ORTHO"
-        camera.data.ortho_scale = radius * 2.4
+        camera.data.ortho_scale = radius * ortho_factor
     else:
         raise ValueError(f"Unknown review view '{view}'")
     _look_at(camera, center)
