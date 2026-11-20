@@ -6,8 +6,12 @@ import tempfile
 from pathlib import Path
 
 from shared.bundle_exporter import run as run_bundle
+from shared.profile_loader import load_profiled_target
 from shared.qa_checks import run as run_qa
 from shared.review_shots import (
+    _configure_view,
+    _configure_world,
+    _ensure_camera,
     _ensure_lighting,
     _matches_hierarchy_patterns,
     _prepare_collision_wireframe,
@@ -16,6 +20,7 @@ from shared.review_shots import (
     _review_light_scale,
     _set_collision_overlay_visibility,
     _set_mesh_visibility,
+    configure_review_engine,
 )
 
 DEFAULT_LOD_PATTERN = "{name}_LOD{index}"
@@ -457,6 +462,35 @@ def run() -> dict:
     assert abs(energies["QA_Key"] - 36.0) < 1e-6, energies
     assert abs(energies["QA_Fill"] - 20.0) < 1e-6, energies
     assert abs(energies["QA_Rim"] - 28.0) < 1e-6, energies
+    passed += 1
+
+    # Review renderer/background/lighting/framing are policy-driven, with a
+    # fast bright technical style and a presentation-oriented showcase style.
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    target_cfg, _, _, _, _ = load_profiled_target("unity")
+    review_cfg = target_cfg["review"]
+    assert review_cfg["default_style"] == "technical", review_cfg
+    technical = review_cfg["styles"]["technical"]
+    showcase = review_cfg["styles"]["showcase"]
+    scene = bpy.context.scene
+    camera = _ensure_camera(scene)
+    device = configure_review_engine(scene, technical["engine"], device="auto")
+    assert device == "EEVEE_NEXT", device
+    assert scene.render.engine == "BLENDER_EEVEE_NEXT"
+    _configure_world(scene, technical)
+    assert tuple(round(float(v), 3) for v in scene.world.color) == (0.18, 0.19, 0.2)
+    _ensure_lighting(scene, [0.0, 0.0, 0.0], 0.5, technical["lighting"])
+    tech_energies = {o.name: o.data.energy for o in scene.objects if o.type == "LIGHT" and not o.hide_render}
+    assert abs(tech_energies["QA_Key"] - 44.0) < 1e-6, tech_energies
+    assert abs(tech_energies["QA_Fill"] - 30.0) < 1e-6, tech_energies
+    assert abs(tech_energies["QA_Rim"] - 38.0) < 1e-6, tech_energies
+    _configure_view(camera, "hero", [0.0, 0.0, 0.0], 1.0, technical)
+    tech_location = tuple(camera.location)
+    assert abs(camera.data.lens - 58.0) < 1e-6
+    _configure_view(camera, "hero", [0.0, 0.0, 0.0], 1.0, showcase)
+    showcase_location = tuple(camera.location)
+    assert abs(camera.data.lens - 62.0) < 1e-6
+    assert tech_location != showcase_location
     passed += 1
 
     # Collision review keeps the primary LOD visible and overlays temporary wire geometry.
