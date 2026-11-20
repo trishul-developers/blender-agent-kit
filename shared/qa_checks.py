@@ -372,7 +372,7 @@ def run(
         damage_prefix=damage_prefix,
         lod_exclude_patterns=lod_exclude_patterns,
         lod_pattern=naming.get("lod_pattern"),
-        collider_pattern=naming.get("collider_pattern"),
+        collider_patterns=naming.get("collider_patterns") or naming.get("collider_pattern"),
     )
     errors: list[dict] = []
     warnings: list[dict] = []
