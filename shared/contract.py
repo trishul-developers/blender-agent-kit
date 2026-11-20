@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 
 from shared.profile_loader import load_profiled_target
+from shared.target_loader import deep_merge_dict
 
 
 def _qa_contract(common: dict, rules: dict) -> dict:
@@ -63,6 +64,7 @@ def build_contract(
     project_profile: str | None = None,
     asset_class: str = "solid_prop",
     preset: str | None = None,
+    style: str | None = None,
 ) -> dict:
     target_cfg, chosen_profile, _target_dir, project_data, _project_path = load_profiled_target(
         target,
@@ -83,6 +85,20 @@ def build_contract(
         if preset not in review_presets:
             raise KeyError(f"Unknown review preset '{preset}'. Available: {sorted(review_presets)}")
         selected_preset = review_presets[preset]
+
+    review_cfg = target_cfg.get("review", {})
+    review_styles = review_cfg.get("styles", {})
+    selected_style = (
+        style
+        or (selected_preset or {}).get("style")
+        or review_cfg.get("default_style")
+    )
+    if selected_style not in review_styles:
+        raise KeyError(
+            f"Unknown review style '{selected_style}'. Available: {sorted(review_styles)}"
+        )
+    style_settings = review_styles[selected_style]
+    effective_review = deep_merge_dict(style_settings, selected_preset or {})
 
     return {
         "status": "ok",
@@ -132,9 +148,14 @@ def build_contract(
             },
         },
         "review": {
+            "available_styles": sorted(review_styles),
+            "default_style": review_cfg.get("default_style"),
+            "selected_style": selected_style,
+            "style_settings": style_settings,
             "available_presets": sorted(review_presets),
             "selected_preset": preset,
             "settings": selected_preset,
+            "effective_settings": effective_review,
         },
         "known_limits": [
             "UV1 geometric island overlap is not verified; presence emits uv1_overlap_unverified when requested.",
@@ -150,6 +171,7 @@ def cli_main(argv: list[str]) -> dict:
     p.add_argument("--project-profile", default=None)
     p.add_argument("--asset-class", default="solid_prop")
     p.add_argument("--preset", default=None)
+    p.add_argument("--style", default=None)
     p.add_argument("--json", action="store_true", help="Compatibility flag; output is JSON by default.")
     ns = p.parse_args(argv)
     return build_contract(
@@ -158,4 +180,5 @@ def cli_main(argv: list[str]) -> dict:
         project_profile=ns.project_profile,
         asset_class=ns.asset_class,
         preset=ns.preset,
+        style=ns.style,
     )

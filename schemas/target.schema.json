@@ -372,6 +372,132 @@
     "default_policy": {
       "type": "string",
       "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "review": {
+      "type": "object",
+      "required": [
+        "default_style",
+        "styles"
+      ],
+      "properties": {
+        "default_style": {
+          "type": "string",
+          "minLength": 1
+        },
+        "styles": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "engine": {
+                "type": "string",
+                "enum": [
+                  "CYCLES",
+                  "BLENDER_EEVEE"
+                ]
+              },
+              "resolution": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 16
+                },
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "samples": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "background_color": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "minItems": 4,
+                "maxItems": 4
+              },
+              "background_strength": {
+                "type": "number",
+                "minimum": 0
+              },
+              "hero_distance_factor": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "hero_min_distance_m": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "hero_height_factor": {
+                "type": "number"
+              },
+              "hero_lens_mm": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "ortho_scale_factor": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "lighting": {
+                "type": "object",
+                "properties": {
+                  "use_authored_lights": {
+                    "type": "boolean"
+                  },
+                  "reference_radius_m": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "area_size_factor": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "min_area_size_m": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "lights": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "name",
+                        "direction",
+                        "energy"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "direction": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          },
+                          "minItems": 3,
+                          "maxItems": 3
+                        },
+                        "energy": {
+                          "type": "number",
+                          "minimum": 0
+                        }
+                      }
+                    },
+                    "minItems": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

@@ -7,6 +7,7 @@ from pathlib import Path
 
 from shared.profile_loader import load_profiled_target
 from shared.scene_inspector import collider_patterns_from_naming, inspect_objects, inspect_scene, is_collider_name, lod_index
+from shared.target_loader import deep_merge_dict
 
 
 def configure_cycles_device(scene, device: str = "auto") -> str:
@@ -39,6 +40,32 @@ def configure_cycles_device(scene, device: str = "auto") -> str:
     return "CPU"
 
 
+def configure_review_engine(scene, engine: str, device: str = "auto") -> str:
+    """Configure the renderer declared by the resolved review style."""
+    if engine == "CYCLES":
+        return configure_cycles_device(scene, device=device)
+    if engine == "BLENDER_EEVEE":
+        scene.render.engine = "BLENDER_EEVEE"
+        return "EEVEE_NEXT"
+    raise ValueError(f"Unsupported review engine '{engine}'")
+
+
+def _configure_world(scene, style_cfg: dict) -> None:
+    import bpy
+
+    color = [float(v) for v in style_cfg.get("background_color", [0.05, 0.05, 0.05, 1.0])]
+    strength = float(style_cfg.get("background_strength", 1.0))
+    if scene.world is None:
+        scene.world = bpy.data.worlds.new("QA_Review_World")
+    scene.world.color = tuple(color[:3])
+    scene.world.use_nodes = True
+    nodes = scene.world.node_tree.nodes
+    background = nodes.get("Background")
+    if background is not None:
+        background.inputs["Color"].default_value = tuple(color)
+        background.inputs["Strength"].default_value = strength
+
+
 def _look_at(obj, target) -> None:
     from mathutils import Vector
 
@@ -63,52 +90,83 @@ def _review_light_scale(radius: float, reference_radius: float = 2.5) -> float:
     return (safe_radius / reference_radius) ** 2
 
 
-def _ensure_lighting(scene, center, radius: float) -> None:
+def _ensure_lighting(
+    scene,
+    center,
+    radius: float,
+    lighting_cfg: dict | None = None,
+) -> None:
     import bpy
 
-    if any(o.type == "LIGHT" for o in scene.objects):
+    cfg = dict(lighting_cfg or {})
+    use_authored = bool(cfg.get("use_authored_lights", True))
+    authored = [o for o in scene.objects if o.type == "LIGHT" and not o.hide_render]
+    if use_authored and authored:
         return
-    scale = _review_light_scale(radius)
-    placements = [
-        ("QA_Key", (1.5, -1.5, 1.8), 900.0),
-        ("QA_Fill", (-1.5, -0.7, 1.0), 500.0),
-        ("QA_Rim", (0.3, 1.8, 1.4), 700.0),
+    if not use_authored:
+        for obj in authored:
+            obj.hide_render = True
+
+    reference_radius = float(cfg.get("reference_radius_m", 2.5))
+    scale = _review_light_scale(radius, reference_radius=reference_radius)
+    placements = cfg.get("lights") or [
+        {"name": "QA_Key", "direction": [1.5, -1.5, 1.8], "energy": 900.0},
+        {"name": "QA_Fill", "direction": [-1.5, -0.7, 1.0], "energy": 500.0},
+        {"name": "QA_Rim", "direction": [0.3, 1.8, 1.4], "energy": 700.0},
     ]
-    for name, direction, base_energy in placements:
+    area_factor = float(cfg.get("area_size_factor", 0.8))
+    min_area = float(cfg.get("min_area_size_m", 0.25))
+    for item in placements:
+        name = str(item["name"])
+        direction = [float(v) for v in item["direction"]]
+        base_energy = float(item["energy"])
         data = bpy.data.lights.new(name, type="AREA")
         data.energy = base_energy * scale
         data.shape = "DISK"
-        data.size = max(0.25, radius * 0.8)
+        data.size = max(min_area, radius * area_factor)
         obj = bpy.data.objects.new(name, data)
         scene.collection.objects.link(obj)
         obj.location = tuple(center[i] + direction[i] * radius for i in range(3))
         _look_at(obj, center)
 
 
-def _configure_view(camera, view: str, center: list[float], radius: float) -> None:
+def _configure_view(
+    camera,
+    view: str,
+    center: list[float],
+    radius: float,
+    style_cfg: dict | None = None,
+) -> None:
+    cfg = style_cfg or {}
     cx, cy, cz = center
-    d = max(radius * 2.8, 2.0)
+    d = max(
+        radius * float(cfg.get("hero_distance_factor", 2.8)),
+        float(cfg.get("hero_min_distance_m", 2.0)),
+    )
+    height_factor = float(cfg.get("hero_height_factor", 0.65))
+    hero_lens = float(cfg.get("hero_lens_mm", 55.0))
+    ortho_factor = float(cfg.get("ortho_scale_factor", 2.4))
     camera.data.type = "PERSP"
 
     if view == "hero":
-        camera.location = (cx + d, cy - d, cz + d * 0.65)
-        camera.data.lens = 55
+        camera.location = (cx + d, cy - d, cz + d * height_factor)
+        camera.data.lens = hero_lens
     elif view == "front":
         camera.location = (cx, cy - d, cz)
         camera.data.type = "ORTHO"
-        camera.data.ortho_scale = radius * 2.4
+        camera.data.ortho_scale = radius * ortho_factor
     elif view == "rear":
         camera.location = (cx, cy + d, cz)
         camera.data.type = "ORTHO"
-        camera.data.ortho_scale = radius * 2.4
+        camera.data.ortho_scale = radius * ortho_factor
     elif view == "side":
         camera.location = (cx + d, cy, cz)
         camera.data.type = "ORTHO"
-        camera.data.ortho_scale = radius * 2.4
+        camera.data.ortho_scale = radius * ortho_factor
     elif view == "top":
         camera.location = (cx, cy, cz + d)
         camera.data.type = "ORTHO"
-        camera.data.ortho_scale = radius * 2.4
+        camera.data.ortho_scale = radius * ortho_factor
     else:
         raise ValueError(f"Unknown review view '{view}'")
     _look_at(camera, center)
@@ -352,6 +410,7 @@ def _render_reference_silhouette(
     damage_prefix: str = "Damage_",
     exclude_patterns: list[str] | None = None,
     collider_pattern: str | None = None,
+    style_cfg: dict | None = None,
 ) -> dict:
     import bpy
 
@@ -381,7 +440,7 @@ def _render_reference_silhouette(
     combined_bounds = inspect_objects(combined_meshes)["bounds"]
     center = combined_bounds["center"]
     radius = max(max(combined_bounds["size"]) * 0.6, 0.5)
-    _configure_view(camera, "side", center, radius)
+    _configure_view(camera, "side", center, radius, style_cfg)
     _render(scene, out_file)
 
     _remove_imported_objects(imported)
@@ -391,14 +450,15 @@ def _render_reference_silhouette(
 def run(
     out_dir: str = "review",
     device: str = "auto",
-    resolution: int = 512,
+    resolution: int | None = None,
     width: int | None = None,
     height: int | None = None,
-    samples: int = 16,
+    samples: int | None = None,
     views: list[str] | None = None,
     target: str = "unity",
     project_profile: str | None = None,
     preset: str | None = None,
+    style: str | None = None,
     reference_fbx: str | None = None,
 ) -> dict:
     import bpy
@@ -415,15 +475,25 @@ def run(
         if not preset_cfg:
             raise KeyError(f"Review preset '{preset}' not found in project profile '{project_data['name']}'")
 
+    review_cfg = target_cfg.get("review", {})
+    style_name = style or preset_cfg.get("style") or review_cfg.get("default_style")
+    styles = review_cfg.get("styles", {})
+    if not style_name or style_name not in styles:
+        raise KeyError(
+            f"Unknown review style '{style_name}'. Available: {sorted(styles)}"
+        )
+    style_cfg = dict(styles[style_name])
+    effective_cfg = deep_merge_dict(style_cfg, preset_cfg)
+
     out_path = Path(out_dir).resolve()
     out_path.mkdir(parents=True, exist_ok=True)
     scene = bpy.context.scene
     # Inventory uses the same resolved target/policy naming and LOD exclusions as QA.
     common = target_cfg.get("qa", {}).get("common", {})
     exclusions = set(common.get("lod_exclude_patterns", []))
-    exclusions.update(preset_cfg.get("lod_exclude_patterns", []))
+    exclusions.update(effective_cfg.get("lod_exclude_patterns", []))
     inventory = inspect_scene(
-        damage_prefix=preset_cfg.get("damage_prefix", common.get("damage_prefix")),
+        damage_prefix=effective_cfg.get("damage_prefix", common.get("damage_prefix")),
         lod_exclude_patterns=sorted(exclusions),
         lod_pattern=lod_pattern,
         collider_patterns=collider_pattern,
@@ -431,32 +501,37 @@ def run(
     if not inventory["bounds"]:
         raise ValueError("Cannot render review sheet: scene has no mesh bounds")
 
-    active_device = configure_cycles_device(scene, device=device)
-    scene.cycles.samples = samples
-    size = preset_cfg.get("resolution", [width or resolution, height or resolution])
-    render_w = int(width or size[0])
-    render_h = int(height or size[1])
+    engine = str(effective_cfg.get("engine", "CYCLES"))
+    active_device = configure_review_engine(scene, engine, device=device)
+    effective_samples = int(samples if samples is not None else effective_cfg.get("samples", 16))
+    if engine == "CYCLES":
+        scene.cycles.samples = effective_samples
+    size = effective_cfg.get("resolution", [512, 512])
+    square = int(resolution) if resolution is not None else None
+    render_w = int(width or square or size[0])
+    render_h = int(height or square or size[1])
     scene.render.resolution_x = render_w
     scene.render.resolution_y = render_h
     scene.render.resolution_percentage = 100
     scene.render.image_settings.file_format = "PNG"
+    _configure_world(scene, effective_cfg)
 
     base_bounds = inventory["bounds"]
     center = base_bounds["center"]
     radius = max(max(base_bounds["size"]) * 0.6, 0.5)
     camera = _ensure_camera(scene)
-    _ensure_lighting(scene, center, radius)
-    damage_prefix = str(preset_cfg.get("damage_prefix", common.get("damage_prefix", "Damage_")))
-    exclude_patterns = [str(v) for v in preset_cfg.get("exclude_patterns", [])]
+    _ensure_lighting(scene, center, radius, effective_cfg.get("lighting"))
+    damage_prefix = str(effective_cfg.get("damage_prefix", common.get("damage_prefix", "Damage_")))
+    exclude_patterns = [str(v) for v in effective_cfg.get("exclude_patterns", [])]
     reference_exclude_patterns = [
-        str(v) for v in preset_cfg.get("reference_exclude_patterns", exclude_patterns)
+        str(v) for v in effective_cfg.get("reference_exclude_patterns", exclude_patterns)
     ]
 
     artifacts: dict[str, object] = {}
-    requested = views or list(preset_cfg.get("orthographic_views", ["hero", "front", "side", "top"]))
+    requested = views or list(effective_cfg.get("orthographic_views", ["hero", "front", "side", "top"]))
     saved = _set_mesh_visibility(
         scene,
-        lod=int(preset_cfg.get("primary_lod", 0)),
+        lod=int(effective_cfg.get("primary_lod", 0)),
         damage_mode="intact",
         damage_prefix=damage_prefix,
         exclude_patterns=exclude_patterns,
@@ -468,16 +543,16 @@ def run(
         c = bounds["center"]
         r = max(max(bounds["size"]) * 0.6, 0.5)
         for view in requested:
-            _configure_view(camera, view, c, r)
+            _configure_view(camera, view, c, r, effective_cfg)
             out_file = out_path / f"review_{view}.png"
             _render(scene, out_file)
             artifacts[view] = str(out_file)
     finally:
         _restore_visibility(scene, saved)
 
-    closeup_distance = preset_cfg.get("closeup_distance_m")
+    closeup_distance = effective_cfg.get("closeup_distance_m")
     if closeup_distance is not None:
-        primary_lod = int(preset_cfg.get("primary_lod", 0))
+        primary_lod = int(effective_cfg.get("primary_lod", 0))
         saved = _set_mesh_visibility(
             scene,
             lod=primary_lod,
@@ -494,9 +569,9 @@ def run(
                     camera,
                     bounds["center"],
                     float(closeup_distance),
-                    float(preset_cfg.get("azimuth_deg", 45.0)),
-                    float(preset_cfg.get("elevation_deg", 45.0)),
-                    float(preset_cfg.get("lens_mm", 50.0)),
+                    float(effective_cfg.get("azimuth_deg", 45.0)),
+                    float(effective_cfg.get("elevation_deg", 45.0)),
+                    float(effective_cfg.get("lens_mm", effective_cfg.get("hero_lens_mm", 50.0))),
                 )
                 out_file = out_path / "review_closeup.png"
                 _render(scene, out_file)
@@ -508,8 +583,8 @@ def run(
         finally:
             _restore_visibility(scene, saved)
 
-    ranges = [float(v) for v in preset_cfg.get("range_shots_m", [])]
-    lods = [int(v) for v in preset_cfg.get("lods", [0])]
+    ranges = [float(v) for v in effective_cfg.get("range_shots_m", [])]
+    lods = [int(v) for v in effective_cfg.get("lods", [0])]
     if ranges:
         range_artifacts: list[dict] = []
         for lod in lods:
@@ -531,9 +606,9 @@ def run(
                         camera,
                         bounds["center"],
                         distance,
-                        float(preset_cfg.get("azimuth_deg", 45.0)),
-                        float(preset_cfg.get("elevation_deg", 45.0)),
-                        float(preset_cfg.get("lens_mm", 50.0)),
+                        float(effective_cfg.get("azimuth_deg", 45.0)),
+                        float(effective_cfg.get("elevation_deg", 45.0)),
+                        float(effective_cfg.get("lens_mm", effective_cfg.get("hero_lens_mm", 50.0))),
                     )
                     label = f"lod{lod}_{int(distance)}m"
                     out_file = out_path / f"review_{label}.png"
@@ -543,9 +618,9 @@ def run(
                 _restore_visibility(scene, saved)
         artifacts["ranges"] = range_artifacts
 
-    if preset_cfg.get("damage_views", False):
+    if effective_cfg.get("damage_views", False):
         damage_artifacts: list[dict] = []
-        for lod in [int(v) for v in preset_cfg.get("damage_lods", [0, 1])]:
+        for lod in [int(v) for v in effective_cfg.get("damage_lods", [0, 1])]:
             saved = _set_mesh_visibility(
                 scene,
                 lod=lod,
@@ -560,7 +635,7 @@ def run(
                 if not bounds:
                     continue
                 r = max(max(bounds["size"]) * 0.6, 0.5)
-                _configure_view(camera, "hero", bounds["center"], r)
+                _configure_view(camera, "hero", bounds["center"], r, effective_cfg)
                 out_file = out_path / f"review_lod{lod}_damage.png"
                 _render(scene, out_file)
                 damage_artifacts.append({"lod": lod, "path": str(out_file)})
@@ -569,7 +644,7 @@ def run(
         artifacts["damage"] = damage_artifacts
 
     variant_artifacts: list[dict] = []
-    for variant in preset_cfg.get("variant_views", []):
+    for variant in effective_cfg.get("variant_views", []):
         variant_id = str(variant.get("id", "variant"))
         include = [str(v) for v in variant.get("include_patterns", [])]
         if not include:
@@ -593,7 +668,7 @@ def run(
                 )
             view = str(variant.get("view", "hero"))
             r = max(max(bounds["size"]) * 0.6, 0.5)
-            _configure_view(camera, view, bounds["center"], r)
+            _configure_view(camera, view, bounds["center"], r, effective_cfg)
             out_file = out_path / f"review_{variant_id}.png"
             _render(scene, out_file)
             variant_artifacts.append({
@@ -607,10 +682,10 @@ def run(
     if variant_artifacts:
         artifacts["variants"] = variant_artifacts
 
-    if preset_cfg.get("collision_view", False):
+    if effective_cfg.get("collision_view", False):
         saved = _set_collision_overlay_visibility(
             scene,
-            lod=int(preset_cfg.get("primary_lod", 0)),
+            lod=int(effective_cfg.get("primary_lod", 0)),
             damage_prefix=damage_prefix,
             exclude_patterns=exclude_patterns,
             lod_pattern=lod_pattern,
@@ -625,7 +700,7 @@ def run(
                     scene, r, collider_pattern=collider_pattern
                 )
                 if wireframe_state:
-                    _configure_view(camera, "hero", bounds["center"], r)
+                    _configure_view(camera, "hero", bounds["center"], r, effective_cfg)
                     out_file = out_path / "review_collision_outline.png"
                     _render(scene, out_file)
                     artifacts["collision"] = str(out_file)
@@ -633,11 +708,11 @@ def run(
             _restore_collision_wireframe(wireframe_state)
             _restore_visibility(scene, saved)
 
-    effective_reference = reference_fbx or preset_cfg.get("reference_fbx")
+    effective_reference = reference_fbx or effective_cfg.get("reference_fbx")
     if effective_reference:
         saved = _set_mesh_visibility(
             scene,
-            lod=int(preset_cfg.get("primary_lod", 0)),
+            lod=int(effective_cfg.get("primary_lod", 0)),
             damage_mode="intact",
             damage_prefix=damage_prefix,
             exclude_patterns=exclude_patterns,
@@ -656,6 +731,7 @@ def run(
                     damage_prefix=damage_prefix,
                     exclude_patterns=reference_exclude_patterns,
                     collider_pattern=collider_pattern,
+                    style_cfg=effective_cfg,
                 )
         finally:
             _restore_visibility(scene, saved)
@@ -664,7 +740,11 @@ def run(
         "status": "ok",
         "blender_version": bpy.app.version_string,
         "device": active_device,
+        "render_engine": engine,
+        "samples": effective_samples,
         "resolution": [render_w, render_h],
+        "style": style_name,
+        "review_settings": effective_cfg,
         "target": target_cfg["name"],
         "policy": target_cfg.get("default_policy"),
         "project_profile": project_data["name"] if project_data else None,
@@ -678,14 +758,15 @@ def cli_main(argv: list[str]) -> dict:
     p = argparse.ArgumentParser()
     p.add_argument("--out", default="review")
     p.add_argument("--device", choices=["auto", "gpu", "cpu"], default="auto")
-    p.add_argument("--resolution", type=int, default=512)
+    p.add_argument("--resolution", type=int, default=None)
     p.add_argument("--width", type=int, default=None)
     p.add_argument("--height", type=int, default=None)
-    p.add_argument("--samples", type=int, default=16)
+    p.add_argument("--samples", type=int, default=None)
     p.add_argument("--views", default=None)
     p.add_argument("--target", default="unity")
     p.add_argument("--project-profile", default=None)
     p.add_argument("--preset", default=None)
+    p.add_argument("--style", default=None)
     p.add_argument("--reference-fbx", default=None)
     ns = p.parse_args(argv)
     views = [v.strip() for v in ns.views.split(",") if v.strip()] if ns.views else None
@@ -700,5 +781,6 @@ def cli_main(argv: list[str]) -> dict:
         target=ns.target,
         project_profile=ns.project_profile,
         preset=ns.preset,
+        style=ns.style,
         reference_fbx=ns.reference_fbx,
     )
