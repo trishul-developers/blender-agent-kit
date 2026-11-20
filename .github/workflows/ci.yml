@@ -114,6 +114,12 @@ jobs:
           S="$RUNNER_TEMP/independent/SupplyCrate"
           F="$RUNNER_TEMP/independent/SciFiKit"
           RUN="skills/core/blender-core/scripts/run.py"
+          python "$RUN" batch --operation qa --input-dir "$S/scenes" --pattern "SupplyCrate.blend" \
+            --target unity --project-profile demo/SupplyCrate/source/supplycrate.profile.json \
+            --asset-class solid_prop --out "$S/batch" --result-json "$S/batch_first.json"
+          python "$RUN" batch --operation qa --input-dir "$S/scenes" --pattern "SupplyCrate.blend" \
+            --target unity --project-profile demo/SupplyCrate/source/supplycrate.profile.json \
+            --asset-class solid_prop --out "$S/batch" --result-json "$S/batch_second.json"
           python "$RUN" pack --target unity --profile urp --asset-id SupplyCrate \
             --material M_SupplyCrate_Body --input-dir "$S/raw_textures" \
             --size 2048 --out "$S/packed_textures" --result-json "$S/pack.json"
@@ -144,6 +150,17 @@ jobs:
           # SupplyCrate exercises the real host deliver orchestrator:
           # inspect -> QA gate -> fast technical review -> verified bundle.
           crate = base / "SupplyCrate"
+          batch_first = json.loads((crate / "batch_first.json").read_text())
+          batch_second = json.loads((crate / "batch_second.json").read_text())
+          assert batch_first["status"] == "ok" and batch_first["counts"] == {
+              "discovered": 1, "processed": 1, "skipped": 0, "failed": 0
+          }, batch_first
+          assert batch_second["status"] == "ok" and batch_second["counts"] == {
+              "discovered": 1, "processed": 0, "skipped": 1, "failed": 0
+          }, batch_second
+          assert batch_second["items"][0]["cache_hit"] is True
+          assert batch_first["items"][0]["cache_key"] == batch_second["items"][0]["cache_key"]
+
           delivery = json.loads((crate / "deliver.json").read_text())
           assert delivery["status"] == "ok" and delivery["qa_gate"]["passed"], delivery
           assert [s["name"] for s in delivery["stages"]] == ["inspect", "qa", "review", "bundle"]
@@ -167,5 +184,5 @@ jobs:
 
           emissive = json.loads((base / "SciFiKit/pack_emissive.json").read_text())
           assert "_EmissionMap" in {t["slot"] for t in emissive["artifacts"]["textures"]}
-          print("PASS: two fresh source-bound QA/packing/FBX bundle smoke runs")
+          print("PASS: fresh batch cache + delivery + QA/packing/FBX bundle smoke runs")
           PY
