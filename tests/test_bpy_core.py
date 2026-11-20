@@ -476,7 +476,7 @@ def run() -> dict:
     camera = _ensure_camera(scene)
     device = configure_review_engine(scene, technical["engine"], device="auto")
     assert device == "EEVEE_NEXT", device
-    assert scene.render.engine == "BLENDER_EEVEE_NEXT"
+    assert scene.render.engine == "BLENDER_EEVEE"
     _configure_world(scene, technical)
     assert tuple(round(float(v), 3) for v in scene.world.color) == (0.18, 0.19, 0.2)
     _ensure_lighting(scene, [0.0, 0.0, 0.0], 0.5, technical["lighting"])
