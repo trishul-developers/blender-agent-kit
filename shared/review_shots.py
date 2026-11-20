@@ -44,8 +44,8 @@ def configure_review_engine(scene, engine: str, device: str = "auto") -> str:
     """Configure the renderer declared by the resolved review style."""
     if engine == "CYCLES":
         return configure_cycles_device(scene, device=device)
-    if engine == "BLENDER_EEVEE_NEXT":
-        scene.render.engine = "BLENDER_EEVEE_NEXT"
+    if engine == "BLENDER_EEVEE":
+        scene.render.engine = "BLENDER_EEVEE"
         return "EEVEE_NEXT"
     raise ValueError(f"Unsupported review engine '{engine}'")
 
