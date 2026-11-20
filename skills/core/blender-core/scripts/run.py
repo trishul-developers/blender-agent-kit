@@ -3,6 +3,7 @@
 
 Usage:
   python <blender-core>/scripts/run.py capabilities --json
+  python <blender-core>/scripts/run.py batch --operation qa --input-dir assets --target unity --asset-class solid_prop
   python <blender-core>/scripts/run.py contract --target unity --asset-class solid_prop
   python <blender-core>/scripts/run.py deliver --blend in.blend --target unity --asset-class solid_prop
   python <blender-core>/scripts/run.py doctor [--device auto|gpu|cpu]
