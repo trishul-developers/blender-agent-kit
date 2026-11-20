@@ -6,7 +6,7 @@ import fnmatch
 from collections import defaultdict
 
 from shared.profile_loader import load_profiled_target
-from shared.scene_inspector import inspect_scene
+from shared.scene_inspector import collider_patterns_from_naming, inspect_scene
 
 _AXIS_INDEX = {"X": 0, "Y": 1, "Z": 2}
 
@@ -372,7 +372,7 @@ def run(
         damage_prefix=damage_prefix,
         lod_exclude_patterns=lod_exclude_patterns,
         lod_pattern=naming.get("lod_pattern"),
-        collider_patterns=naming.get("collider_patterns") or naming.get("collider_pattern"),
+        collider_patterns=collider_patterns_from_naming(naming),
     )
     errors: list[dict] = []
     warnings: list[dict] = []
