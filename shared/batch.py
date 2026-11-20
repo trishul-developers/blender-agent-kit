@@ -460,6 +460,13 @@ def run(
         if operation == "pack"
         else _discover_blends(source_root, chosen_pattern, recursive)
     )
+    if not sources:
+        return {
+            "status": "error",
+            "error": f"No batch inputs matched pattern '{chosen_pattern}' in {source_root}",
+            "discovered": 0,
+            "items": [],
+        }
     if len(sources) > max_assets:
         return {
             "status": "error",
