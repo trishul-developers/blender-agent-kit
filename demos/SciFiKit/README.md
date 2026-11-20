@@ -1,5 +1,8 @@
 # Sci-Fi modular kit — independent agent trial
 
+> **Historical v0.2.1 lineage.** This directory is retained for release provenance/backwards links and is no longer the canonical v0.2.3+ reproduction path. Use [the canonical source-bound demo](../../demo/SciFiKit/README.md).
+
+
 ![Original agent Sci-Fi hero (compact preview)](showcase/01_hero_preview.webp)
 
 ![Original agent LOD comparison (compact preview)](showcase/03_lod_preview.webp)
