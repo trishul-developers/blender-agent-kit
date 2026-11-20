@@ -204,11 +204,34 @@
     "review": {
       "type": "object",
       "required": [
+        "available_styles",
+        "default_style",
+        "selected_style",
+        "style_settings",
         "available_presets",
         "selected_preset",
-        "settings"
+        "settings",
+        "effective_settings"
       ],
       "properties": {
+        "available_styles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "default_style": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "selected_style": {
+          "type": "string"
+        },
+        "style_settings": {
+          "type": "object"
+        },
         "available_presets": {
           "type": "array",
           "items": {
@@ -226,6 +249,9 @@
             "object",
             "null"
           ]
+        },
+        "effective_settings": {
+          "type": "object"
         }
       }
     },
