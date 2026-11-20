@@ -102,7 +102,7 @@ Read the [complete independent report](demo/REPORT.md), [capability evaluation](
 
 ## Blind-subagent workflow comparison — 0.48 m quadcopter
 
-A **second, separately conducted experiment** assigned a matching 0.48 m quadcopter brief to **two fresh, reportedly isolated subagents**: Arm A used plain Blender Python (`bpy`) without being told about Blender Agent Kit or the comparison; Arm B was explicitly given the kit's skills and CLI. Both produced original Blender scenes and scripts. Afterward, the evaluator ran **the same Unity `solid_prop` QA policy on both scenes**, including the baseline. This is stronger isolation than the **earlier same-session exploratory experiment**, which is **not** the data shown below.
+A **second, separately conducted experiment** assigned a matching 0.48 m quadcopter brief to **two fresh, reportedly isolated subagents**: Arm A used plain Blender Python (`bpy`) without being told about Blender Agent Kit or the comparison; Arm B was explicitly given the kit's skills and CLI. Both produced original Blender scenes and scripts. Afterward, the evaluator ran **the same Blender Agent Kit `solid_prop` production policy resolved for the Unity target on both scenes**, including the baseline. This is stronger isolation than the **earlier same-session exploratory experiment**, which is **not** the data shown below.
 
 The supplied ZIP contains both Python builders, both `.blend` scenes, original renders, exported FBX files, separate audit JSON, and the kit's final QA/export reports. The plain-`bpy` builder has **no kit imports/CLI references**; the kit-guided builder contains explicit kit integration. **Fresh-subagent prompt isolation is described by the experiment report, but raw subagent prompts/transcripts or independent execution-attestation logs were not included in the submitted ZIP**, so complete absence of contextual leakage cannot be proven from these files alone.
 
@@ -112,7 +112,7 @@ The supplied ZIP contains both Python builders, both `.blend` scenes, original r
 | Recorded Blender compute across actual runs | **376.12 s** (4 executions) | **56.49 s** (8 CLI executions) |
 | Reported end-to-end elapsed time | **~15 min** | **~7.5 min** |
 | Custom studio/render/export boilerplate | **150 lines** | **0 lines** (agent-classified) |
-| Uniform Unity `solid_prop` QA errors | **90 — FAIL** | **0 — PASS** |
+| Uniform kit `solid_prop` policy errors (Unity target) | **90 — FAIL** | **0 — PASS** |
 | QA warnings | **0** | **43 `uv1_overlap_unverified`** |
 | Final mesh count / triangles | **81 / 23,746** | **43 / 10,240** |
 | Materials | **23** | **2** |
@@ -127,7 +127,7 @@ The supplied ZIP contains both Python builders, both `.blend` scenes, original r
 - **Presentation-quality trade-off:** Arm A's custom studio renders were reported as brighter and more presentation-ready. Arm B's fast automated review views had **darker backgrounds and less effective framing** for carbon/anodized surfaces—an actionable improvement area for review presets.
 - **Different final models:** Arm A retained 23,746 triangles, 23 materials and studio objects in its source scene; Arm B produced a 10,240-triangle, two-material, single-root asset. Despite the matching brief and shared evaluation policy, this is **one pair of independent implementations**, not a repeated statistical trial or a comparison of geometrically identical assets.
 
-**Bottom line:** In the supplied two-subagent comparison, the kit-guided arm produced a **Unity-policy-QA-passing Blender asset and structured export evidence** with less recorded Blender compute and less custom pipeline code, at the cost of more agent turns and less polished default presentation renders. These are **single-run observed outcomes**, not universally guaranteed percentage savings. The earlier independent SupplyCrate/Sci-Fi **74–80% pipeline / 55–63% end-to-end** figures remain separate *retrospective estimates*.
+**Bottom line:** In the supplied two-subagent comparison, the kit-guided arm produced a **Blender Agent Kit policy-QA-passing Blender asset for the Unity target, with structured export evidence** with less recorded Blender compute and less custom pipeline code, at the cost of more agent turns and less polished default presentation renders. These are **single-run observed outcomes**, not universally guaranteed percentage savings. The earlier independent SupplyCrate/Sci-Fi **74–80% pipeline / 55–63% end-to-end** figures remain separate *retrospective estimates*.
 
 *Evidence provenance:* `blind_a_b_benchmark_quadcopter_assembly_in_blender_plain_bpy_vs_blender_agent_kit.html` and `quadcopter-blind-ab-assets.zip`, supplied after the earlier exploratory report. The source archive contains `arm_a_no_skill/`, `arm_b_with_skill/` and `audit/` with raw scenes, code, renders and structured checks; the full archive and HTML have **not yet been published to the repository**, so this README describes submitted evidence rather than a maintainer rerun.
 
@@ -214,12 +214,16 @@ generic Blender core
         ↓
 engine target (Unity today)
         ↓
-optional reusable project profile / external profile JSON
+default reusable production policy (realtime-default)
+        ↓
+optional project profile / external profile JSON
         ↓
 downstream asset-specific builders and game contracts
 ```
 
 Core mechanics stay reusable. Engine semantics belong in target plugins. Project-specific dimensions, socket inventories, content IDs, and simulation rules stay downstream.
+
+**Policy boundary:** the Unity target now contains engine facts such as coordinate/export/URP-HDRP behavior. Generic triangle/material budgets, pivot/UV expectations, naming conventions, and LOD transition defaults live in the reusable `realtime-default` production policy. The policy is resolved automatically for backwards-compatible CLI behavior and can be overridden by a project profile.
 
 ## Quick start
 
