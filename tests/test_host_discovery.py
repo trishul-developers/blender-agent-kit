@@ -78,6 +78,16 @@ class DiscoveryTests(unittest.TestCase):
         self.assertEqual(contract["textures"]["profile"], "urp")
         self.assertIn("metallic_smoothness", contract["textures"]["maps"])
         self.assertTrue(contract["export"]["roundtrip"]["enabled_by_default"])
+        self.assertEqual(contract["review"]["default_style"], "technical")
+        self.assertEqual(contract["review"]["selected_style"], "technical")
+        self.assertEqual(
+            contract["review"]["available_styles"],
+            ["showcase", "technical"],
+        )
+        self.assertEqual(
+            contract["review"]["style_settings"]["engine"],
+            "BLENDER_EEVEE_NEXT",
+        )
 
     def test_contract_includes_project_override_and_review_preset(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -120,7 +130,7 @@ class DiscoveryTests(unittest.TestCase):
 
     def test_run_py_host_discovery_never_launches_blender(self):
         entry = _entrypoint()
-        self.assertEqual(HOST_SUBCOMMANDS, {"capabilities", "contract"})
+        self.assertEqual(HOST_SUBCOMMANDS, {"capabilities", "contract", "deliver"})
         with patch("shared.runner.find_blender", side_effect=AssertionError("Blender discovery forbidden")):
             out = io.StringIO()
             with contextlib.redirect_stdout(out):
