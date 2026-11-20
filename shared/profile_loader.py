@@ -1,4 +1,4 @@
-"""Optional project-profile discovery and target overlay resolution."""
+"""Resolve engine target -> default production policy -> optional project profile."""
 from __future__ import annotations
 
 import json
