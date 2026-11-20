@@ -475,8 +475,8 @@ def run() -> dict:
     scene = bpy.context.scene
     camera = _ensure_camera(scene)
     device = configure_review_engine(scene, technical["engine"], device="auto")
-    assert device == "EEVEE_NEXT", device
-    assert scene.render.engine == "BLENDER_EEVEE"
+    assert device in ("CPU", "GPU:OPTIX", "GPU:CUDA", "GPU:HIP", "GPU:METAL", "GPU:ONEAPI"), device
+    assert scene.render.engine == "CYCLES"
     _configure_world(scene, technical)
     assert tuple(round(float(v), 3) for v in scene.world.color) == (0.18, 0.19, 0.2)
     _ensure_lighting(scene, [0.0, 0.0, 0.0], 0.5, technical["lighting"])
