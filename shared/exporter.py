@@ -169,7 +169,7 @@ def _temporary_export_state(
     zero_root_object=None,
     is_rigged: bool = False,
     lod_pattern: str | None = None,
-    collider_pattern: str | None = None,
+    collider_patterns: str | list[str] | None = None,
 ):
     """Temporarily convert a static Blender hierarchy into a Unity-friendly Y-up basis.
 
@@ -258,7 +258,7 @@ def _temporary_export_state(
         expected_inventory = inspect_objects(
             ordered,
             lod_pattern=lod_pattern,
-            collider_pattern=collider_pattern,
+            collider_patterns=collider_patterns,
         )
         expected_inventory["coordinate_basis"] = "unity_y_up" if prebake else "blender_native"
         expected_inventory["export_name_map"] = {
@@ -284,7 +284,7 @@ def export_selected(
     objects: list | None = None,
     zero_root_object=None,
     lod_pattern: str | None = None,
-    collider_pattern: str | None = None,
+    collider_patterns: str | list[str] | None = None,
 ) -> dict:
     import bpy
 
@@ -295,7 +295,7 @@ def export_selected(
         zero_root_object=zero_root_object,
         is_rigged=is_rigged,
         lod_pattern=lod_pattern,
-        collider_pattern=collider_pattern,
+        collider_patterns=collider_patterns,
     ) as expected:
         fmt = export_file.suffix.lower().lstrip(".")
         if fmt == "fbx":
@@ -357,7 +357,7 @@ def roundtrip_file(
     imported_inventory = inspect_scene(
         damage_prefix=source_inventory.get("damage_prefix"),
         lod_pattern=classification.get("lod_pattern"),
-        collider_pattern=classification.get("collider_pattern"),
+        collider_patterns=classification.get("collider_patterns") or classification.get("collider_pattern"),
     )
     expected_objects = {o["name"] for o in source_inventory["objects"]}
     imported_objects = {o["name"] for o in imported_inventory["objects"]}
@@ -502,7 +502,7 @@ def run(
         objs,
         damage_prefix=damage_prefix,
         lod_pattern=naming.get("lod_pattern"),
-        collider_pattern=naming.get("collider_pattern"),
+        collider_patterns=naming.get("collider_patterns") or naming.get("collider_pattern"),
     )
     expected_inventory = export_selected(
         export_cfg,
@@ -510,7 +510,7 @@ def run(
         is_rigged=is_rigged,
         objects=objs,
         lod_pattern=naming.get("lod_pattern"),
-        collider_pattern=naming.get("collider_pattern"),
+        collider_patterns=naming.get("collider_patterns") or naming.get("collider_pattern"),
     )
     expected_inventory["damage_prefix"] = damage_prefix
 
