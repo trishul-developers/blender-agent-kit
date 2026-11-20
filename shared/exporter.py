@@ -10,7 +10,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 from shared.profile_loader import load_profiled_target
-from shared.scene_inspector import inspect_objects, inspect_scene
+from shared.scene_inspector import collider_patterns_from_naming, inspect_objects, inspect_scene
 from shared.version import KIT_VERSION
 
 
@@ -502,7 +502,7 @@ def run(
         objs,
         damage_prefix=damage_prefix,
         lod_pattern=naming.get("lod_pattern"),
-        collider_patterns=naming.get("collider_patterns") or naming.get("collider_pattern"),
+        collider_patterns=collider_patterns_from_naming(naming),
     )
     expected_inventory = export_selected(
         export_cfg,
@@ -510,7 +510,7 @@ def run(
         is_rigged=is_rigged,
         objects=objs,
         lod_pattern=naming.get("lod_pattern"),
-        collider_patterns=naming.get("collider_patterns") or naming.get("collider_pattern"),
+        collider_patterns=collider_patterns_from_naming(naming),
     )
     expected_inventory["damage_prefix"] = damage_prefix
 
