@@ -311,7 +311,22 @@ python skills/core/blender-core/scripts/run.py review \
   --blend asset.blend --device auto --out review/
 ```
 
-## Production capabilities in v0.2
+## What's new in v0.2.3
+
+v0.2.3 focuses on **agent efficiency, explicit policy boundaries, reproducibility, and measurable automation**:
+
+- **Agent-first discovery:** `capabilities --json` and `contract` expose executable truth and resolved production requirements without launching Blender.
+- **31.7% slimmer hot-path skills:** the 10 primary `SKILL.md` files dropped from ~1,800 to 1,229 words while retaining critical Blender/PBR guardrails.
+- **Engine/policy separation:** Unity owns engine semantics; reusable `realtime-default` owns generic triangle/material/pivot/UV/naming policy.
+- **Configurable review styles:** headless-safe `technical` and presentation-oriented `showcase` styles replace hidden camera/light/render constants.
+- **QA-gated `deliver`:** inspect → QA → optional pack → review → export/bundle, with fail-closed gating and per-stage timings.
+- **Executable `batch`:** bounded folder QA/pack/export/bundle/deliver with safe source/config/tool/Blender-aware caching and measured telemetry.
+- **Canonical demo entrypoints:** `demo/SupplyCrate/run_demo.py` and `demo/SciFiKit/run_demo.py` provide full and CI-smoke reproduction paths.
+- **Current Sci-Fi material proof:** canonical reproduction validates the optional source-bound Unity `_EmissionMap`.
+
+See [v0.2.3 release notes](RELEASES/v0.2.3.md) for the complete evidence, benchmark context, compatibility notes, and limits.
+
+## Production capabilities in v0.2.x
 
 Compared with v0.1, v0.2 adds:
 
