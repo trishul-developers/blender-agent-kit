@@ -1,0 +1,239 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/trishul-developers/blender-agent-kit/schemas/contract.schema.json",
+  "title": "Blender Agent Kit Resolved Production Contract",
+  "type": "object",
+  "required": [
+    "status",
+    "target",
+    "project_profile",
+    "asset_class",
+    "naming",
+    "qa",
+    "textures",
+    "export",
+    "review",
+    "known_limits"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "status": {
+      "const": "ok"
+    },
+    "target": {
+      "type": "object",
+      "required": [
+        "name",
+        "version",
+        "units",
+        "default_policy"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "units": {
+          "type": "object"
+        },
+        "default_policy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "project_profile": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "asset_class": {
+      "type": "string"
+    },
+    "naming": {
+      "type": "object",
+      "required": [
+        "lod_pattern",
+        "collider_patterns",
+        "directional_empty_patterns"
+      ],
+      "properties": {
+        "lod_pattern": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "collider_patterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "texture_pattern": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "manifest_file": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "directional_empty_patterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "strip_lod_suffix_pattern": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "qa": {
+      "type": "object",
+      "required": [
+        "transforms",
+        "topology",
+        "uv",
+        "lod",
+        "materials",
+        "pivot",
+        "ground",
+        "rigging",
+        "hierarchy",
+        "damage"
+      ]
+    },
+    "textures": {
+      "type": "object",
+      "required": [
+        "profile",
+        "shader",
+        "normal_convention",
+        "maps"
+      ],
+      "properties": {
+        "profile": {
+          "type": "string"
+        },
+        "shader": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "normal_convention": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "maps": {
+          "type": "object"
+        }
+      }
+    },
+    "export": {
+      "type": "object",
+      "required": [
+        "format",
+        "forward_axis",
+        "up_axis",
+        "roundtrip"
+      ],
+      "properties": {
+        "format": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "alt_static_format": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "forward_axis": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "up_axis": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "prebake_yup_hierarchy": {
+          "type": "boolean"
+        },
+        "object_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "lod_screen_transitions": {
+          "type": "object"
+        },
+        "embed_textures": {
+          "type": "boolean"
+        },
+        "roundtrip": {
+          "type": "object"
+        }
+      }
+    },
+    "review": {
+      "type": "object",
+      "required": [
+        "available_presets",
+        "selected_preset",
+        "settings"
+      ],
+      "properties": {
+        "available_presets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "selected_preset": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "settings": {
+          "type": [
+            "object",
+            "null"
+          ]
+        }
+      }
+    },
+    "known_limits": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}
