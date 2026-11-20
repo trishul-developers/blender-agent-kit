@@ -5,7 +5,8 @@ import json
 from pathlib import Path
 
 from shared.paths import resolve_kit_root
-from shared.target_loader import load_target
+from shared.policy_loader import load_policy, policy_overlay_for_target
+from shared.target_loader import deep_merge_dict, load_target
 
 
 def list_project_profiles(kit_root: Path | None = None) -> dict[str, Path]:
@@ -62,12 +63,26 @@ def load_profiled_target(
     texture_profile: str | None = None,
     project_profile: str | Path | None = None,
     kit_root: Path | None = None,
+    policy: str | Path | None = None,
 ) -> tuple[dict, str, Path, dict | None, Path | None]:
+    """Resolve engine target -> reusable production policy -> project overlay.
+
+    The target owns engine semantics. A target may name a default production
+    policy (for example realtime-default), and a project profile is then merged
+    on top. Supplying policy explicitly is primarily for tests/migrations.
+    """
+    base_cfg, _, _ = load_target(target_name, kit_root=kit_root)
+    policy_id = policy if policy is not None else base_cfg.get("default_policy")
+    policy_data, _ = load_policy(policy_id, kit_root=kit_root)
+    overlay = policy_overlay_for_target(policy_data, target_name)
+
     project_data, project_path = load_project_profile(project_profile, kit_root=kit_root)
     short = target_name.removeprefix("blender-target-")
-    overlay = None
     if project_data:
-        overlay = project_data.get("target_overrides", {}).get(short)
+        project_overlay = project_data.get("target_overrides", {}).get(short)
+        if project_overlay:
+            overlay = deep_merge_dict(overlay or {}, project_overlay)
+
     target_cfg, chosen_profile, target_dir = load_target(
         target_name,
         profile=texture_profile,
