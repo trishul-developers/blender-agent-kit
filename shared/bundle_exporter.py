@@ -141,7 +141,7 @@ def run(
             objects,
             damage_prefix=damage_prefix,
             lod_pattern=naming.get("lod_pattern"),
-            collider_pattern=naming.get("collider_pattern"),
+            collider_patterns=naming.get("collider_patterns") or naming.get("collider_pattern"),
         )
         fmt = str(part.get("format") or export_cfg["format"]).lower()
         filename = part.get("file") or f"{part['id']}.{fmt}"
@@ -162,7 +162,7 @@ def run(
             objects=objects,
             zero_root_object=root_object if zero_root else None,
             lod_pattern=naming.get("lod_pattern"),
-            collider_pattern=naming.get("collider_pattern"),
+            collider_patterns=naming.get("collider_patterns") or naming.get("collider_pattern"),
         )
         export_inventory["damage_prefix"] = damage_prefix
         export_root_name = None
