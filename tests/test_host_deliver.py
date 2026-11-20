@@ -11,6 +11,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from shared import deliver
+from tools.validate_skills import validate_json_instance
 
 ROOT = Path(__file__).resolve().parents[1]
 ENTRY = ROOT / "skills/core/blender-core/scripts/run.py"
@@ -92,6 +93,16 @@ class DeliverTests(unittest.TestCase):
             self.assertIn("technical", calls[2][1])
             self.assertTrue(result["qa_gate"]["passed"])
             self.assertGreaterEqual(result["duration_ms"], 0)
+            try:
+                import jsonschema  # noqa: F401
+            except ImportError:
+                pass
+            else:
+                schema = json.loads((ROOT / "schemas/delivery.schema.json").read_text())
+                self.assertEqual(
+                    validate_json_instance(result, schema, "delivery", require_jsonschema=True),
+                    [],
+                )
 
     def test_pack_is_opt_in_and_requires_material_identity(self):
         with tempfile.TemporaryDirectory() as directory:
