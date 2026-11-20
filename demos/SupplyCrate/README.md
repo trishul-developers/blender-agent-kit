@@ -1,5 +1,8 @@
 # SupplyCrate — Blender Agent Kit demo
 
+> **Historical v0.2.1 lineage.** This directory is retained for release provenance/backwards links and is no longer the canonical v0.2.3+ reproduction path. Use [the canonical source-bound demo](../../demo/SupplyCrate/README.md).
+
+
 A deterministic procedural supply crate generated end-to-end through Blender Agent Kit (Blender 5.2.2 LTS, Unity target, `prop-showcase` demo profile).
 
 This demo is intentionally non-project-specific: it shows how an agent can create geometry and textures, validate production constraints, generate LOD/collision outputs, render review evidence, and export a semantic engine bundle.
