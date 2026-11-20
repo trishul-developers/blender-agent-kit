@@ -535,12 +535,21 @@ def run(
         int(index): float(value)
         for index, value in export_cfg.get("lod_screen_transitions", {}).items()
     }
+    lod_name_pattern = naming.get("lod_pattern")
     for index_text, data in source_inventory["lods"].items():
         index = int(index_text)
+        if not lod_name_pattern:
+            raise ValueError(
+                "Resolved policy/target must define naming.lod_pattern before asset manifest export"
+            )
+        if index not in transitions:
+            raise ValueError(
+                f"Resolved policy/target has no export.lod_screen_transitions entry for LOD{index}"
+            )
         lods.append({
-            "name": f"{aid}_LOD{index}",
+            "name": str(lod_name_pattern).format(name=aid, index=index),
             "tri_count": int(data["tri_count"]),
-            "screen_relative_transition_height": transitions.get(index, 0.01),
+            "screen_relative_transition_height": transitions[index],
         })
 
     colliders = [
