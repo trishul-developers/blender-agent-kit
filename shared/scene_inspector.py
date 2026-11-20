@@ -34,7 +34,7 @@ def _format_name_regex(pattern: str, *, capture_index: bool = False) -> re.Patte
         if field_name is None:
             continue
         if field_name == "index":
-            pieces.append(r"(?P<index>\\d+)" if capture_index else r"\\d+")
+            pieces.append(r"(?P<index>\d+)" if capture_index else r"\d+")
         elif field_name == "name":
             pieces.append(r".+?")
         else:
@@ -53,10 +53,19 @@ def lod_index(obj, lod_pattern: str | None = None) -> int:
     return 0
 
 
-def is_collider_name(name: str, collider_pattern: str | None = None) -> bool:
-    if not collider_pattern:
-        return False
-    return bool(_format_name_regex(collider_pattern).match(name))
+def _pattern_list(patterns: str | list[str] | None) -> list[str]:
+    if patterns is None:
+        return []
+    if isinstance(patterns, str):
+        return [patterns]
+    return [str(pattern) for pattern in patterns if str(pattern)]
+
+
+def is_collider_name(name: str, collider_patterns: str | list[str] | None = None) -> bool:
+    return any(
+        _format_name_regex(pattern).match(name)
+        for pattern in _pattern_list(collider_patterns)
+    )
 
 
 def _is_excluded_from_lod(obj, patterns: list[str] | None) -> bool:
@@ -122,7 +131,7 @@ def inspect_objects(
     damage_prefix: str | None = None,
     lod_exclude_patterns: list[str] | None = None,
     lod_pattern: str | None = None,
-    collider_pattern: str | None = None,
+    collider_patterns: str | list[str] | None = None,
 ) -> dict:
     import bmesh
     import bpy
@@ -148,7 +157,7 @@ def inspect_objects(
 
     for obj in sorted(selected, key=lambda o: o.name):
         plus_y, plus_z = _basis_vectors(obj)
-        is_collider = is_collider_name(obj.name, collider_pattern)
+        is_collider = is_collider_name(obj.name, collider_patterns)
         excluded_from_lod = is_collider or _is_excluded_from_lod(obj, lod_exclude_patterns)
         entry = {
             "name": obj.name,
@@ -258,7 +267,7 @@ def inspect_objects(
         "damage_prefix": damage_prefix,
         "classification": {
             "lod_pattern": lod_pattern,
-            "collider_pattern": collider_pattern,
+            "collider_patterns": _pattern_list(collider_patterns),
         },
         "roots": roots,
         "bounds": bounds,
@@ -272,13 +281,13 @@ def inspect_scene(
     damage_prefix: str | None = None,
     lod_exclude_patterns: list[str] | None = None,
     lod_pattern: str | None = None,
-    collider_pattern: str | None = None,
+    collider_patterns: str | list[str] | None = None,
 ) -> dict:
     return inspect_objects(
         damage_prefix=damage_prefix,
         lod_exclude_patterns=lod_exclude_patterns,
         lod_pattern=lod_pattern,
-        collider_pattern=collider_pattern,
+        collider_patterns=collider_patterns,
     )
 
 
@@ -305,6 +314,6 @@ def cli_main(argv: list[str]) -> dict:
             damage_prefix=damage_prefix,
             lod_exclude_patterns=list(common.get("lod_exclude_patterns", [])),
             lod_pattern=naming.get("lod_pattern"),
-            collider_pattern=naming.get("collider_pattern"),
+            collider_patterns=naming.get("collider_patterns") or naming.get("collider_pattern"),
         ),
     }
