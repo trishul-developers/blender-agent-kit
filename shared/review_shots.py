@@ -5,8 +5,8 @@ import argparse
 import math
 from pathlib import Path
 
-from shared.profile_loader import load_project_profile
-from shared.scene_inspector import inspect_objects, inspect_scene, lod_index
+from shared.profile_loader import load_profiled_target
+from shared.scene_inspector import inspect_objects, inspect_scene, is_collider_name, lod_index
 
 
 def configure_cycles_device(scene, device: str = "auto") -> str:
@@ -136,11 +136,6 @@ def _configure_range(
     _look_at(camera, center)
 
 
-def _is_collision_name(name: str) -> bool:
-    upper = name.upper()
-    return upper.startswith("COLLISION_") or "_COL_" in upper or upper.endswith("_COL")
-
-
 def _hierarchy_names(obj) -> list[str]:
     names = [obj.name]
     parent = obj.parent
@@ -174,6 +169,8 @@ def _set_mesh_visibility(
     collision_only: bool = False,
     include_patterns: list[str] | None = None,
     exclude_patterns: list[str] | None = None,
+    lod_pattern: str | None = None,
+    collider_pattern: str | None = None,
 ) -> dict:
     saved = {o.name: bool(o.hide_render) for o in scene.objects if o.type == "MESH"}
     damage_targets = {
@@ -188,15 +185,15 @@ def _set_mesh_visibility(
         if obj.type != "MESH":
             continue
         if collision_only:
-            visible = _is_collision_name(obj.name)
+            visible = is_collider_name(obj.name, collider_pattern)
         else:
-            visible = not _is_collision_name(obj.name)
+            visible = not is_collider_name(obj.name, collider_pattern)
             if include_patterns:
                 visible = visible and _matches_hierarchy_patterns(obj, include_patterns)
             if exclude_patterns:
                 visible = visible and not _matches_hierarchy_patterns(obj, exclude_patterns)
             if lod is not None:
-                visible = visible and lod_index(obj) == lod
+                visible = visible and lod_index(obj, lod_pattern) == lod
             if damage_mode == "intact" and damage_prefix and obj.name.startswith(damage_prefix):
                 visible = False
             elif damage_mode == "damage":
@@ -250,30 +247,36 @@ def _set_collision_overlay_visibility(
     lod: int | None,
     damage_prefix: str = "Damage_",
     exclude_patterns: list[str] | None = None,
+    lod_pattern: str | None = None,
+    collider_pattern: str | None = None,
 ) -> dict:
     """Show collision meshes together with the intact primary LOD for review."""
     saved = {o.name: bool(o.hide_render) for o in scene.objects if o.type == "MESH"}
     for obj in scene.objects:
         if obj.type != "MESH":
             continue
-        if _is_collision_name(obj.name):
+        if is_collider_name(obj.name, collider_pattern):
             visible = True
         else:
             visible = not _matches_hierarchy_patterns(obj, exclude_patterns)
             if lod is not None:
-                visible = visible and lod_index(obj) == lod
+                visible = visible and lod_index(obj, lod_pattern) == lod
             if damage_prefix and obj.name.startswith(damage_prefix):
                 visible = False
         obj.hide_render = not visible
     return saved
 
 
-def _prepare_collision_wireframe(scene, radius: float) -> list[dict]:
+def _prepare_collision_wireframe(
+    scene,
+    radius: float,
+    collider_pattern: str | None = None,
+) -> list[dict]:
     """Temporarily render visible collision meshes as emissive wireframe overlays."""
     material = _collision_material()
     state: list[dict] = []
     for obj in scene.objects:
-        if obj.type != "MESH" or obj.hide_render or not _is_collision_name(obj.name):
+        if obj.type != "MESH" or obj.hide_render or not is_collider_name(obj.name, collider_pattern):
             continue
         original_materials = [m for m in obj.data.materials]
         obj.data.materials.clear()
@@ -340,6 +343,7 @@ def _render_reference_silhouette(
     out_file: Path,
     damage_prefix: str = "Damage_",
     exclude_patterns: list[str] | None = None,
+    collider_pattern: str | None = None,
 ) -> dict:
     import bpy
 
@@ -349,7 +353,7 @@ def _render_reference_silhouette(
     for obj in imported:
         if obj.type == "MESH" and (
             obj.name.startswith(damage_prefix)
-            or _is_collision_name(obj.name)
+            or is_collider_name(obj.name, collider_pattern)
             or _matches_hierarchy_patterns(obj, exclude_patterns)
         ):
             obj.hide_render = True
@@ -384,13 +388,19 @@ def run(
     height: int | None = None,
     samples: int = 16,
     views: list[str] | None = None,
+    target: str = "unity",
     project_profile: str | None = None,
     preset: str | None = None,
     reference_fbx: str | None = None,
 ) -> dict:
     import bpy
 
-    project_data, _ = load_project_profile(project_profile) if project_profile else (None, None)
+    target_cfg, _, _, project_data, _ = load_profiled_target(
+        target, project_profile=project_profile
+    )
+    naming = target_cfg.get("naming", {})
+    lod_pattern = naming.get("lod_pattern")
+    collider_pattern = naming.get("collider_pattern")
     preset_cfg = {}
     if project_data and preset:
         preset_cfg = dict(project_data.get("review_presets", {}).get(preset, {}))
@@ -403,13 +413,14 @@ def run(
     # Inventory must use the same generic LOD exclusions as target/profile QA.
     # A review stage has no target argument; union configured target exclusions
     # rather than hardcoding a game or engine target.
-    exclusions = set(preset_cfg.get("lod_exclude_patterns", []))
-    if project_data:
-        for target_override in project_data.get("target_overrides", {}).values():
-            exclusions.update(target_override.get("qa", {}).get("common", {}).get("lod_exclude_patterns", []))
+    common = target_cfg.get("qa", {}).get("common", {})
+    exclusions = set(common.get("lod_exclude_patterns", []))
+    exclusions.update(preset_cfg.get("lod_exclude_patterns", []))
     inventory = inspect_scene(
-        damage_prefix=preset_cfg.get("damage_prefix"),
+        damage_prefix=preset_cfg.get("damage_prefix", common.get("damage_prefix")),
         lod_exclude_patterns=sorted(exclusions),
+        lod_pattern=lod_pattern,
+        collider_pattern=collider_pattern,
     )
     if not inventory["bounds"]:
         raise ValueError("Cannot render review sheet: scene has no mesh bounds")
@@ -465,6 +476,8 @@ def run(
             damage_mode="intact",
             damage_prefix=damage_prefix,
             exclude_patterns=exclude_patterns,
+            lod_pattern=lod_pattern,
+            collider_pattern=collider_pattern,
         )
         try:
             bounds = _bounds_from_visible(scene)
@@ -498,6 +511,8 @@ def run(
                 damage_mode="intact",
                 damage_prefix=damage_prefix,
                 exclude_patterns=exclude_patterns,
+                lod_pattern=lod_pattern,
+                collider_pattern=collider_pattern,
             )
             try:
                 bounds = _bounds_from_visible(scene)
@@ -529,6 +544,8 @@ def run(
                 damage_mode="damage",
                 damage_prefix=damage_prefix,
                 exclude_patterns=exclude_patterns,
+                lod_pattern=lod_pattern,
+                collider_pattern=collider_pattern,
             )
             try:
                 bounds = _bounds_from_visible(scene)
@@ -557,6 +574,8 @@ def run(
             damage_prefix=damage_prefix,
             include_patterns=include,
             exclude_patterns=variant_exclude,
+            lod_pattern=lod_pattern,
+            collider_pattern=collider_pattern,
         )
         try:
             bounds = _bounds_from_visible(scene)
@@ -586,13 +605,17 @@ def run(
             lod=int(preset_cfg.get("primary_lod", 0)),
             damage_prefix=damage_prefix,
             exclude_patterns=exclude_patterns,
+            lod_pattern=lod_pattern,
+            collider_pattern=collider_pattern,
         )
         wireframe_state: list[dict] = []
         try:
             bounds = _bounds_from_visible(scene)
             if bounds:
                 r = max(max(bounds["size"]) * 0.6, 0.5)
-                wireframe_state = _prepare_collision_wireframe(scene, r)
+                wireframe_state = _prepare_collision_wireframe(
+                    scene, r, collider_pattern=collider_pattern
+                )
                 if wireframe_state:
                     _configure_view(camera, "hero", bounds["center"], r)
                     out_file = out_path / "review_collision_outline.png"
@@ -610,6 +633,8 @@ def run(
             damage_mode="intact",
             damage_prefix=damage_prefix,
             exclude_patterns=exclude_patterns,
+            lod_pattern=lod_pattern,
+            collider_pattern=collider_pattern,
         )
         try:
             subject_bounds = _bounds_from_visible(scene)
@@ -622,6 +647,7 @@ def run(
                     out_path / "review_silhouette_comparison.png",
                     damage_prefix=damage_prefix,
                     exclude_patterns=reference_exclude_patterns,
+                    collider_pattern=collider_pattern,
                 )
         finally:
             _restore_visibility(scene, saved)
@@ -631,6 +657,7 @@ def run(
         "blender_version": bpy.app.version_string,
         "device": active_device,
         "resolution": [render_w, render_h],
+        "target": target_cfg["name"],
         "project_profile": project_data["name"] if project_data else None,
         "preset": preset,
         "inventory": inventory,
@@ -647,6 +674,7 @@ def cli_main(argv: list[str]) -> dict:
     p.add_argument("--height", type=int, default=None)
     p.add_argument("--samples", type=int, default=16)
     p.add_argument("--views", default=None)
+    p.add_argument("--target", default="unity")
     p.add_argument("--project-profile", default=None)
     p.add_argument("--preset", default=None)
     p.add_argument("--reference-fbx", default=None)
@@ -660,6 +688,7 @@ def cli_main(argv: list[str]) -> dict:
         height=ns.height,
         samples=ns.samples,
         views=views,
+        target=ns.target,
         project_profile=ns.project_profile,
         preset=ns.preset,
         reference_fbx=ns.reference_fbx,
