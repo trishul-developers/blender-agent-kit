@@ -4,6 +4,7 @@
 Usage:
   python <blender-core>/scripts/run.py capabilities --json
   python <blender-core>/scripts/run.py contract --target unity --asset-class solid_prop
+  python <blender-core>/scripts/run.py deliver --blend in.blend --target unity --asset-class solid_prop
   python <blender-core>/scripts/run.py doctor [--device auto|gpu|cpu]
   python <blender-core>/scripts/run.py qa --blend in.blend --target unity --asset-class solid_prop
   python <blender-core>/scripts/run.py export --blend in.blend --target unity --profile urp --out build/
@@ -77,13 +78,25 @@ def main(argv: list[str] | None = None) -> int:
     known, remainder = parser.parse_known_args(raw_args)
 
     if known.subcommand in HOST_SUBCOMMANDS:
-        if known.blend or known.blender or known.addons:
-            parser.error(
-                f"{known.subcommand} is host-only; --blend/--blender/--addons are not applicable"
-            )
+        spec = COMMANDS[known.subcommand]
+        allowed = set(spec.get("host_options", []))
+        host_args = list(remainder)
+        host_values = {
+            "blend": known.blend,
+            "blender": known.blender,
+            "addons": known.addons,
+        }
+        for name, value in host_values.items():
+            if value is None:
+                continue
+            if name not in allowed:
+                parser.error(
+                    f"{known.subcommand} is host-only; --{name} is not applicable"
+                )
+            host_args = [f"--{name}", str(value), *host_args]
         result = run_host_module(
             module_name=SUBCOMMAND_TO_MODULE[known.subcommand],
-            module_args=remainder,
+            module_args=host_args,
         )
     else:
         addon_list = [a.strip() for a in known.addons.split(",") if a.strip()] if known.addons else None
