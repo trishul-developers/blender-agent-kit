@@ -225,6 +225,14 @@
         },
         "manifest_file": {
           "type": "string"
+        },
+        "collider_patterns": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
         }
       }
     },
